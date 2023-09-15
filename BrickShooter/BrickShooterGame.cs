@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Numerics;
 
 namespace BrickShooter
 {
@@ -48,6 +49,19 @@ namespace BrickShooter
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             GlobalObjects.SpriteBatch.Begin();
+
+            var gameBackground = new Texture2D(GlobalObjects.Graphics.GraphicsDevice, GlobalObjects.Graphics.GraphicsDevice.Viewport.Width, GlobalObjects.Graphics.GraphicsDevice.Viewport.Height);
+            gameBackground.SetData(new Color[] { Color.Black });
+            GlobalObjects.SpriteBatch.Draw(
+                gameBackground,
+                Microsoft.Xna.Framework.Vector2.Zero,
+                null,
+                Color.White,
+                0f,
+                Microsoft.Xna.Framework.Vector2.Zero,
+                Microsoft.Xna.Framework.Vector2.One,
+                SpriteEffects.None,
+                -1);
 
             level.Draw();
 

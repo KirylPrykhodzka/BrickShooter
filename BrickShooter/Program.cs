@@ -1,3 +1,14 @@
 ﻿
+
+using System;
+
 using var game = new BrickShooter.BrickShooterGame();
-game.Run();
+try
+{
+    game.Run();
+}
+catch(Exception e)
+{
+    game.Dispose();
+    throw;
+}
