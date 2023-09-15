@@ -9,5 +9,6 @@ namespace BrickShooter
         public static GraphicsDeviceManager Graphics { get; set; }
         public static SpriteBatch SpriteBatch { get; set; }
         public static ContentManager Content { get; set; }
+        public static GameTime GameTime { get; set; }
     }
 }

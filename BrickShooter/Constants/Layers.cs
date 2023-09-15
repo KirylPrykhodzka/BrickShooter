@@ -1,4 +1,4 @@
-﻿namespace BrickShooter
+﻿namespace BrickShooter.Constants
 {
     public static class Layers
     {

@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Numerics;
 
 namespace BrickShooter
 {
@@ -13,9 +12,8 @@ namespace BrickShooter
         public BrickShooterGame()
         {
             GlobalObjects.Graphics = new GraphicsDeviceManager(this);
-            GlobalObjects.Graphics.IsFullScreen = true;
-            GlobalObjects.Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            GlobalObjects.Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            GlobalObjects.Graphics.PreferredBackBufferWidth = 1920;
+            GlobalObjects.Graphics.PreferredBackBufferHeight = 1080;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -37,36 +35,21 @@ namespace BrickShooter
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            GlobalObjects.GameTime = gameTime;
 
-            // TODO: Add your update logic here
+            level.Update();
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-            GlobalObjects.SpriteBatch.Begin();
-
-            var gameBackground = new Texture2D(GlobalObjects.Graphics.GraphicsDevice, GlobalObjects.Graphics.GraphicsDevice.Viewport.Width, GlobalObjects.Graphics.GraphicsDevice.Viewport.Height);
-            gameBackground.SetData(new Color[] { Color.Black });
-            GlobalObjects.SpriteBatch.Draw(
-                gameBackground,
-                Microsoft.Xna.Framework.Vector2.Zero,
-                null,
-                Color.White,
-                0f,
-                Microsoft.Xna.Framework.Vector2.Zero,
-                Microsoft.Xna.Framework.Vector2.One,
-                SpriteEffects.None,
-                -1);
+            GraphicsDevice.Clear(Color.Black);
+            GlobalObjects.SpriteBatch.Begin(SpriteSortMode.FrontToBack);
 
             level.Draw();
 
             GlobalObjects.SpriteBatch.End();
-
             base.Draw(gameTime);
         }
     }

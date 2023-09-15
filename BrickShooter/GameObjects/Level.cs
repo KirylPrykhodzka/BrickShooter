@@ -1,5 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BrickShooter.Constants;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace BrickShooter.GameObjects
 {
@@ -8,13 +11,18 @@ namespace BrickShooter.GameObjects
         private Texture2D background = GlobalObjects.Content.Load<Texture2D>("Background/background_starrysky");
         private Player player = new Player();
 
+        public void Update()
+        {
+            player.Update();
+        }
+
         public void Draw()
         {
             int w = (int)(GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Width * 0.8);
             int h = (int)(GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Height * 0.9);
             GlobalObjects.SpriteBatch.Draw(
                 background,
-                new Rectangle(0, 0, w, h),
+                new Rectangle((GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Width - w) / 2, Math.Abs(h - GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Height) / 2, w, h),
                 null,
                 Color.White,
                 0f,
