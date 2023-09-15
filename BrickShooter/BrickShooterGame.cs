@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BrickShooter.GameObjects;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -6,12 +7,14 @@ namespace BrickShooter
 {
     public class BrickShooterGame : Game
     {
-        private GraphicsDeviceManager graphics;
-        private SpriteBatch spriteBatch;
+        private Level level;
 
         public BrickShooterGame()
         {
-            graphics = new GraphicsDeviceManager(this);
+            GlobalObjects.Graphics = new GraphicsDeviceManager(this);
+            GlobalObjects.Graphics.IsFullScreen = true;
+            GlobalObjects.Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            GlobalObjects.Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -23,11 +26,12 @@ namespace BrickShooter
             base.Initialize();
         }
 
-        protected override void LoadContent()
+         protected override void LoadContent()
         {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            GlobalObjects.SpriteBatch = new SpriteBatch(GraphicsDevice);
+            GlobalObjects.Content = Content;
 
-            // TODO: use this.Content to load your game content here
+            level = new Level();
         }
 
         protected override void Update(GameTime gameTime)
@@ -43,8 +47,11 @@ namespace BrickShooter
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+            GlobalObjects.SpriteBatch.Begin();
 
-            // TODO: Add your drawing code here
+            level.Draw();
+
+            GlobalObjects.SpriteBatch.End();
 
             base.Draw(gameTime);
         }
