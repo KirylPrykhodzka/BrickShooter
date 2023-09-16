@@ -28,23 +28,29 @@ namespace BrickShooter.GameObjects
 
         private void UpdatePosition()
         {
+            Vector2 movement = Vector2.Zero;
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
             {
-                currentPosition.Y -= (float)(PlayerConstants.speed * GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds);
+                movement.Y -= 1;
             }
             if (pressedKeys.Contains(Keys.S))
             {
-                currentPosition.Y += (float)(PlayerConstants.speed * GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds);
+                movement.Y += 1;
             }
             if (pressedKeys.Contains(Keys.A))
             {
-                currentPosition.X -= (float)(PlayerConstants.speed * GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds);
+                movement.X -= 1;
             }
             if (pressedKeys.Contains(Keys.D))
             {
-                currentPosition.X += (float)(PlayerConstants.speed * GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds);
+                movement.X += 1;
             }
+            if(movement.X != 0 && movement.Y != 0)
+            {
+                movement *= (float)Math.Sqrt(2) / 2;
+            }
+            currentPosition += new Vector2(movement.X * PlayerConstants.speed * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds, movement.Y * PlayerConstants.speed * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds);
         }
 
         private void UpdateRotation()
