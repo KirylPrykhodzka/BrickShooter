@@ -12,6 +12,7 @@ namespace BrickShooter.GameObjects
         public Texture2D playerSprite;
 
         Vector2 currentPosition;
+        Vector2 velocity;
         float rotation;
 
         public Player()
@@ -22,35 +23,36 @@ namespace BrickShooter.GameObjects
 
         public void Update()
         {
-            UpdatePosition();
+            UpdateVelocityAndPosition();
             UpdateRotation();
         }
 
-        private void UpdatePosition()
+        private void UpdateVelocityAndPosition()
         {
-            Vector2 movement = Vector2.Zero;
+            velocity = Vector2.Zero;
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
             {
-                movement.Y -= 1;
+                velocity.Y -= 1;
             }
             if (pressedKeys.Contains(Keys.S))
             {
-                movement.Y += 1;
+                velocity.Y += 1;
             }
             if (pressedKeys.Contains(Keys.A))
             {
-                movement.X -= 1;
+                velocity.X -= 1;
             }
             if (pressedKeys.Contains(Keys.D))
             {
-                movement.X += 1;
+                velocity.X += 1;
             }
-            if(movement.X != 0 && movement.Y != 0)
+            if(velocity.X != 0 && velocity.Y != 0)
             {
-                movement *= (float)Math.Sqrt(2) / 2;
+                velocity *= (float)Math.Sqrt(2) / 2;
             }
-            currentPosition += new Vector2(movement.X * PlayerConstants.speed * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds, movement.Y * PlayerConstants.speed * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds);
+            velocity *= PlayerConstants.MAX_VELOCITY;
+            currentPosition += velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
         }
 
         private void UpdateRotation()

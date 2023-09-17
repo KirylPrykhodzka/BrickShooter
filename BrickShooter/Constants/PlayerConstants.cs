@@ -2,6 +2,6 @@
 {
     public class PlayerConstants
     {
-        public const int speed = 220;
+        public const int MAX_VELOCITY = 220;
     }
 }
