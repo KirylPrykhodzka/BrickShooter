@@ -23,36 +23,112 @@ namespace BrickShooter.GameObjects
 
         public void Update()
         {
-            UpdateVelocityAndPosition();
+            UpdatePositionAndVelocity();
             UpdateRotation();
         }
 
-        private void UpdateVelocityAndPosition()
+        private void UpdatePositionAndVelocity()
         {
-            velocity = Vector2.Zero;
+            currentPosition += velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
             {
-                velocity.Y -= 1;
+                if(velocity.Y > 0)
+                {
+                    velocity.Y = 0;
+                }
+                else
+                {
+                    Accelerate('y', -1);
+                }
             }
             if (pressedKeys.Contains(Keys.S))
             {
-                velocity.Y += 1;
+                if (velocity.Y < 0)
+                {
+                    velocity.Y = 0;
+                }
+                else
+                {
+                    Accelerate('y', 1);
+                }
             }
             if (pressedKeys.Contains(Keys.A))
             {
-                velocity.X -= 1;
+                if (velocity.X > 0)
+                {
+                    velocity.X = 0;
+                }
+                else
+                {
+                    Accelerate('x', -1);
+                }
             }
             if (pressedKeys.Contains(Keys.D))
             {
-                velocity.X += 1;
+                if (velocity.X < 0)
+                {
+                    velocity.X = 0;
+                }
+                else
+                {
+                    Accelerate('x', 1);
+                }
             }
-            if(velocity.X != 0 && velocity.Y != 0)
+            if (!pressedKeys.Contains(Keys.W) && !pressedKeys.Contains(Keys.S) && velocity.Y != 0)
             {
-                velocity *= (float)Math.Sqrt(2) / 2;
+                Decelerate('y');
             }
-            velocity *= PlayerConstants.MAX_VELOCITY;
-            currentPosition += velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            if (!pressedKeys.Contains(Keys.A) && !pressedKeys.Contains(Keys.D) && velocity.X != 0)
+            {
+                Decelerate('x');
+            }
+            //normalize diagonal movement
+            if((Math.Abs(velocity.X) + Math.Abs(velocity.Y)) > PlayerConstants.MAX_VELOCITY * Math.Sqrt(2))
+            {
+                velocity *= PlayerConstants.MAX_VELOCITY * (float)Math.Sqrt(2) / (Math.Abs(velocity.X) + Math.Abs(velocity.Y));
+            }
+        }
+
+        private void Accelerate(char axis, int direction)
+        {
+            if (axis == 'x')
+            {
+                var diff = MathHelper.Clamp(PlayerConstants.MAX_VELOCITY * PlayerConstants.ACCELERATION_FACTOR, 0, PlayerConstants.MAX_VELOCITY - Math.Abs(velocity.X));
+                velocity.X += diff * direction;
+            }
+            if (axis == 'y')
+            {
+                var diff = MathHelper.Clamp(PlayerConstants.MAX_VELOCITY * PlayerConstants.ACCELERATION_FACTOR, 0, PlayerConstants.MAX_VELOCITY - Math.Abs(velocity.Y));
+                velocity.Y += diff * direction;
+            }
+        }
+
+        private void Decelerate(char axis)
+        {
+            if (axis == 'x')
+            {
+                if (Math.Abs(velocity.X) <= PlayerConstants.MIN_VELOCITY)
+                {
+                    velocity.X = 0;
+                }
+                else
+                {
+                    velocity.X /= 1 + PlayerConstants.DECELERATION_FACTOR;
+                }
+
+            }
+            if (axis == 'y')
+            {
+                if (Math.Abs(velocity.Y) <= PlayerConstants.MIN_VELOCITY)
+                {
+                    velocity.Y = 0;
+                }
+                else
+                {
+                    velocity.Y /= 1 + PlayerConstants.DECELERATION_FACTOR;
+                }
+            }
         }
 
         private void UpdateRotation()
