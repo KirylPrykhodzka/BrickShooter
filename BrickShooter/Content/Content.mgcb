@@ -25,6 +25,11 @@
 /processorParam:TextureFormat=Color
 /build:Background/background_starrysky.jpg
 
+#begin Levels/Level1.json
+/importer:
+/processor:
+/build:Levels/Level1.json
+
 #begin Player/player.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -36,4 +41,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Player/player.png
+
+#begin Walls/Wall.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Walls/Wall.jpg
 

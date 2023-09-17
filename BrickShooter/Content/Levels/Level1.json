@@ -1,0 +1,24 @@
+{
+	"width": 1600,
+	"height": 900,
+	"background": "Level1_Background",
+	"initialPlayerPosition": {
+		"x": 800,
+		"y": 450
+	},
+	"tilemaps": [
+		{
+			"name": "Walls",
+			"tileWidth": 64,
+			"tileHeight": 64,
+			"offsetX": -32,
+			"offsetY": -32,
+			"placements": [
+				{
+				"x":0,
+				"y":0
+				}
+			]
+		}
+	],
+}
