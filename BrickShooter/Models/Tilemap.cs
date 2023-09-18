@@ -9,6 +9,7 @@ namespace BrickShooter.Models
         public int TileHeight { get; set; }
         public int OffsetX { get; set; }
         public int OffsetY { get; set; }
+        //System.Drawing.Point is used because it is more concise when serialized
         public Point[] Placements { get; set; }
     }
 }

@@ -8,14 +8,23 @@ namespace BrickShooter.GameObjects
 {
     public class Level
     {
-        private LevelData levelData;
-        private Texture2D background;
-        private Player player = new Player();
+        private readonly LevelData levelData;
+        private readonly Texture2D background;
+        private readonly Rectangle levelBounds;
+        private readonly Player player;
 
         public Level(string name)
         {
             levelData = GlobalObjects.Content.Load<LevelData>($"Levels/{name}");
             background = GlobalObjects.Content.Load<Texture2D>($"Backgrounds/{levelData.BackgroundTexture}");
+            //make sure level is rendered in the center of the screen
+            levelBounds = new Rectangle(
+                (GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Width - levelData.Width) / 2,
+                Math.Abs(levelData.Height - GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Height) / 2,
+                levelData.Width,
+                levelData.Height);
+            //LevelData.InitialPlayerPosition is of type System.Drawing.Point, so we have to convert it here
+            player = new Player(new Point(levelBounds.X + levelData.InitialPlayerPosition.X, levelBounds.Y + levelData.InitialPlayerPosition.Y));
         }
 
         public void Update()
@@ -27,7 +36,7 @@ namespace BrickShooter.GameObjects
         {
             GlobalObjects.SpriteBatch.Draw(
                 background,
-                new Rectangle((GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Width - levelData.Width) / 2, Math.Abs(levelData.Height - GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Height) / 2, levelData.Width, levelData.Height),
+                levelBounds,
                 null,
                 Color.White,
                 0f,

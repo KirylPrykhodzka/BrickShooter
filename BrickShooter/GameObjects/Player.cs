@@ -11,14 +11,14 @@ namespace BrickShooter.GameObjects
     {
         public Texture2D playerSprite;
 
-        Vector2 currentPosition;
+        Point currentPosition;
         Vector2 velocity;
         float rotation;
 
-        public Player()
+        public Player(Point initialPosition)
         {
             playerSprite = GlobalObjects.Content.Load<Texture2D>("Player/player");
-            currentPosition = new Vector2(GlobalObjects.Graphics.GraphicsDevice.Viewport.Width / 2, GlobalObjects.Graphics.GraphicsDevice.Viewport.Height / 2);
+            currentPosition = initialPosition;
         }
 
         public void Update()
@@ -29,7 +29,9 @@ namespace BrickShooter.GameObjects
 
         private void UpdatePositionAndVelocity()
         {
-            currentPosition += velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            var fixedVelocity = velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            var positionDiff = new Point((int)fixedVelocity.X, (int)fixedVelocity.Y);
+            currentPosition += positionDiff;
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
             {
