@@ -23,8 +23,9 @@ namespace BrickShooter.GameObjects
 
         public void Update()
         {
-            UpdatePositionAndVelocity();
             UpdateRotation();
+            UpdatePositionAndVelocity();
+            CheckCollision();
         }
 
         private void UpdatePositionAndVelocity()
@@ -139,6 +140,11 @@ namespace BrickShooter.GameObjects
             var diffX = mouseState.X - currentPosition.X;
             var diffY = mouseState.Y - currentPosition.Y;
             rotation = (float)Math.Atan2(diffY, diffX);
+        }
+
+        private void CheckCollision()
+        {
+
         }
 
         public void Draw()
