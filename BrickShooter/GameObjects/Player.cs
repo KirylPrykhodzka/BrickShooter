@@ -11,33 +11,37 @@ namespace BrickShooter.GameObjects
 {
     public class Player : ICollisionActor
     {
+        private Vector2 currentPosition;
+        private float rotation;
+        private Vector2 velocity;
+        /// <summary>
+        /// collider bounds. Should be updated on each position or rotation change
+        /// </summary>
         public IShapeF Bounds { get; private set; }
+        private readonly Size2 colliderSize = new Size2(40, 40);
 
         private readonly Texture2D sprite;
-        private Point currentPosition;
 
-        private Vector2 velocity;
-        private float rotation;
-
-        public Player(Point initialPosition)
+        public Player(Vector2 initialPosition)
         {
             sprite = GlobalObjects.Content.Load<Texture2D>("Player/player");
             currentPosition = initialPosition;
-            Bounds = new RectangleF(currentPosition.X, currentPosition.Y, sprite.Width, sprite.Height);
+            Bounds = new RectangleF(currentPosition, colliderSize);
         }
 
         public void Update()
         {
-            UpdateRotation();
             UpdatePositionAndVelocity();
+            UpdateRotation();
         }
 
         private void UpdatePositionAndVelocity()
         {
             var fixedVelocity = velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-            var positionDiff = new Point((int)fixedVelocity.X, (int)fixedVelocity.Y);
+            var positionDiff = new Vector2((int)fixedVelocity.X, (int)fixedVelocity.Y);
             currentPosition += positionDiff;
-            Bounds = new RectangleF(currentPosition.X, currentPosition.Y, sprite.Width, sprite.Height);
+            Bounds = new RectangleF(Bounds.Position + positionDiff, colliderSize);
+
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
             {

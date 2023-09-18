@@ -31,7 +31,7 @@ namespace BrickShooter.GameObjects
             collisionComponent = new CollisionComponent(levelBounds);
 
             //LevelData.InitialPlayerPosition is of type System.Drawing.Point, so we have to convert it here
-            player = new Player(new Point(levelBounds.X + levelData.InitialPlayerPosition.X, levelBounds.Y + levelData.InitialPlayerPosition.Y));
+            player = new Player(new Vector2(levelBounds.X + levelData.InitialPlayerPosition.X, levelBounds.Y + levelData.InitialPlayerPosition.Y));
 
             walls = levelData.Walls.Placements.Select(placement => new Wall
             {
