@@ -2,30 +2,34 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
+using MonoGame.Extended.Collisions;
 using System;
 using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
-    public class Player
+    public class Player : ICollisionActor
     {
-        public Texture2D playerSprite;
+        public IShapeF Bounds { get; private set; }
 
-        Point currentPosition;
-        Vector2 velocity;
-        float rotation;
+        private readonly Texture2D sprite;
+        private Point currentPosition;
+
+        private Vector2 velocity;
+        private float rotation;
 
         public Player(Point initialPosition)
         {
-            playerSprite = GlobalObjects.Content.Load<Texture2D>("Player/player");
+            sprite = GlobalObjects.Content.Load<Texture2D>("Player/player");
             currentPosition = initialPosition;
+            Bounds = new RectangleF(currentPosition.X, currentPosition.Y, sprite.Width, sprite.Height);
         }
 
         public void Update()
         {
             UpdateRotation();
             UpdatePositionAndVelocity();
-            CheckCollision();
         }
 
         private void UpdatePositionAndVelocity()
@@ -33,6 +37,7 @@ namespace BrickShooter.GameObjects
             var fixedVelocity = velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
             var positionDiff = new Point((int)fixedVelocity.X, (int)fixedVelocity.Y);
             currentPosition += positionDiff;
+            Bounds = new RectangleF(currentPosition.X, currentPosition.Y, sprite.Width, sprite.Height);
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
             {
@@ -142,7 +147,7 @@ namespace BrickShooter.GameObjects
             rotation = (float)Math.Atan2(diffY, diffX);
         }
 
-        private void CheckCollision()
+        public void OnCollision(CollisionEventArgs collisionInfo)
         {
 
         }
@@ -150,12 +155,12 @@ namespace BrickShooter.GameObjects
         public void Draw()
         {
             GlobalObjects.SpriteBatch.Draw(
-                playerSprite,
+                sprite,
                 new Vector2(currentPosition.X, currentPosition.Y),
                 null,
                 Color.White,
                 rotation,
-                new Vector2(playerSprite.Width / 2f, playerSprite.Height / 2f),
+                new Vector2(sprite.Width / 2f, sprite.Height / 2f),
                 1f,
                 SpriteEffects.None,
                 Layers.GAME_OBJECTS);
