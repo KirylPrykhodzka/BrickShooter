@@ -3,22 +3,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
-using MonoGame.Extended.Collisions;
 using System;
 using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
-    public class Player : ICollisionActor
+    public class Player
     {
         private Vector2 currentPosition;
         private float rotation;
         private Vector2 velocity;
-        /// <summary>
-        /// collider bounds. Should be updated on each position or rotation change
-        /// </summary>
-        public IShapeF Bounds { get; private set; }
-        private readonly Size2 colliderSize = new Size2(40, 40);
 
         private readonly Texture2D sprite;
 
@@ -26,7 +20,6 @@ namespace BrickShooter.GameObjects
         {
             sprite = GlobalObjects.Content.Load<Texture2D>("Player/player");
             currentPosition = initialPosition;
-            Bounds = new RectangleF(currentPosition, colliderSize);
         }
 
         public void Update()
@@ -40,7 +33,6 @@ namespace BrickShooter.GameObjects
             var fixedVelocity = velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
             var positionDiff = new Vector2((int)fixedVelocity.X, (int)fixedVelocity.Y);
             currentPosition += positionDiff;
-            Bounds = new RectangleF(Bounds.Position + positionDiff, colliderSize);
 
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
@@ -149,11 +141,6 @@ namespace BrickShooter.GameObjects
             var diffX = mouseState.X - currentPosition.X;
             var diffY = mouseState.Y - currentPosition.Y;
             rotation = (float)Math.Atan2(diffY, diffX);
-        }
-
-        public void OnCollision(CollisionEventArgs collisionInfo)
-        {
-
         }
 
         public void Draw()

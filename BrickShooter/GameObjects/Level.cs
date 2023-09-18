@@ -2,19 +2,17 @@
 using BrickShooter.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.Collisions;
 using System;
 using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
-    public class Level : IDisposable
+    public class Level
     {
         private readonly Rectangle levelBounds;
         private LevelData levelData;
         private Player player;
         private Wall[] walls;
-        private readonly CollisionComponent collisionComponent;
 
         private bool disposedValue;
 
@@ -28,7 +26,6 @@ namespace BrickShooter.GameObjects
                 Math.Abs(levelData.Height - GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Height) / 2,
                 levelData.Width,
                 levelData.Height);
-            collisionComponent = new CollisionComponent(levelBounds);
 
             //LevelData.InitialPlayerPosition is of type System.Drawing.Point, so we have to convert it here
             player = new Player(new Vector2(levelBounds.X + levelData.InitialPlayerPosition.X, levelBounds.Y + levelData.InitialPlayerPosition.Y));
@@ -42,18 +39,11 @@ namespace BrickShooter.GameObjects
                     levelData.Walls.TileWidth,
                     levelData.Walls.TileHeight)
             }).ToArray();
-
-            collisionComponent.Insert(player);
-            foreach(var wall in walls)
-            {
-                collisionComponent.Insert(wall);
-            }
         }
 
         public void Update()
         {
             player.Update();
-            collisionComponent.Update(GlobalObjects.GameTime);
         }
 
         public void Draw()
@@ -77,30 +67,6 @@ namespace BrickShooter.GameObjects
 
             //draw bricks
             //draw bullets
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    collisionComponent.Dispose();
-                }
-
-                levelData = null;
-                player = null;
-                walls = null;
-
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }
