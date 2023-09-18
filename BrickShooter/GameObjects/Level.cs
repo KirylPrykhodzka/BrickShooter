@@ -1,4 +1,5 @@
-﻿using BrickShooter.Constants;
+﻿using BrickShooter.Collision;
+using BrickShooter.Constants;
 using BrickShooter.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -27,16 +28,22 @@ namespace BrickShooter.GameObjects
 
             //LevelData.InitialPlayerPosition is of type System.Drawing.Point, so we have to convert it here
             player = new Player(new Vector2(levelBounds.X + levelData.InitialPlayerPosition.X, levelBounds.Y + levelData.InitialPlayerPosition.Y));
+            CollisionSystem.AddSubject(player);
 
-            walls = levelData.Walls.Placements.Select(placement => new Wall
+            walls = levelData.Walls.Placements.Select(placement =>
+                new Wall(
+                    levelData.Walls.Texture,
+                    new Rectangle(
+                        levelBounds.X + placement.X * levelData.Walls.TileWidth + levelData.Walls.OffsetX,
+                        levelBounds.Y + placement.Y * levelData.Walls.TileHeight + levelData.Walls.OffsetY,
+                        levelData.Walls.TileWidth,
+                        levelData.Walls.TileHeight)
+                    )
+                ).ToArray();
+            foreach(var wall in walls)
             {
-                Texture = levelData.Walls.Texture,
-                RectBounds = new Rectangle(
-                    levelBounds.X + placement.X * levelData.Walls.TileWidth + levelData.Walls.OffsetX,
-                    levelBounds.Y + placement.Y * levelData.Walls.TileHeight + levelData.Walls.OffsetY,
-                    levelData.Walls.TileWidth,
-                    levelData.Walls.TileHeight)
-            }).ToArray();
+                CollisionSystem.AddObject(wall);
+            }
         }
 
         public void Update()

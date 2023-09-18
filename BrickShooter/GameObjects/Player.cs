@@ -43,7 +43,13 @@ namespace BrickShooter.GameObjects
         /// <returns></returns>
         private ColliderPolygon CalculateColliderPolygon()
         {
-            return new ColliderPolygon();
+            var result = new ColliderPolygon();
+            result.Points.Add(new Vector2(currentPosition.X - sprite.Width / 2, currentPosition.Y - sprite.Height / 2));
+            result.Points.Add(new Vector2(currentPosition.X - sprite.Width / 2, currentPosition.Y + sprite.Height / 2));
+            result.Points.Add(new Vector2(currentPosition.X + sprite.Width / 2, currentPosition.Y - sprite.Height / 2));
+            result.Points.Add(new Vector2(currentPosition.X + sprite.Width / 2, currentPosition.Y + sprite.Height / 2));
+            result.BuildEdges();
+            return result;
         }
 
         public void Update()
