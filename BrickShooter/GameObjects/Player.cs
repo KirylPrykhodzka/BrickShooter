@@ -1,20 +1,33 @@
-﻿using BrickShooter.Constants;
+﻿using BrickShooter.Collision;
+using BrickShooter.Constants;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended;
 using System;
 using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
-    public class Player
+    public class Player : ICollisionSubject
     {
+        private Vector2 velocity;
+        public Vector2 Velocity
+        {
+            get
+            {
+                return velocity;
+            }
+            set
+            {
+                velocity = value;
+            }
+        }
+        public ColliderPolygon ColliderBounds => CalculateColliderPolygon();
         private Vector2 currentPosition;
         private float rotation;
-        private Vector2 velocity;
 
         private readonly Texture2D sprite;
+
 
         public Player(Vector2 initialPosition)
         {
@@ -22,18 +35,25 @@ namespace BrickShooter.GameObjects
             currentPosition = initialPosition;
         }
 
+        /// <summary>
+        /// ColliderBounds depend on position, rotation and scale of the object
+        /// To avoid re-calculating them upon each update of position / rotation / scale,
+        /// calculation logic is placed here to be called when needed
+        /// </summary>
+        /// <returns></returns>
+        private ColliderPolygon CalculateColliderPolygon()
+        {
+            return new ColliderPolygon();
+        }
+
         public void Update()
         {
-            UpdatePositionAndVelocity();
+            UpdateVelocityAndPosition();
             UpdateRotation();
         }
 
-        private void UpdatePositionAndVelocity()
+        private void UpdateVelocityAndPosition()
         {
-            var fixedVelocity = velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-            var positionDiff = new Vector2((int)fixedVelocity.X, (int)fixedVelocity.Y);
-            currentPosition += positionDiff;
-
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
             {
@@ -92,6 +112,10 @@ namespace BrickShooter.GameObjects
             {
                 velocity *= PlayerConstants.MAX_VELOCITY * (float)Math.Sqrt(2) / (Math.Abs(velocity.X) + Math.Abs(velocity.Y));
             }
+
+            var fixedVelocity = velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            var positionDiff = new Vector2((int)fixedVelocity.X, (int)fixedVelocity.Y);
+            currentPosition += positionDiff;
         }
 
         private void Accelerate(char axis, int direction)
@@ -156,5 +180,7 @@ namespace BrickShooter.GameObjects
                 SpriteEffects.None,
                 Layers.GAME_OBJECTS);
         }
+
+        public void OnCollision(ICollisionActor collisionActor) { }
     }
 }

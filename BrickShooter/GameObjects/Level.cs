@@ -10,11 +10,9 @@ namespace BrickShooter.GameObjects
     public class Level
     {
         private readonly Rectangle levelBounds;
-        private LevelData levelData;
-        private Player player;
-        private Wall[] walls;
-
-        private bool disposedValue;
+        private readonly LevelData levelData;
+        private readonly Player player;
+        private readonly Wall[] walls;
 
         public Level(string name)
         {

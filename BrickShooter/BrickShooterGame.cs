@@ -1,4 +1,5 @@
-﻿using BrickShooter.GameObjects;
+﻿using BrickShooter.Collision;
+using BrickShooter.GameObjects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -37,6 +38,7 @@ namespace BrickShooter
             GlobalObjects.GameTime = gameTime;
 
             level.Update();
+            CollisionSystem.Run();
 
             base.Update(gameTime);
         }

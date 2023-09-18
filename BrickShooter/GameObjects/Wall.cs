@@ -1,13 +1,15 @@
-﻿using BrickShooter.Constants;
+﻿using BrickShooter.Collision;
+using BrickShooter.Constants;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace BrickShooter.GameObjects
 {
-    public class Wall 
+    public class Wall : ICollisionActor
     {
         public Texture2D Texture { get; set; }
         public Rectangle RectBounds { get; set; }
+        public ColliderPolygon ColliderBounds { get; } = new ColliderPolygon();
 
         public void Draw()
         {
