@@ -1,4 +1,5 @@
 ﻿using BrickShooter.Constants;
+using BrickShooter.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -7,8 +8,15 @@ namespace BrickShooter.GameObjects
 {
     public class Level
     {
-        private Texture2D background = GlobalObjects.Content.Load<Texture2D>("Background/background_starrysky");
+        private LevelData levelData;
+        private Texture2D background;
         private Player player = new Player();
+
+        public Level(string name)
+        {
+            levelData = GlobalObjects.Content.Load<LevelData>($"Levels/{name}");
+            background = GlobalObjects.Content.Load<Texture2D>($"Backgrounds/{levelData.BackgroundTexture}");
+        }
 
         public void Update()
         {
@@ -17,11 +25,9 @@ namespace BrickShooter.GameObjects
 
         public void Draw()
         {
-            int w = (int)(GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Width * 0.8);
-            int h = (int)(GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Height * 0.9);
             GlobalObjects.SpriteBatch.Draw(
                 background,
-                new Rectangle((GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Width - w) / 2, Math.Abs(h - GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Height) / 2, w, h),
+                new Rectangle((GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Width - levelData.Width) / 2, Math.Abs(levelData.Height - GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Height) / 2, levelData.Width, levelData.Height),
                 null,
                 Color.White,
                 0f,

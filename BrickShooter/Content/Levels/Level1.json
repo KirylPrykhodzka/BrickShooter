@@ -1,11 +1,8 @@
 {
 	"width": 1600,
 	"height": 900,
-	"background": "Level1_Background",
-	"initialPlayerPosition": {
-		"x": 800,
-		"y": 450
-	},
+	"backgroundTexture": "background_starrysky",
+	"initialPlayerPosition": "800,450",
 	"tilemaps": [
 		{
 			"name": "Walls",
@@ -14,11 +11,8 @@
 			"offsetX": -32,
 			"offsetY": -32,
 			"placements": [
-				{
-				"x":0,
-				"y":0
-				}
+				"0,0"
 			]
 		}
-	],
+	]
 }

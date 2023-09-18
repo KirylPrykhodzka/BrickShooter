@@ -29,7 +29,7 @@ namespace BrickShooter
             GlobalObjects.SpriteBatch = new SpriteBatch(GraphicsDevice);
             GlobalObjects.Content = Content;
 
-            level = new Level();
+            level = new Level("level1");
         }
 
         protected override void Update(GameTime gameTime)

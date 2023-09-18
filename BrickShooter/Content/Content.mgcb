@@ -10,10 +10,11 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:C:\Users\kiril\.nuget\packages\monogame.extended.content.pipeline\3.8.0\tools\MonoGame.Extended.Content.Pipeline.dll
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Background/background_starrysky.jpg
+#begin Backgrounds/background_starrysky.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -23,11 +24,12 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Background/background_starrysky.jpg
+/build:Backgrounds/background_starrysky.jpg
 
 #begin Levels/Level1.json
-/importer:
-/processor:
+/importer:JsonContentImporter
+/processor:JsonContentProcessor
+/processorParam:ContentType=BrickShooter.Models.LevelDataReader, BrickShooter
 /build:Levels/Level1.json
 
 #begin Player/player.png
