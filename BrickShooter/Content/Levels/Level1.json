@@ -1,18 +1,30 @@
 {
 	"width": 1600,
 	"height": 900,
-	"backgroundTexture": "background_starrysky",
+	"backgroundTextureName": "background_starrysky",
 	"initialPlayerPosition": "800,450",
-	"tilemaps": [
-		{
-			"name": "Walls",
-			"tileWidth": 64,
-			"tileHeight": 64,
-			"offsetX": -32,
-			"offsetY": -32,
-			"placements": [
-				"0,0"
-			]
-		}
-	]
+	"walls": {
+		"tileWidth": 64,
+		"tileHeight": 64,
+		"offsetX": -32,
+		"offsetY": -32,
+		"textureName": "wall1",
+		"placements": [
+			"0,0",
+			"0,1",
+			"0,2",
+			"0,3",
+			"0,4",
+			"0,5",
+			"0,6",
+			"0,7",
+			"0,8",
+			"0,9",
+			"0,10",
+			"0,11",
+			"0,12",
+			"0,13",
+			"0,14"
+		]
+	}
 }

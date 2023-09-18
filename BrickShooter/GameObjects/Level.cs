@@ -9,14 +9,13 @@ namespace BrickShooter.GameObjects
     public class Level
     {
         private readonly LevelData levelData;
-        private readonly Texture2D background;
         private readonly Rectangle levelBounds;
         private readonly Player player;
 
         public Level(string name)
         {
             levelData = GlobalObjects.Content.Load<LevelData>($"Levels/{name}");
-            background = GlobalObjects.Content.Load<Texture2D>($"Backgrounds/{levelData.BackgroundTexture}");
+
             //make sure level is rendered in the center of the screen
             levelBounds = new Rectangle(
                 (GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Width - levelData.Width) / 2,
@@ -35,7 +34,7 @@ namespace BrickShooter.GameObjects
         public void Draw()
         {
             GlobalObjects.SpriteBatch.Draw(
-                background,
+                levelData.BackgroundTexture,
                 levelBounds,
                 null,
                 Color.White,
@@ -43,10 +42,31 @@ namespace BrickShooter.GameObjects
                 Vector2.Zero,
                 SpriteEffects.None,
                 Layers.BACKGROUND);
+
             player.Draw();
-            //draw structures
+
+            DrawWalls();
+
             //draw bricks
             //draw bullets
+        }
+
+        private void DrawWalls()
+        {
+            foreach(var placement in levelData.Walls.Placements)
+            {
+                var x = levelBounds.X + placement.X * levelData.Walls.TileWidth + levelData.Walls.OffsetX;
+                var y = levelBounds.Y + placement.Y * levelData.Walls.TileHeight + levelData.Walls.OffsetY;
+                GlobalObjects.SpriteBatch.Draw(
+                    levelData.Walls.Texture,
+                    new Rectangle(x, y, levelData.Walls.TileWidth, levelData.Walls.TileHeight),
+                    null,
+                    Color.White,
+                    0f,
+                    Vector2.Zero,
+                    SpriteEffects.None,
+                    Layers.GAME_OBJECTS);
+            }
         }
     }
 }
