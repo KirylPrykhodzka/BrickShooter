@@ -38,6 +38,10 @@ namespace BrickShooter.Collision
                 //check collision with other subjects
                 for (int j = i + 1; j < collisionSubjects.Count; j++)
                 {
+                    if(DefinitelyDoNotCollide(currentElement, collisionSubjects[i]))
+                    {
+                        continue;
+                    }
                     if (CheckCollision(currentElement.ColliderBounds, collisionSubjects[j].ColliderBounds).collides)
                     {
                         //in this game, only subjects are bullets and player, so no physics calculation is needed upon collision
@@ -49,6 +53,10 @@ namespace BrickShooter.Collision
                 //check collision with objects
                 for (int j = 0; j < collisionObjects.Count; j++)
                 {
+                    if (DefinitelyDoNotCollide(currentElement, collisionObjects[i]))
+                    {
+                        continue;
+                    }
                     var collisionResult = CheckCollision(currentElement.ColliderBounds, collisionObjects[j].ColliderBounds);
                     if (collisionResult.collides)
                     {
@@ -160,6 +168,11 @@ namespace BrickShooter.Collision
                     return minA - maxB;
                 }
             }
+        }
+
+        private static bool DefinitelyDoNotCollide(ICollisionActor first, ICollisionActor second)
+        {
+            return first.ColliderBounds.MaxX < second.ColliderBounds.MinX || first.ColliderBounds.MaxY < second.ColliderBounds.MinY;
         }
 
         public static void Reset()

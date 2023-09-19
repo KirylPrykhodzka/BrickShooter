@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BrickShooter.Collision
 {
@@ -7,6 +8,10 @@ namespace BrickShooter.Collision
     {
         private readonly List<Vector2> points = new();
         private readonly List<Vector2> edges = new();
+        public float MaxX => points.Max(x => x.X);
+        public float MinX => points.Min(x => x.X);
+        public float MaxY => points.Max(x => x.Y);
+        public float MinY => points.Min(x => x.Y);
 
         public void BuildEdges()
         {
