@@ -2,6 +2,8 @@
 using BrickShooter.GameObjects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Diagnostics;
 
 namespace BrickShooter
 {
@@ -46,7 +48,7 @@ namespace BrickShooter
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            GlobalObjects.SpriteBatch.Begin(SpriteSortMode.FrontToBack);
+            GlobalObjects.SpriteBatch.Begin(SpriteSortMode.Immediate);
 
             level.Draw();
 

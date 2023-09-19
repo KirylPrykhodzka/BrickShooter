@@ -25,9 +25,9 @@ namespace BrickShooter.GameObjects
                 velocity = value;
             }
         }
+        public Point Position { get; set; }
         public ColliderPolygon ColliderBounds => GetGlobalColliderBounds();
         private Point[] localColliderBounds;
-        private Point currentPosition;
         private float rotation;
 
         private readonly Texture2D sprite;
@@ -36,7 +36,7 @@ namespace BrickShooter.GameObjects
         public Player(Point initialPosition)
         {
             sprite = GlobalObjects.Content.Load<Texture2D>("Player/player");
-            currentPosition = initialPosition;
+            Position = initialPosition;
             //4 points describing the sprite rectangle
             localColliderBounds = new Point[]
             {
@@ -56,7 +56,7 @@ namespace BrickShooter.GameObjects
         private ColliderPolygon GetGlobalColliderBounds()
         {
             var result = new ColliderPolygon();
-            var center = currentPosition;
+            var center = Position;
             result.Points.AddRange(localColliderBounds.Select(x => GetGlobalPosition(x)));
             result.BuildEdges();
             return result;
@@ -64,20 +64,24 @@ namespace BrickShooter.GameObjects
             Vector2 GetGlobalPosition(Point localPoint)
             {
                 //get global position
-                Point globalPosition = currentPosition + localPoint;
+                Point globalPosition = Position + localPoint;
                 //rotate collider
-                return globalPosition.Rotate(currentPosition, rotation).ToVector2();
+                return globalPosition.Rotate(Position, rotation).ToVector2();
             }
         }
 
         public void Update()
         {
-            UpdateVelocityAndPosition();
+            UpdatePositionAndVelocity();
             UpdateRotation();
         }
 
-        private void UpdateVelocityAndPosition()
+        private void UpdatePositionAndVelocity()
         {
+            var fixedVelocity = velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            var positionDiff = new Point((int)fixedVelocity.X, (int)fixedVelocity.Y);
+            Position += positionDiff;
+
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
             {
@@ -136,10 +140,6 @@ namespace BrickShooter.GameObjects
             {
                 velocity *= PlayerConstants.MAX_VELOCITY * (float)Math.Sqrt(2) / (Math.Abs(velocity.X) + Math.Abs(velocity.Y));
             }
-
-            var fixedVelocity = velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-            var positionDiff = new Point((int)fixedVelocity.X, (int)fixedVelocity.Y);
-            currentPosition += positionDiff;
         }
 
         private void Accelerate(char axis, int direction)
@@ -186,8 +186,8 @@ namespace BrickShooter.GameObjects
         private void UpdateRotation()
         {
             var mouseState = Mouse.GetState();
-            var diffX = mouseState.X - currentPosition.X;
-            var diffY = mouseState.Y - currentPosition.Y;
+            var diffX = mouseState.X - Position.X;
+            var diffY = mouseState.Y - Position.Y;
             rotation = (float)Math.Atan2(diffY, diffX);
         }
 
@@ -199,7 +199,7 @@ namespace BrickShooter.GameObjects
 
             GlobalObjects.SpriteBatch.Draw(
                 sprite,
-                new Vector2(currentPosition.X, currentPosition.Y),
+                new Vector2(Position.X, Position.Y),
                 null,
                 Color.White,
                 rotation,
