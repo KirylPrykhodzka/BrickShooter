@@ -41,8 +41,8 @@ namespace BrickShooter.GameObjects
             localColliderBounds = new Point[]
             {
                 new(-sprite.Width / 2, -sprite.Height /2),
-                new(sprite.Width / 2, -sprite.Height /2),
-                new(sprite.Width / 2, sprite.Height /2),
+                new(0, -sprite.Height /2),
+                new(0, sprite.Height /2),
                 new(-sprite.Width / 2, sprite.Height /2),
             };
         }
