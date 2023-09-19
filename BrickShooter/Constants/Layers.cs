@@ -2,8 +2,10 @@
 {
     public static class Layers
     {
-        public const int BACKGROUND = 0;
-        public const int GAME_OBJECTS = 1;
-        public const int UI = 2;
+        public const float BACKGROUND = 0f;
+        public const float WALLS = .1f;
+        public const float BRICKS = .2f;
+        public const float PLAYER = .3f;
+        public const float UI = 1f;
     }
 }

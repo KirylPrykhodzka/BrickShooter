@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace BrickShooter.Collision
+namespace BrickShooter.Extensions
 {
     public static class Vector2Extensions
     {

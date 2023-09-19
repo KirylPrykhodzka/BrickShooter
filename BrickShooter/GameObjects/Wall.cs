@@ -1,5 +1,6 @@
 ﻿using BrickShooter.Collision;
 using BrickShooter.Constants;
+using BrickShooter.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -18,13 +19,15 @@ namespace BrickShooter.GameObjects
             ColliderBounds = new ColliderPolygon();
             ColliderBounds.Points.Add(new Vector2(RectBounds.X, RectBounds.Y));
             ColliderBounds.Points.Add(new Vector2(RectBounds.X + RectBounds.Width, RectBounds.Y));
-            ColliderBounds.Points.Add(new Vector2(RectBounds.X, RectBounds.Y + RectBounds.Height));
             ColliderBounds.Points.Add(new Vector2(RectBounds.X + RectBounds.Width, RectBounds.Y + RectBounds.Height));
+            ColliderBounds.Points.Add(new Vector2(RectBounds.X, RectBounds.Y + RectBounds.Height));
             ColliderBounds.BuildEdges();
         }
 
         public void Draw()
         {
+            VisualizationHelper.VisualizeCollider(ColliderBounds.Points);
+
             GlobalObjects.SpriteBatch.Draw(
                 Texture,
                 RectBounds,
@@ -33,7 +36,7 @@ namespace BrickShooter.GameObjects
                 0f,
                 Vector2.Zero,
                 SpriteEffects.None,
-                Layers.GAME_OBJECTS);
+                Layers.WALLS);
         }
     }
 }

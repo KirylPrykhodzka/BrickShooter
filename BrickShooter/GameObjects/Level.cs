@@ -27,7 +27,7 @@ namespace BrickShooter.GameObjects
                 levelData.Height);
 
             //LevelData.InitialPlayerPosition is of type System.Drawing.Point, so we have to convert it here
-            player = new Player(new Vector2(levelBounds.X + levelData.InitialPlayerPosition.X, levelBounds.Y + levelData.InitialPlayerPosition.Y));
+            player = new Player(new Point(levelBounds.X + levelData.InitialPlayerPosition.X, levelBounds.Y + levelData.InitialPlayerPosition.Y));
             CollisionSystem.AddSubject(player);
 
             walls = levelData.Walls.Placements.Select(placement =>
@@ -63,12 +63,12 @@ namespace BrickShooter.GameObjects
                 SpriteEffects.None,
                 Layers.BACKGROUND);
 
-            player.Draw();
-
             foreach(var wall in walls)
             {
                 wall.Draw();
             }
+
+            player.Draw();
 
             //draw bricks
             //draw bullets

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BrickShooter.Extensions;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 

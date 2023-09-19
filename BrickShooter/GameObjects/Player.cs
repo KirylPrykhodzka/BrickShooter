@@ -1,9 +1,12 @@
 ﻿using BrickShooter.Collision;
 using BrickShooter.Constants;
+using BrickShooter.Extensions;
+using BrickShooter.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.GameObjects
@@ -22,17 +25,26 @@ namespace BrickShooter.GameObjects
                 velocity = value;
             }
         }
-        public ColliderPolygon ColliderBounds => CalculateColliderPolygon();
-        private Vector2 currentPosition;
+        public ColliderPolygon ColliderBounds => GetGlobalColliderBounds();
+        private Point[] localColliderBounds;
+        private Point currentPosition;
         private float rotation;
 
         private readonly Texture2D sprite;
 
 
-        public Player(Vector2 initialPosition)
+        public Player(Point initialPosition)
         {
             sprite = GlobalObjects.Content.Load<Texture2D>("Player/player");
             currentPosition = initialPosition;
+            //4 points describing the sprite rectangle
+            localColliderBounds = new Point[]
+            {
+                new(-sprite.Width / 2, -sprite.Height /2),
+                new(sprite.Width / 2, -sprite.Height /2),
+                new(sprite.Width / 2, sprite.Height /2),
+                new(-sprite.Width / 2, sprite.Height /2),
+            };
         }
 
         /// <summary>
@@ -41,15 +53,21 @@ namespace BrickShooter.GameObjects
         /// calculation logic is placed here to be called when needed
         /// </summary>
         /// <returns></returns>
-        private ColliderPolygon CalculateColliderPolygon()
+        private ColliderPolygon GetGlobalColliderBounds()
         {
             var result = new ColliderPolygon();
-            result.Points.Add(new Vector2(currentPosition.X - sprite.Width / 2, currentPosition.Y - sprite.Height / 2));
-            result.Points.Add(new Vector2(currentPosition.X - sprite.Width / 2, currentPosition.Y + sprite.Height / 2));
-            result.Points.Add(new Vector2(currentPosition.X + sprite.Width / 2, currentPosition.Y - sprite.Height / 2));
-            result.Points.Add(new Vector2(currentPosition.X + sprite.Width / 2, currentPosition.Y + sprite.Height / 2));
+            var center = currentPosition;
+            result.Points.AddRange(localColliderBounds.Select(x => GetGlobalPosition(x)));
             result.BuildEdges();
             return result;
+
+            Vector2 GetGlobalPosition(Point localPoint)
+            {
+                //get global position
+                Point globalPosition = currentPosition + localPoint;
+                //rotate collider
+                return globalPosition.Rotate(currentPosition, rotation).ToVector2();
+            }
         }
 
         public void Update()
@@ -120,7 +138,7 @@ namespace BrickShooter.GameObjects
             }
 
             var fixedVelocity = velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-            var positionDiff = new Vector2((int)fixedVelocity.X, (int)fixedVelocity.Y);
+            var positionDiff = new Point((int)fixedVelocity.X, (int)fixedVelocity.Y);
             currentPosition += positionDiff;
         }
 
@@ -175,6 +193,10 @@ namespace BrickShooter.GameObjects
 
         public void Draw()
         {
+#if DEBUG
+            VisualizationHelper.VisualizeCollider(GetGlobalColliderBounds().Points);
+#endif
+
             GlobalObjects.SpriteBatch.Draw(
                 sprite,
                 new Vector2(currentPosition.X, currentPosition.Y),
@@ -184,7 +206,7 @@ namespace BrickShooter.GameObjects
                 new Vector2(sprite.Width / 2f, sprite.Height / 2f),
                 1f,
                 SpriteEffects.None,
-                Layers.GAME_OBJECTS);
+                Layers.PLAYER);
         }
 
         public void OnCollision(ICollisionActor collisionActor) { }
