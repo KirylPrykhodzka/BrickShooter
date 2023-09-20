@@ -13,18 +13,7 @@ namespace BrickShooter.GameObjects
 {
     public class Player : IMobileMaterialObject
     {
-        private Vector2 velocity;
-        public Vector2 Velocity
-        {
-            get
-            {
-                return velocity;
-            }
-            set
-            {
-                velocity = value;
-            }
-        }
+        public Vector2 Velocity { get; private set; }
         public Point Position { get; set; }
         public ColliderPolygon ColliderBounds => GetGlobalColliderBounds();
         private Point[] localColliderBounds;
@@ -83,9 +72,9 @@ namespace BrickShooter.GameObjects
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
             {
-                if(velocity.Y > 0)
+                if(Velocity.Y > 0)
                 {
-                    velocity.Y = 0;
+                    Velocity = new Vector2(Velocity.X, 0);
                 }
                 else
                 {
@@ -94,9 +83,9 @@ namespace BrickShooter.GameObjects
             }
             if (pressedKeys.Contains(Keys.S))
             {
-                if (velocity.Y < 0)
+                if (Velocity.Y < 0)
                 {
-                    velocity.Y = 0;
+                    Velocity = new Vector2(Velocity.X, 0);
                 }
                 else
                 {
@@ -105,9 +94,9 @@ namespace BrickShooter.GameObjects
             }
             if (pressedKeys.Contains(Keys.A))
             {
-                if (velocity.X > 0)
+                if (Velocity.X > 0)
                 {
-                    velocity.X = 0;
+                    Velocity = new Vector2(0, Velocity.Y);
                 }
                 else
                 {
@@ -116,27 +105,27 @@ namespace BrickShooter.GameObjects
             }
             if (pressedKeys.Contains(Keys.D))
             {
-                if (velocity.X < 0)
+                if (Velocity.X < 0)
                 {
-                    velocity.X = 0;
+                    Velocity = new Vector2(0, Velocity.Y);
                 }
                 else
                 {
                     Accelerate('x', 1);
                 }
             }
-            if (!pressedKeys.Contains(Keys.W) && !pressedKeys.Contains(Keys.S) && velocity.Y != 0)
+            if (!pressedKeys.Contains(Keys.W) && !pressedKeys.Contains(Keys.S) && Velocity.Y != 0)
             {
                 Decelerate('y');
             }
-            if (!pressedKeys.Contains(Keys.A) && !pressedKeys.Contains(Keys.D) && velocity.X != 0)
+            if (!pressedKeys.Contains(Keys.A) && !pressedKeys.Contains(Keys.D) && Velocity.X != 0)
             {
                 Decelerate('x');
             }
             //normalize diagonal movement
-            if((Math.Abs(velocity.X) + Math.Abs(velocity.Y)) > PlayerConstants.MAX_VELOCITY * Math.Sqrt(2))
+            if((Math.Abs(Velocity.X) + Math.Abs(Velocity.Y)) > PlayerConstants.MAX_VELOCITY * Math.Sqrt(2))
             {
-                velocity *= PlayerConstants.MAX_VELOCITY * (float)Math.Sqrt(2) / (Math.Abs(velocity.X) + Math.Abs(velocity.Y));
+                Velocity *= PlayerConstants.MAX_VELOCITY * (float)Math.Sqrt(2) / (Math.Abs(Velocity.X) + Math.Abs(Velocity.Y));
             }
         }
 
@@ -144,13 +133,13 @@ namespace BrickShooter.GameObjects
         {
             if (axis == 'x')
             {
-                var diff = MathHelper.Clamp(PlayerConstants.MAX_VELOCITY * PlayerConstants.ACCELERATION_FACTOR, 0, PlayerConstants.MAX_VELOCITY - Math.Abs(velocity.X));
-                velocity.X += diff * direction;
+                var diff = MathHelper.Clamp(PlayerConstants.MAX_VELOCITY * PlayerConstants.ACCELERATION_FACTOR, 0, PlayerConstants.MAX_VELOCITY - Math.Abs(Velocity.X));
+                Velocity += new Vector2(diff * direction, 0);
             }
             if (axis == 'y')
             {
-                var diff = MathHelper.Clamp(PlayerConstants.MAX_VELOCITY * PlayerConstants.ACCELERATION_FACTOR, 0, PlayerConstants.MAX_VELOCITY - Math.Abs(velocity.Y));
-                velocity.Y += diff * direction;
+                var diff = MathHelper.Clamp(PlayerConstants.MAX_VELOCITY * PlayerConstants.ACCELERATION_FACTOR, 0, PlayerConstants.MAX_VELOCITY - Math.Abs(Velocity.Y));
+                Velocity += new Vector2(0, diff * direction);
             }
         }
 
@@ -158,25 +147,25 @@ namespace BrickShooter.GameObjects
         {
             if (axis == 'x')
             {
-                if (Math.Abs(velocity.X) <= PlayerConstants.MIN_VELOCITY)
+                if (Math.Abs(Velocity.X) <= PlayerConstants.MIN_VELOCITY)
                 {
-                    velocity.X = 0;
+                    Velocity = new Vector2(0, Velocity.Y);
                 }
                 else
                 {
-                    velocity.X /= 1 + PlayerConstants.DECELERATION_FACTOR;
+                    Velocity /= new Vector2(1 + PlayerConstants.DECELERATION_FACTOR, 1);
                 }
 
             }
             if (axis == 'y')
             {
-                if (Math.Abs(velocity.Y) <= PlayerConstants.MIN_VELOCITY)
+                if (Math.Abs(Velocity.Y) <= PlayerConstants.MIN_VELOCITY)
                 {
-                    velocity.Y = 0;
+                    Velocity = new Vector2(0, Velocity.Y);
                 }
                 else
                 {
-                    velocity.Y /= 1 + PlayerConstants.DECELERATION_FACTOR;
+                    Velocity /= new Vector2(1, 1 + PlayerConstants.DECELERATION_FACTOR);
                 }
             }
         }
