@@ -38,7 +38,7 @@ namespace BrickShooter.Collision
                 //check collision with other subjects
                 for (int j = i + 1; j < collisionSubjects.Count; j++)
                 {
-                    if(DefinitelyDoNotCollide(currentElement, collisionSubjects[i]))
+                    if(DefinitelyDoNotCollide(currentElement, collisionSubjects[j]))
                     {
                         continue;
                     }
@@ -53,7 +53,7 @@ namespace BrickShooter.Collision
                 //check collision with objects
                 for (int j = 0; j < collisionObjects.Count; j++)
                 {
-                    if (DefinitelyDoNotCollide(currentElement, collisionObjects[i]))
+                    if (DefinitelyDoNotCollide(currentElement, collisionObjects[j]))
                     {
                         continue;
                     }
@@ -172,7 +172,11 @@ namespace BrickShooter.Collision
 
         private static bool DefinitelyDoNotCollide(ICollisionActor first, ICollisionActor second)
         {
-            return first.ColliderBounds.MaxX < second.ColliderBounds.MinX || first.ColliderBounds.MaxY < second.ColliderBounds.MinY;
+            return
+                first.ColliderBounds.MaxX < second.ColliderBounds.MinX ||
+                first.ColliderBounds.MinX > second.ColliderBounds.MaxX ||
+                first.ColliderBounds.MaxY < second.ColliderBounds.MinY ||
+                first.ColliderBounds.MinY > second.ColliderBounds.MaxY;
         }
 
         public static void Reset()
