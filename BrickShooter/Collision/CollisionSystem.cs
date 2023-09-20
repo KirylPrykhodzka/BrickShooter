@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace BrickShooter.Collision
 {
@@ -34,6 +33,11 @@ namespace BrickShooter.Collision
             for (int i = 0; i < collisionSubjects.Count; i++)
             {
                 var currentElement = collisionSubjects[i];
+                //only moving subjects can collide
+                if (currentElement.Velocity == Vector2.Zero)
+                {
+                    continue;
+                }
 
                 //check collision with other subjects
                 for (int j = i + 1; j < collisionSubjects.Count; j++)
@@ -60,8 +64,10 @@ namespace BrickShooter.Collision
                     var collisionResult = CheckCollision(currentElement.ColliderBounds, collisionObjects[j].ColliderBounds);
                     if (collisionResult.collides)
                     {
-                        //reposition to avoid collision
-                        currentElement.Position += collisionResult.minimumTranslationVector.ToPoint();
+                        if(collisionResult.minimumTranslationVector != Vector2.Zero)
+                        {
+                            currentElement.Position += collisionResult.minimumTranslationVector.ToPoint();
+                        }
 
                         currentElement.OnCollision(collisionObjects[j]);
                     }

@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace BrickShooter.Collision
+﻿namespace BrickShooter.Collision
 {
     public interface ICollisionActor
     {

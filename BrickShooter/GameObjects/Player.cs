@@ -72,14 +72,17 @@ namespace BrickShooter.GameObjects
         public void Update()
         {
             UpdatePositionAndVelocity();
-            UpdateRotation();
+            //UpdateRotation();
         }
 
         private void UpdatePositionAndVelocity()
         {
             var fixedVelocity = velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
             var positionDiff = new Point((int)fixedVelocity.X, (int)fixedVelocity.Y);
-            Position += positionDiff;
+            if(positionDiff != Point.Zero)
+            {
+                Position += positionDiff;
+            }
 
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
