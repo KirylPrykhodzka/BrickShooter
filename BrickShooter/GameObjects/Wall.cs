@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace BrickShooter.GameObjects
 {
-    public class Wall : ICollisionActor
+    public class Wall : IMaterialObject
     {
         public Texture2D Texture { get; set; }
         public Rectangle RectBounds { get; set; }
@@ -22,6 +22,8 @@ namespace BrickShooter.GameObjects
             ColliderBounds.Points.Add(new Vector2(RectBounds.X + RectBounds.Width, RectBounds.Y + RectBounds.Height));
             ColliderBounds.Points.Add(new Vector2(RectBounds.X, RectBounds.Y + RectBounds.Height));
             ColliderBounds.BuildEdges();
+
+            PhysicsSystem.AddImmobileObject(this);
         }
 
         public void Draw()

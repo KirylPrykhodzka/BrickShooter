@@ -1,6 +1,6 @@
 ﻿namespace BrickShooter.Collision
 {
-    public interface ICollisionActor
+    public interface IMaterialObject
     {
         ColliderPolygon ColliderBounds { get; }
     }

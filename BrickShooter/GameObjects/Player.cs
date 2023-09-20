@@ -2,6 +2,7 @@
 using BrickShooter.Constants;
 using BrickShooter.Extensions;
 using BrickShooter.Helpers;
+using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,7 +11,7 @@ using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
-    public class Player : ICollisionSubject
+    public class Player : IMobileMaterialObject
     {
         private Vector2 velocity;
         public Vector2 Velocity
@@ -44,6 +45,8 @@ namespace BrickShooter.GameObjects
                 new(0, sprite.Height /2),
                 new(-sprite.Width / 2, sprite.Height /2),
             };
+
+            PhysicsSystem.AddMobileObject(this);
         }
 
         /// <summary>
@@ -72,7 +75,7 @@ namespace BrickShooter.GameObjects
         public void Update()
         {
             UpdatePositionAndVelocity();
-            //UpdateRotation();
+            UpdateRotation();
         }
 
         private void UpdatePositionAndVelocity()
@@ -211,6 +214,6 @@ namespace BrickShooter.GameObjects
                 Layers.PLAYER);
         }
 
-        public void OnCollision(ICollisionActor collisionActor) { }
+        public void OnCollision(IMaterialObject collisionActor) { }
     }
 }

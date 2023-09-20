@@ -1,4 +1,5 @@
 ﻿using BrickShooter.Extensions;
+using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -6,62 +7,66 @@ using System.Collections.Generic;
 namespace BrickShooter.Collision
 {
     /// <summary>
+    /// moves objects around in accordance with their velocity;
     /// finds all collisions between game objects.
     /// Should be reset upon reloading the level
     /// </summary>
-    public static class CollisionSystem
+    public static class PhysicsSystem
     {
-        private readonly static List<ICollisionSubject> collisionSubjects = new();
-        private readonly static List<ICollisionActor> collisionObjects = new();
+        //all objects that can be repositioned in space based on their velocity and initiate collisions
+        private readonly static List<IMobileMaterialObject> mobileObjects = new();
+        //objects that mobile objects can collide with
+        private readonly static List<IMaterialObject> immobileObjects = new();
 
-        public static void AddSubject(ICollisionSubject subject)
+        public static void AddMobileObject(IMobileMaterialObject mobileObject)
         {
-            collisionSubjects.Add(subject);
+            mobileObjects.Add(mobileObject);
         }
 
-        public static void AddObject(ICollisionActor collisionObject)
+        public static void AddImmobileObject(IMaterialObject immobileObject)
         {
-            collisionObjects.Add(collisionObject);
+            immobileObjects.Add(immobileObject);
         }
 
         /// <summary>
-        /// on each update, checks all collisionSubjects for collision with each other or collisionObjects
-        /// if there is a collision, OnCollision is called on the subject
+        /// on each update, checks all mobileObjects for collision with each other or immobileObjects
+        /// if there is a collision, OnCollision is called on the mobileObject
         /// </summary>
         public static void Run()
         {
-            for (int i = 0; i < collisionSubjects.Count; i++)
+
+            for (int i = 0; i < mobileObjects.Count; i++)
             {
-                var currentElement = collisionSubjects[i];
-                //only moving subjects can collide
+                var currentElement = mobileObjects[i];
+                //only moving objects can initiate collisions
                 if (currentElement.Velocity == Vector2.Zero)
                 {
                     continue;
                 }
 
-                //check collision with other subjects
-                for (int j = i + 1; j < collisionSubjects.Count; j++)
+                //check collision with other mobile objects
+                for (int j = i + 1; j < mobileObjects.Count; j++)
                 {
-                    if(DefinitelyDoNotCollide(currentElement, collisionSubjects[j]))
+                    if(DefinitelyDoNotCollide(currentElement, mobileObjects[j]))
                     {
                         continue;
                     }
-                    if (CheckCollision(currentElement.ColliderBounds, collisionSubjects[j].ColliderBounds).collides)
+                    if (CheckCollision(currentElement.ColliderBounds, mobileObjects[j].ColliderBounds).collides)
                     {
                         //in this game, only subjects are bullets and player, so no physics calculation is needed upon collision
-                        currentElement.OnCollision(collisionSubjects[j]);
-                        collisionSubjects[j].OnCollision(currentElement);
+                        currentElement.OnCollision(mobileObjects[j]);
+                        mobileObjects[j].OnCollision(currentElement);
                     }
                 }
 
                 //check collision with objects
-                for (int j = 0; j < collisionObjects.Count; j++)
+                for (int j = 0; j < immobileObjects.Count; j++)
                 {
-                    if (DefinitelyDoNotCollide(currentElement, collisionObjects[j]))
+                    if (DefinitelyDoNotCollide(currentElement, immobileObjects[j]))
                     {
                         continue;
                     }
-                    var collisionResult = CheckCollision(currentElement.ColliderBounds, collisionObjects[j].ColliderBounds);
+                    var collisionResult = CheckCollision(currentElement.ColliderBounds, immobileObjects[j].ColliderBounds);
                     if (collisionResult.collides)
                     {
                         if(collisionResult.minimumTranslationVector != Vector2.Zero)
@@ -69,7 +74,7 @@ namespace BrickShooter.Collision
                             currentElement.Position += collisionResult.minimumTranslationVector.ToPoint();
                         }
 
-                        currentElement.OnCollision(collisionObjects[j]);
+                        currentElement.OnCollision(immobileObjects[j]);
                     }
                 }
             }
@@ -176,7 +181,7 @@ namespace BrickShooter.Collision
             }
         }
 
-        private static bool DefinitelyDoNotCollide(ICollisionActor first, ICollisionActor second)
+        private static bool DefinitelyDoNotCollide(IMobileMaterialObject first, IMaterialObject second)
         {
             return
                 first.ColliderBounds.MaxX < second.ColliderBounds.MinX ||
@@ -187,8 +192,8 @@ namespace BrickShooter.Collision
 
         public static void Reset()
         {
-            collisionSubjects.Clear();
-            collisionObjects.Clear();
+            immobileObjects.Clear();
+            immobileObjects.Clear();
         }
     }
 }
