@@ -49,7 +49,9 @@ namespace BrickShooter
             GlobalObjects.SpriteBatch.Begin(SpriteSortMode.FrontToBack);
 
             level.Draw();
-            //PhysicsSystem.Visualize();
+#if DEBUG
+            PhysicsSystem.Visualize();
+#endif
 
             GlobalObjects.SpriteBatch.End();
             base.Draw(gameTime);
