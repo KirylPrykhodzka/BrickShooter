@@ -1,7 +1,7 @@
 ﻿using BrickShooter.Collision;
 using BrickShooter.Constants;
+using BrickShooter.Extensions;
 using BrickShooter.GameObjects.Bullets;
-using BrickShooter.Helpers;
 using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,9 +19,14 @@ namespace BrickShooter.GameObjects
         //for the cooldown calculation purposes
         private long lastShot = 0;
 
+        //stuff to store in json
+        private static readonly string spriteName = "player";
+        //localColliderBounds
+        private static readonly Point barrelTipOffset = new Point(35, 12);
+
         public Player(Point initialPosition)
         {
-            sprite = GlobalObjects.Content.Load<Texture2D>("Player/player");
+            sprite = GlobalObjects.Content.Load<Texture2D>($"Player/{spriteName}");
             Position = initialPosition;
             //4 points describing the sprite rectangle
             localColliderBounds = new Point[]
@@ -165,7 +170,7 @@ namespace BrickShooter.GameObjects
         {
             var bullet = BulletFactory.GetBullet();
             activeBullets.Add(bullet);
-            bullet.Shoot(Position, rotation);
+            bullet.Shoot((Position + barrelTipOffset).Rotate(Position, rotation), rotation);
         }
 
         public void Draw()

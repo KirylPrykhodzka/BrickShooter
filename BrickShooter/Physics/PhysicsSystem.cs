@@ -2,10 +2,8 @@
 using BrickShooter.Helpers;
 using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.Collision

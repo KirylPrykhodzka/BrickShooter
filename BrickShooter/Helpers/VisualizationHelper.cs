@@ -3,7 +3,6 @@ using BrickShooter.Constants;
 using BrickShooter.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 
 namespace BrickShooter.Helpers
 {
