@@ -10,6 +10,7 @@ namespace BrickShooter.GameObjects.Bullets
 {
     public class Bullet : MobileMaterialObject, IDrawableObject
     {
+        public override float Bounciness => 1f;
         private static readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>("Bullets/Bullet");
 
         private bool isActive = false;
@@ -28,8 +29,18 @@ namespace BrickShooter.GameObjects.Bullets
 
         public override void OnCollision(IMaterialObject otherCollider)
         {
-            Deactivate();
-            base.OnCollision(otherCollider);
+            switch(otherCollider.GetType().ToString())
+            {
+                case "Wall":
+                    {
+                        break;
+                    }
+                default:
+                    {
+                        Deactivate();
+                        break;
+                    }
+            }
         }
 
         /// <summary>

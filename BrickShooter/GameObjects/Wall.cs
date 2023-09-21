@@ -11,6 +11,7 @@ namespace BrickShooter.GameObjects
         public Texture2D Texture { get; set; }
         public Rectangle RectBounds { get; set; }
         public ColliderPolygon ColliderBounds { get; }
+        public float Bounciness => 0f;
 
         public Wall(Texture2D texture, Rectangle rectBounds)
         {

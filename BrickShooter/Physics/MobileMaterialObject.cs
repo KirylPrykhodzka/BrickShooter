@@ -8,10 +8,12 @@ namespace BrickShooter.Physics
     public abstract class MobileMaterialObject : IMaterialObject
     {
         public ColliderPolygon ColliderBounds => GetGlobalColliderBounds();
+        public virtual float Bounciness => 0f;
         public Point Position { get; set; }
         public Vector2 Velocity { get; protected set; }
         protected Point[] localColliderBounds;
         protected float rotation;
+
         public virtual void OnCollision(IMaterialObject otherCollider) { }
 
         /// <summary>
