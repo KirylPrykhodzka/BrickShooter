@@ -92,12 +92,21 @@ namespace BrickShooter.Collision
                         {
                             if (collisionResult.minimumTranslationVector != Vector2.Zero)
                             {
+                                //bounce
+                                var bounceForce = currentElement.Bounciness + immobileObjects[j].Bounciness;
+                                currentElement.Velocity *= new Vector2(Transform(collisionResult.minimumTranslationVector.X), Transform(collisionResult.minimumTranslationVector.Y)) * bounceForce;
+
                                 currentElement.Position += collisionResult.minimumTranslationVector.ToPoint();
                             }
 
                             currentElement.OnCollision(immobileObjects[j]);
                         }
                     }
+                }
+
+                int Transform(float source)
+                {
+                    return source != 0 ? -1 : 1;
                 }
             }
         }

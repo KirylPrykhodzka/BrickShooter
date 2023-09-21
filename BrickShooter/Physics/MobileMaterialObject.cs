@@ -10,7 +10,7 @@ namespace BrickShooter.Physics
         public ColliderPolygon ColliderBounds => GetGlobalColliderBounds();
         public virtual float Bounciness => 0f;
         public Point Position { get; set; }
-        public Vector2 Velocity { get; protected set; }
+        public Vector2 Velocity { get; set; }
         protected Point[] localColliderBounds;
         protected float rotation;
 

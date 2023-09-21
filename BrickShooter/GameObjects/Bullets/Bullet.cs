@@ -29,7 +29,7 @@ namespace BrickShooter.GameObjects.Bullets
 
         public override void OnCollision(IMaterialObject otherCollider)
         {
-            switch(otherCollider.GetType().ToString())
+            switch(otherCollider.GetType().Name)
             {
                 case "Wall":
                     {
