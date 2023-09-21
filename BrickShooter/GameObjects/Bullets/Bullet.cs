@@ -17,10 +17,10 @@ namespace BrickShooter.GameObjects.Bullets
             //4 points describing the sprite rectangle
             localColliderBounds = new Point[]
             {
-                new(-BulletConstants.WIDTH / 2, -BulletConstants.HEIGHT /2),
-                new(0, -BulletConstants.HEIGHT /2),
-                new(0, BulletConstants.HEIGHT /2),
-                new(-BulletConstants.WIDTH / 2, BulletConstants.HEIGHT /2),
+                new(-sprite.Width / 2, -sprite.Height /2),
+                new(sprite.Width / 2, -sprite.Height /2),
+                new(sprite.Width / 2, sprite.Height /2),
+                new(-sprite.Width / 2, sprite.Height /2),
             };
         }
 
@@ -36,18 +36,19 @@ namespace BrickShooter.GameObjects.Bullets
             PhysicsSystem.AddMobileObject(this);
             Position = from;
             Velocity = new Vector2((float)Math.Cos(rotation), (float)Math.Sin(rotation)) * BulletConstants.VELOCITY;
-            this.rotation = rotation + (float)(Math.PI / 2);
+            this.rotation = rotation;
         }
 
         public void Draw()
         {
             GlobalObjects.SpriteBatch.Draw(
                 sprite,
-                new Rectangle(Position.X, Position.Y, BulletConstants.WIDTH, BulletConstants.HEIGHT),
+                new Vector2(Position.X, Position.Y),
                 null,
                 Color.White,
                 rotation,
-                Vector2.Zero,
+                new Vector2(sprite.Width / 2f, sprite.Height / 2f),
+                1f,
                 SpriteEffects.None,
                 Layers.BULLETS);
         }
