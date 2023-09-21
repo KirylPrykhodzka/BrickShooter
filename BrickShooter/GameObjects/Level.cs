@@ -1,7 +1,5 @@
-﻿using BrickShooter.Constants;
-using BrickShooter.Models;
+﻿using BrickShooter.Models;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Linq;
 
@@ -11,6 +9,8 @@ namespace BrickShooter.GameObjects
     {
         private readonly Rectangle levelBounds;
         private readonly LevelData levelData;
+
+        private readonly Background background;
         private readonly Player player;
         private readonly Wall[] walls;
 
@@ -24,6 +24,8 @@ namespace BrickShooter.GameObjects
                 Math.Abs(levelData.Height - GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Height) / 2,
                 levelData.Width,
                 levelData.Height);
+
+            background = new Background(levelData.BackgroundTexture, levelBounds);
 
             //LevelData.InitialPlayerPosition is of type System.Drawing.Point, so we have to convert it here
             player = new Player(new Point(levelBounds.X + levelData.InitialPlayerPosition.X, levelBounds.Y + levelData.InitialPlayerPosition.Y));
@@ -43,29 +45,6 @@ namespace BrickShooter.GameObjects
         public void Update()
         {
             player.Update();
-        }
-
-        public void Draw()
-        {
-            GlobalObjects.SpriteBatch.Draw(
-                levelData.BackgroundTexture,
-                levelBounds,
-                null,
-                Color.White,
-                0f,
-                Vector2.Zero,
-                SpriteEffects.None,
-                Layers.BACKGROUND);
-
-            foreach(var wall in walls)
-            {
-                wall.Draw();
-            }
-
-            player.Draw();
-
-            //draw bricks
-            //draw bullets
         }
     }
 }

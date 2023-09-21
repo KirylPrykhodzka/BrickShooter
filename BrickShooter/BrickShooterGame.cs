@@ -1,4 +1,5 @@
 ﻿using BrickShooter.Collision;
+using BrickShooter.Drawing;
 using BrickShooter.GameObjects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -48,7 +49,7 @@ namespace BrickShooter
             GraphicsDevice.Clear(Color.Black);
             GlobalObjects.SpriteBatch.Begin(SpriteSortMode.FrontToBack);
 
-            level.Draw();
+            DrawingSystem.Run();
 #if DEBUG
             PhysicsSystem.Visualize();
 #endif

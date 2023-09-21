@@ -1,11 +1,12 @@
 ﻿using BrickShooter.Collision;
 using BrickShooter.Constants;
+using BrickShooter.Drawing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace BrickShooter.GameObjects
 {
-    public class Wall : IMaterialObject
+    public class Wall : IMaterialObject, IDrawableObject
     {
         public Texture2D Texture { get; set; }
         public Rectangle RectBounds { get; set; }
@@ -22,7 +23,8 @@ namespace BrickShooter.GameObjects
             ColliderBounds.Points.Add(new Vector2(RectBounds.X, RectBounds.Y + RectBounds.Height));
             ColliderBounds.BuildEdges();
 
-            PhysicsSystem.AddImmobileObject(this);
+            PhysicsSystem.RegisterImmobileObject(this);
+            DrawingSystem.Register(this);
         }
 
         public void Draw()

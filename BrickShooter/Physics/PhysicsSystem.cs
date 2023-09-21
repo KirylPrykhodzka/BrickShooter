@@ -20,7 +20,7 @@ namespace BrickShooter.Collision
         //objects that mobile objects can collide with
         private readonly static List<IMaterialObject> immobileObjects = new();
 
-        public static void AddMobileObject(MobileMaterialObject mobileObject)
+        public static void RegisterMobileObject(MobileMaterialObject mobileObject)
         {
             mobileObjects.Add(mobileObject);
         }
@@ -30,9 +30,15 @@ namespace BrickShooter.Collision
             mobileObjects.Remove(mobileObject);
         }
 
-        public static void AddImmobileObject(IMaterialObject immobileObject)
+        public static void RegisterImmobileObject(IMaterialObject immobileObject)
         {
             immobileObjects.Add(immobileObject);
+        }
+
+        public static void Reset()
+        {
+            mobileObjects.Clear();
+            immobileObjects.Clear();
         }
 
         /// <summary>
@@ -214,12 +220,6 @@ namespace BrickShooter.Collision
                 first.ColliderBounds.MinX > second.ColliderBounds.MaxX ||
                 first.ColliderBounds.MaxY < second.ColliderBounds.MinY ||
                 first.ColliderBounds.MinY > second.ColliderBounds.MaxY;
-        }
-
-        public static void Reset()
-        {
-            immobileObjects.Clear();
-            immobileObjects.Clear();
         }
     }
 }

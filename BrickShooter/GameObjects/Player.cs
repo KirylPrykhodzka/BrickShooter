@@ -1,5 +1,6 @@
 ﻿using BrickShooter.Collision;
 using BrickShooter.Constants;
+using BrickShooter.Drawing;
 using BrickShooter.Extensions;
 using BrickShooter.GameObjects.Bullets;
 using BrickShooter.Physics;
@@ -7,22 +8,20 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
-    public class Player : MobileMaterialObject
+    public class Player : MobileMaterialObject, IDrawableObject
     {
         private readonly Texture2D sprite;
-        private readonly List<Bullet> activeBullets = new();
         //for the cooldown calculation purposes
         private long lastShot = 0;
 
         //stuff to store in json
         private static readonly string spriteName = "player";
         //localColliderBounds
-        private static readonly Point barrelTipOffset = new Point(35, 12);
+        private static readonly Point barrelTipOffset = new(35, 12);
 
         public Player(Point initialPosition)
         {
@@ -37,7 +36,8 @@ namespace BrickShooter.GameObjects
                 new(-sprite.Width / 2, sprite.Height /2),
             };
 
-            PhysicsSystem.AddMobileObject(this);
+            PhysicsSystem.RegisterMobileObject(this);
+            DrawingSystem.Register(this);
         }
 
         public void Update()
@@ -169,8 +169,8 @@ namespace BrickShooter.GameObjects
         private void Shoot()
         {
             var bullet = BulletFactory.GetBullet();
-            activeBullets.Add(bullet);
-            bullet.Shoot((Position + barrelTipOffset).Rotate(Position, rotation), rotation);
+            var initialPosition = (Position + barrelTipOffset).Rotate(Position, rotation);
+            bullet.Move(initialPosition, rotation);
         }
 
         public void Draw()
@@ -185,11 +185,6 @@ namespace BrickShooter.GameObjects
                 1f,
                 SpriteEffects.None,
                 Layers.PLAYER);
-
-            foreach(var bullet in activeBullets)
-            {
-                bullet.Draw();
-            }
         }
     }
 }
