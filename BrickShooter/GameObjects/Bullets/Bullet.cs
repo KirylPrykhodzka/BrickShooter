@@ -17,10 +17,10 @@ namespace BrickShooter.GameObjects.Bullets
             //4 points describing the sprite rectangle
             localColliderBounds = new Point[]
             {
-                new(-sprite.Width / 2, -sprite.Height /2),
-                new(0, -sprite.Height /2),
-                new(0, sprite.Height /2),
-                new(-sprite.Width / 2, sprite.Height /2),
+                new(-BulletConstants.WIDTH / 2, -BulletConstants.HEIGHT /2),
+                new(0, -BulletConstants.HEIGHT /2),
+                new(0, BulletConstants.HEIGHT /2),
+                new(-BulletConstants.WIDTH / 2, BulletConstants.HEIGHT /2),
             };
         }
 
@@ -31,13 +31,12 @@ namespace BrickShooter.GameObjects.Bullets
             base.OnCollision(otherCollider);
         }
 
-        public void Shoot(Point from, Vector2 to)
+        public void Shoot(Point from, float rotation)
         {
-            Debug.WriteLine("Bam!");
             PhysicsSystem.AddMobileObject(this);
             Position = from;
-            Velocity = new Vector2(Math.Clamp(to.X, -1f, 1f), Math.Clamp(to.Y, -1, 1)) * BulletConstants.VELOCITY;
-            rotation = (float)Math.Atan2(to.Y, to.X);
+            Velocity = new Vector2((float)Math.Cos(rotation), (float)Math.Sin(rotation)) * BulletConstants.VELOCITY;
+            this.rotation = rotation + (float)(Math.PI / 2);
         }
 
         public void Draw()
@@ -47,7 +46,7 @@ namespace BrickShooter.GameObjects.Bullets
                 new Rectangle(Position.X, Position.Y, BulletConstants.WIDTH, BulletConstants.HEIGHT),
                 null,
                 Color.White,
-                0f,
+                rotation,
                 Vector2.Zero,
                 SpriteEffects.None,
                 Layers.BULLETS);

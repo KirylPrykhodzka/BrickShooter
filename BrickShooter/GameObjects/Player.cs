@@ -43,7 +43,7 @@ namespace BrickShooter.GameObjects
             HandleRotationInput(mouseState);
             if(mouseState.LeftButton == ButtonState.Pressed)
             {
-                var now = DateTime.Now.Ticks;
+                var now = DateTime.Now.Ticks / 10000;
                 if (now - lastShot > PlayerConstants.SHOOTING_COOLDOWN_MS)
                 {
                     Shoot();
@@ -165,7 +165,7 @@ namespace BrickShooter.GameObjects
         {
             var bullet = BulletFactory.GetBullet();
             activeBullets.Add(bullet);
-            bullet.Shoot(Position, new Vector2((float)Math.Cos(rotation), (float)Math.Sin(rotation)));
+            bullet.Shoot(Position, rotation);
         }
 
         public void Draw()
