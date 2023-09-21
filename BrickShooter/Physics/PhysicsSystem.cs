@@ -70,7 +70,6 @@ namespace BrickShooter.Collision
                         }
                         if (CheckCollision(currentElement.ColliderBounds, mobileObjects[j].ColliderBounds).collides)
                         {
-                            Debug.WriteLine("Collision");
                             //in this game, only subjects are bullets and player, so no physics calculation is needed upon collision
                             currentElement.OnCollision(mobileObjects[j]);
                             mobileObjects[j].OnCollision(currentElement);
