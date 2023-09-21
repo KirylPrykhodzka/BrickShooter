@@ -1,26 +1,23 @@
 ﻿using BrickShooter.Collision;
 using BrickShooter.Constants;
-using BrickShooter.Extensions;
+using BrickShooter.GameObjects.Bullets;
 using BrickShooter.Helpers;
 using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
-    public class Player : IMobileMaterialObject
+    public class Player : MobileMaterialObject
     {
-        public Vector2 Velocity { get; private set; }
-        public Point Position { get; set; }
-        public ColliderPolygon ColliderBounds => GetGlobalColliderBounds();
-        private Point[] localColliderBounds;
-        private float rotation;
-
         private readonly Texture2D sprite;
-
+        private readonly List<Bullet> activeBullets = new();
+        //for the cooldown calculation purposes
+        private long lastShot = 0;
 
         public Player(Point initialPosition)
         {
@@ -38,38 +35,25 @@ namespace BrickShooter.GameObjects
             PhysicsSystem.AddMobileObject(this);
         }
 
-        /// <summary>
-        /// ColliderBounds depend on position, rotation and scale of the object
-        /// To avoid re-calculating them upon each update of position / rotation / scale,
-        /// calculation logic is placed here to be called when needed
-        /// </summary>
-        /// <returns></returns>
-        private ColliderPolygon GetGlobalColliderBounds()
+        public void Update()
         {
-            var result = new ColliderPolygon();
-            var center = Position;
-            result.Points.AddRange(localColliderBounds.Select(x => GetGlobalPosition(x)));
-            result.BuildEdges();
-            return result;
-
-            Vector2 GetGlobalPosition(Point localPoint)
+            var pressedKeys = Keyboard.GetState().GetPressedKeys();
+            var mouseState = Mouse.GetState();
+            HandleMovementInput(pressedKeys);
+            HandleRotationInput(mouseState);
+            if(mouseState.LeftButton == ButtonState.Pressed)
             {
-                //get global position
-                Point globalPosition = Position + localPoint;
-                //rotate collider
-                return globalPosition.Rotate(Position, rotation).ToVector2();
+                var now = DateTime.Now.Ticks;
+                if (now - lastShot > PlayerConstants.SHOOTING_COOLDOWN_MS)
+                {
+                    Shoot();
+                    lastShot = now;
+                }
             }
         }
 
-        public void Update()
+        private void HandleMovementInput(Keys[] pressedKeys)
         {
-            HandleMovementInput();
-            HandleRotationInput();
-        }
-
-        private void HandleMovementInput()
-        {
-            var pressedKeys = Keyboard.GetState().GetPressedKeys();
             if (pressedKeys.Contains(Keys.W))
             {
                 if(Velocity.Y > 0)
@@ -170,20 +154,22 @@ namespace BrickShooter.GameObjects
             }
         }
 
-        private void HandleRotationInput()
+        private void HandleRotationInput(MouseState mouseState)
         {
-            var mouseState = Mouse.GetState();
             var diffX = mouseState.X - Position.X;
             var diffY = mouseState.Y - Position.Y;
             rotation = (float)Math.Atan2(diffY, diffX);
         }
 
+        private void Shoot()
+        {
+            var bullet = BulletFactory.GetBullet();
+            activeBullets.Add(bullet);
+            bullet.Shoot(Position, new Vector2((float)Math.Cos(rotation), (float)Math.Sin(rotation)));
+        }
+
         public void Draw()
         {
-#if DEBUG
-            VisualizationHelper.VisualizeCollider(GetGlobalColliderBounds().Points);
-#endif
-
             GlobalObjects.SpriteBatch.Draw(
                 sprite,
                 new Vector2(Position.X, Position.Y),
@@ -194,8 +180,11 @@ namespace BrickShooter.GameObjects
                 1f,
                 SpriteEffects.None,
                 Layers.PLAYER);
-        }
 
-        public void OnCollision(IMaterialObject collisionActor) { }
+            foreach(var bullet in activeBullets)
+            {
+                bullet.Draw();
+            }
+        }
     }
 }

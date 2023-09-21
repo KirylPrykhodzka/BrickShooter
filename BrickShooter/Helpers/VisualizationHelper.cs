@@ -1,4 +1,5 @@
-﻿using BrickShooter.Constants;
+﻿using BrickShooter.Collision;
+using BrickShooter.Constants;
 using BrickShooter.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -16,8 +17,9 @@ namespace BrickShooter.Helpers
             texture.SetData(new Color[] { Color.GreenYellow });
         }
 
-        public static void VisualizeCollider(List<Vector2> points)
+        public static void VisualizeCollider(ColliderPolygon collider)
         {
+            var points = collider.Points;
             for (int i = 0; i < points.Count; i++)
             {
                 var destination = i < points.Count - 1 ? new Vector2(points[i + 1].X, points[i + 1].Y) : new Vector2(points[0].X, points[0].Y);

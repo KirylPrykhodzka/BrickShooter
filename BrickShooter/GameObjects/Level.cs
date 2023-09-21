@@ -1,5 +1,4 @@
-﻿using BrickShooter.Collision;
-using BrickShooter.Constants;
+﻿using BrickShooter.Constants;
 using BrickShooter.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

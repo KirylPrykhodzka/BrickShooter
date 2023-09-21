@@ -1,8 +1,12 @@
 ﻿using BrickShooter.Extensions;
+using BrickShooter.Helpers;
 using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace BrickShooter.Collision
 {
@@ -14,13 +18,18 @@ namespace BrickShooter.Collision
     public static class PhysicsSystem
     {
         //all objects that can be repositioned in space based on their velocity and initiate collisions
-        private readonly static List<IMobileMaterialObject> mobileObjects = new();
+        private readonly static List<MobileMaterialObject> mobileObjects = new();
         //objects that mobile objects can collide with
         private readonly static List<IMaterialObject> immobileObjects = new();
 
-        public static void AddMobileObject(IMobileMaterialObject mobileObject)
+        public static void AddMobileObject(MobileMaterialObject mobileObject)
         {
             mobileObjects.Add(mobileObject);
+        }
+
+        public static void RemoveMobileObject(MobileMaterialObject mobileObject)
+        {
+            mobileObjects.Remove(mobileObject);
         }
 
         public static void AddImmobileObject(IMaterialObject immobileObject)
@@ -61,6 +70,7 @@ namespace BrickShooter.Collision
                         }
                         if (CheckCollision(currentElement.ColliderBounds, mobileObjects[j].ColliderBounds).collides)
                         {
+                            Debug.WriteLine("Collision");
                             //in this game, only subjects are bullets and player, so no physics calculation is needed upon collision
                             currentElement.OnCollision(mobileObjects[j]);
                             mobileObjects[j].OnCollision(currentElement);
@@ -87,6 +97,16 @@ namespace BrickShooter.Collision
                     }
                 }
             }
+        }
+
+        public static void Visualize()
+        {
+#if DEBUG
+            foreach (var collisionActor in immobileObjects.Concat(mobileObjects))
+            {
+                VisualizationHelper.VisualizeCollider(collisionActor.ColliderBounds);
+            }
+#endif
         }
 
         /// <summary>
@@ -190,7 +210,7 @@ namespace BrickShooter.Collision
             }
         }
 
-        private static bool DefinitelyDoNotCollide(IMobileMaterialObject first, IMaterialObject second)
+        private static bool DefinitelyDoNotCollide(MobileMaterialObject first, IMaterialObject second)
         {
             return
                 first.ColliderBounds.MaxX < second.ColliderBounds.MinX ||

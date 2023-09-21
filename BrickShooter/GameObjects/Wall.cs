@@ -28,8 +28,6 @@ namespace BrickShooter.GameObjects
 
         public void Draw()
         {
-            VisualizationHelper.VisualizeCollider(ColliderBounds.Points);
-
             GlobalObjects.SpriteBatch.Draw(
                 Texture,
                 RectBounds,
