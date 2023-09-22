@@ -47,6 +47,8 @@ namespace BrickShooter.Collision
         /// </summary>
         public static void Run()
         {
+            var collisions = new List<(MobileMaterialObject collisionSubject, IMaterialObject collisionObject)>();
+
             for (int i = 0; i < mobileObjects.Count; i++)
             {
                 var currentElement = mobileObjects[i];
@@ -63,6 +65,12 @@ namespace BrickShooter.Collision
                     CheckCollisions();
                 }
 
+                //OnCollision implementation can cause side effects
+                foreach (var collision in collisions)
+                {
+                    collision.collisionSubject.OnCollision(collision.collisionObject);
+                }
+
                 void CheckCollisions()
                 {
                     //check collision with other mobile objects
@@ -75,8 +83,8 @@ namespace BrickShooter.Collision
                         if (CheckCollision(currentElement.ColliderBounds, mobileObjects[j].ColliderBounds).collides)
                         {
                             //in this game, only subjects are bullets and player, so no physics calculation is needed upon collision
-                            currentElement.OnCollision(mobileObjects[j]);
-                            mobileObjects[j].OnCollision(currentElement);
+                            collisions.Add((currentElement, mobileObjects[j]));
+                            collisions.Add((mobileObjects[j], currentElement));
                         }
                     }
 
@@ -102,7 +110,7 @@ namespace BrickShooter.Collision
                                 }
                             }
 
-                            currentElement.OnCollision(immobileObjects[j]);
+                            collisions.Add((currentElement, immobileObjects[j]));
                         }
                     }
                 }
