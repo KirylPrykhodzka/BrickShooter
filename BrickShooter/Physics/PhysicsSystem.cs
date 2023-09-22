@@ -92,11 +92,11 @@ namespace BrickShooter.Collision
                         {
                             if (collisionResult.minimumTranslationVector != Vector2.Zero)
                             {
+                                currentElement.Position += collisionResult.minimumTranslationVector.ToPoint();
+
                                 //bounce
                                 var bounceForce = currentElement.Bounciness + immobileObjects[j].Bounciness;
                                 currentElement.Velocity *= new Vector2(Transform(collisionResult.minimumTranslationVector.X), Transform(collisionResult.minimumTranslationVector.Y)) * bounceForce;
-
-                                currentElement.Position += collisionResult.minimumTranslationVector.ToPoint();
                             }
 
                             currentElement.OnCollision(immobileObjects[j]);
