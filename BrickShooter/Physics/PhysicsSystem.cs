@@ -64,11 +64,17 @@ namespace BrickShooter.Collision
         /// </summary>
         public static void Run()
         {
-            var collisions = new List<(MobileMaterialObject collisionSubject, IMaterialObject collisionObject)>();
+            var allCollisions = new List<CollisionInfo>();
 
+            var currentObjectCollisions = new List<CollisionInfo>();
             for (int i = 0; i < mobileObjects.Count; i++)
             {
                 var currentObject = mobileObjects[i];
+                //still objects do not change positions and cannot collide with anything by themselves
+                if(currentObject.Velocity == Vector2.Zero)
+                {
+                    continue;
+                }
                 var fixedVelocity = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
                 currentObject.Position += fixedVelocity.ToPoint();
                 //check collision with other mobile and immobile objects
@@ -81,7 +87,7 @@ namespace BrickShooter.Collision
                     var (collides, minimumTranslationVector) = GetCollisionResult(currentObject.ColliderBounds, otherObject.ColliderBounds);
                     if (collides)
                     {
-                        collisions.Add((currentObject, otherObject));
+                        currentObjectCollisions.Add(new CollisionInfo { CollisionSubject = currentObject, CollisionObject = otherObject, MinimumTranslationVector = minimumTranslationVector });
 
                         if (IgnoredCollisions.TryGetValue(currentObject.GetType().Name, out var ignoredCollisions) && ignoredCollisions.Contains(otherObject.GetType().Name))
                         {
@@ -100,12 +106,15 @@ namespace BrickShooter.Collision
                         }
                     }
                 }
+
+                allCollisions.AddRange(currentObjectCollisions);
+                currentObjectCollisions.Clear();
             }
 
-            //OnCollision implementation can cause side effects
-            foreach (var (collisionSubject, collisionObject) in collisions)
+            //OnCollision call can cause side effects, so it has to be made after each collision is handled by the physics system
+            foreach (var collisionInfo in allCollisions)
             {
-                collisionSubject.OnCollision(collisionObject);
+                collisionInfo.CollisionSubject.OnCollision(collisionInfo.CollisionObject);
             }
         }
 
