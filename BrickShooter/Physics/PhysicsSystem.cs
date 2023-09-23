@@ -71,17 +71,6 @@ namespace BrickShooter.Collision
                 var currentObject = mobileObjects[i];
                 var fixedVelocity = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
                 currentObject.Position += fixedVelocity.ToPoint();
-                CheckCollisions(currentObject);
-            }
-
-            //OnCollision implementation can cause side effects
-            foreach (var (collisionSubject, collisionObject) in collisions)
-            {
-                collisionSubject.OnCollision(collisionObject);
-            }
-
-            void CheckCollisions(MobileMaterialObject currentObject)
-            {
                 //check collision with other mobile and immobile objects
                 foreach (var otherObject in mobileObjects.Where(x => x != currentObject).Concat(immobileObjects))
                 {
@@ -89,7 +78,7 @@ namespace BrickShooter.Collision
                     {
                         continue;
                     }
-                    var (collides, minimumTranslationVector) = CheckCollision(currentObject.ColliderBounds, otherObject.ColliderBounds);
+                    var (collides, minimumTranslationVector) = GetCollisionResult(currentObject.ColliderBounds, otherObject.ColliderBounds);
                     if (collides)
                     {
                         collisions.Add((currentObject, otherObject));
@@ -106,16 +95,17 @@ namespace BrickShooter.Collision
                             var bounceForce = currentObject.Bounciness + otherObject.Bounciness;
                             if (bounceForce > 0)
                             {
-                                currentObject.Velocity *= new Vector2(Transform(minimumTranslationVector.X), Transform(minimumTranslationVector.Y)) * bounceForce;
+                                currentObject.Velocity *= new Vector2(minimumTranslationVector.X == 0 ? 1 : -1, minimumTranslationVector.Y == 0 ? 1 : -1) * bounceForce;
                             }
                         }
                     }
                 }
             }
 
-            int Transform(float source)
+            //OnCollision implementation can cause side effects
+            foreach (var (collisionSubject, collisionObject) in collisions)
             {
-                return source != 0 ? -1 : 1;
+                collisionSubject.OnCollision(collisionObject);
             }
         }
 
@@ -135,7 +125,7 @@ namespace BrickShooter.Collision
         /// <param name="first"></param>
         /// <param name="second"></param>
         /// <returns></returns>
-        private static (bool collides, Vector2 minimumTranslationVector) CheckCollision(ColliderPolygon first, ColliderPolygon second)
+        private static (bool collides, Vector2 minimumTranslationVector) GetCollisionResult(ColliderPolygon first, ColliderPolygon second)
         {
             bool collides = true;
 
