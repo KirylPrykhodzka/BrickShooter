@@ -23,7 +23,7 @@ namespace BrickShooter.Collision
 
         //each Key is a name of a type that inherits from MobileMaterialObject class.
         //Values are names of types that implement IMaterialObject interface
-        //If an object of Key type collides with an object contained in Value, OnCollision is triggered, but physics rules are ignored
+        //If an object of Key type collides with an object contained in Value, collision is ignored completely
         private static readonly Dictionary<string, List<string>> IgnoredCollisions = new()
         {
             { typeof(Bullet).Name, new() { typeof(Bullet).Name } },
@@ -80,31 +80,46 @@ namespace BrickShooter.Collision
                 //check collision with other mobile and immobile objects
                 foreach (var otherObject in mobileObjects.Where(x => x != currentObject).Concat(immobileObjects))
                 {
-                    if (DefinitelyDoNotCollide(currentObject, otherObject))
+                    if (DefinitelyDoNotCollide(currentObject, otherObject) ||
+                        IgnoredCollisions.TryGetValue(currentObject.GetType().Name, out var ignoredCollisions) && ignoredCollisions.Contains(otherObject.GetType().Name))
                     {
                         continue;
                     }
+
+                    //get all collisions
                     var (collides, minimumTranslationVector) = GetCollisionResult(currentObject.ColliderBounds, otherObject.ColliderBounds);
                     if (collides)
                     {
                         currentObjectCollisions.Add(new CollisionInfo { CollisionSubject = currentObject, CollisionObject = otherObject, MinimumTranslationVector = minimumTranslationVector });
+                    }
+                }
 
-                        if (IgnoredCollisions.TryGetValue(currentObject.GetType().Name, out var ignoredCollisions) && ignoredCollisions.Contains(otherObject.GetType().Name))
-                        {
-                            continue;
-                        }
-                        if (minimumTranslationVector != Vector2.Zero)
-                        {
-                            currentObject.Position += minimumTranslationVector.ToPoint();
+                //apply collision(s)
+                if(currentObjectCollisions.Count == 0)
+                {
+                    continue;
+                }
+                if(currentObjectCollisions.Count == 1)
+                {
+                    var collision = currentObjectCollisions[0];
+                    if (collision.MinimumTranslationVector != Vector2.Zero)
+                    {
+                        currentObject.Position += collision.MinimumTranslationVector.ToPoint();
 
-                            //bounce
-                            var bounceForce = currentObject.Bounciness + otherObject.Bounciness;
-                            if (bounceForce > 0)
-                            {
-                                currentObject.Velocity *= new Vector2(minimumTranslationVector.X == 0 ? 1 : -1, minimumTranslationVector.Y == 0 ? 1 : -1) * bounceForce;
-                            }
+                        //bounce
+                        var bounceForce = currentObject.Bounciness + collision.CollisionObject.Bounciness;
+                        if (bounceForce > 0)
+                        {
+                            currentObject.Velocity *= new Vector2(collision.MinimumTranslationVector.X == 0 ? 1 : -1, collision.MinimumTranslationVector.Y == 0 ? 1 : -1) * bounceForce;
                         }
                     }
+                }
+                if(currentObjectCollisions.Count > 1)
+                {
+                    //apply each collision and check how many collisions remain
+                    //if 0, awesome
+                    //if > 0, try finding the one which leaves 0 collisions among other ones
+                    //if all collisions leave >0 after applying, apply the one that leaves least collisions and repeat the steps
                 }
 
                 allCollisions.AddRange(currentObjectCollisions);
@@ -229,6 +244,7 @@ namespace BrickShooter.Collision
             }
         }
 
+        //TODO: extend with proper broad phase logic
         private static bool DefinitelyDoNotCollide(MobileMaterialObject first, IMaterialObject second)
         {
             return
