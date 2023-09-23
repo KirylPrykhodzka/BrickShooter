@@ -1,32 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace BrickShooter.GameObjects.Bullets
 {
     public static class BulletFactory
     {
-        private static Queue<Bullet> bullets = new();
+        private static readonly LinkedList<Bullet> bullets = new();
 
         static BulletFactory()
         {
             for(int i = 0; i < 10; i++)
             {
                 Bullet bullet = new Bullet();
-                bullets.Enqueue(bullet);
+                bullets.AddLast(bullet);
             }
         }
 
         public static Bullet GetBullet()
         {
-            if(bullets.TryDequeue(out Bullet bullet))
+            if(bullets.Count > 0)
             {
-                return bullet;
+                var result = bullets.Last.Value;
+                bullets.RemoveLast();
+                return result;
             }
             return new Bullet();
         }
 
         public static void Return(Bullet bullet)
         {
-            bullets.Enqueue(bullet);
+            bullet.Position = Point.Zero;
+            bullet.Velocity = Vector2.Zero;
+            bullets.AddLast(bullet);
         }
     }
 }

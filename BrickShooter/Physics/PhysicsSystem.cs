@@ -1,4 +1,5 @@
 ﻿using BrickShooter.Extensions;
+using BrickShooter.GameObjects.Bullets;
 using BrickShooter.Helpers;
 using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
@@ -16,17 +17,33 @@ namespace BrickShooter.Collision
     public static class PhysicsSystem
     {
         //all objects that can be repositioned in space based on their velocity and initiate collisions
-        private readonly static List<MobileMaterialObject> mobileObjects = new();
+        private static readonly List<MobileMaterialObject> mobileObjects = new();
         //objects that mobile objects can collide with
-        private readonly static List<IMaterialObject> immobileObjects = new();
+        private static readonly List<IMaterialObject> immobileObjects = new();
+
+        //each Key is a name of a type that inherits from MobileMaterialObject class.
+        //Values are names of types that implement IMaterialObject interface
+        //If an object of Key type collides with an object contained in Value, OnCollision is triggered, but physics rules are ignored
+        private static readonly Dictionary<string, List<string>> IgnoredCollisions = new()
+        {
+            { typeof(Bullet).Name, new() { typeof(Bullet).Name } },
+        };
 
         public static void RegisterMobileObject(MobileMaterialObject mobileObject)
         {
+            if(mobileObjects.Contains(mobileObject))
+            {
+                throw new InvalidOperationException("Cannot register same mobile object twice");
+            }
             mobileObjects.Add(mobileObject);
         }
 
         public static void RemoveMobileObject(MobileMaterialObject mobileObject)
         {
+            if (!mobileObjects.Contains(mobileObject))
+            {
+                throw new InvalidOperationException("The object is not registered in the physics system");
+            }
             mobileObjects.Remove(mobileObject);
         }
 
@@ -51,74 +68,54 @@ namespace BrickShooter.Collision
 
             for (int i = 0; i < mobileObjects.Count; i++)
             {
-                var currentElement = mobileObjects[i];
-                if(currentElement.Velocity.X != 0)
-                {
-                    var fixedVelocity = currentElement.Velocity.X * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-                    currentElement.Position += new Point((int)fixedVelocity, 0);
-                    CheckCollisions();
-                }
-                if (currentElement.Velocity.Y != 0)
-                {
-                    var fixedVelocity = currentElement.Velocity.Y * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-                    currentElement.Position += new Point(0, (int)fixedVelocity);
-                    CheckCollisions();
-                }
+                var currentObject = mobileObjects[i];
+                var fixedVelocity = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+                currentObject.Position += fixedVelocity.ToPoint();
+                CheckCollisions(currentObject);
+            }
 
-                //OnCollision implementation can cause side effects
-                foreach (var collision in collisions)
-                {
-                    collision.collisionSubject.OnCollision(collision.collisionObject);
-                }
+            //OnCollision implementation can cause side effects
+            foreach (var (collisionSubject, collisionObject) in collisions)
+            {
+                collisionSubject.OnCollision(collisionObject);
+            }
 
-                void CheckCollisions()
+            void CheckCollisions(MobileMaterialObject currentObject)
+            {
+                //check collision with other mobile and immobile objects
+                foreach (var otherObject in mobileObjects.Where(x => x != currentObject).Concat(immobileObjects))
                 {
-                    //check collision with other mobile objects
-                    for (int j = i + 1; j < mobileObjects.Count; j++)
+                    if (DefinitelyDoNotCollide(currentObject, otherObject))
                     {
-                        if (DefinitelyDoNotCollide(currentElement, mobileObjects[j]))
-                        {
-                            continue;
-                        }
-                        if (CheckCollision(currentElement.ColliderBounds, mobileObjects[j].ColliderBounds).collides)
-                        {
-                            //in this game, only subjects are bullets and player, so no physics calculation is needed upon collision
-                            collisions.Add((currentElement, mobileObjects[j]));
-                            collisions.Add((mobileObjects[j], currentElement));
-                        }
+                        continue;
                     }
-
-                    //check collision with objects
-                    for (int j = 0; j < immobileObjects.Count; j++)
+                    var (collides, minimumTranslationVector) = CheckCollision(currentObject.ColliderBounds, otherObject.ColliderBounds);
+                    if (collides)
                     {
-                        if (DefinitelyDoNotCollide(currentElement, immobileObjects[j]))
+                        collisions.Add((currentObject, otherObject));
+
+                        if (IgnoredCollisions.TryGetValue(currentObject.GetType().Name, out var ignoredCollisions) && ignoredCollisions.Contains(otherObject.GetType().Name))
                         {
                             continue;
                         }
-                        var collisionResult = CheckCollision(currentElement.ColliderBounds, immobileObjects[j].ColliderBounds);
-                        if (collisionResult.collides)
+                        if (minimumTranslationVector != Vector2.Zero)
                         {
-                            if (collisionResult.minimumTranslationVector != Vector2.Zero)
+                            currentObject.Position += minimumTranslationVector.ToPoint();
+
+                            //bounce
+                            var bounceForce = currentObject.Bounciness + otherObject.Bounciness;
+                            if (bounceForce > 0)
                             {
-                                currentElement.Position += collisionResult.minimumTranslationVector.ToPoint();
-
-                                //bounce
-                                var bounceForce = currentElement.Bounciness + immobileObjects[j].Bounciness;
-                                if(bounceForce > 0)
-                                {
-                                    currentElement.Velocity *= new Vector2(Transform(collisionResult.minimumTranslationVector.X), Transform(collisionResult.minimumTranslationVector.Y)) * bounceForce;
-                                }
+                                currentObject.Velocity *= new Vector2(Transform(minimumTranslationVector.X), Transform(minimumTranslationVector.Y)) * bounceForce;
                             }
-
-                            collisions.Add((currentElement, immobileObjects[j]));
                         }
                     }
                 }
+            }
 
-                int Transform(float source)
-                {
-                    return source != 0 ? -1 : 1;
-                }
+            int Transform(float source)
+            {
+                return source != 0 ? -1 : 1;
             }
         }
 

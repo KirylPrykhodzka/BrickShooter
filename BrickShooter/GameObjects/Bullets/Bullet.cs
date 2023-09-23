@@ -5,6 +5,7 @@ using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Diagnostics;
 
 namespace BrickShooter.GameObjects.Bullets
 {
@@ -33,11 +34,16 @@ namespace BrickShooter.GameObjects.Bullets
             {
                 case "Wall":
                     {
+                        //rotate
+                        break;
+                    }
+                case "Player":
+                    {
+                        Deactivate();
                         break;
                     }
                 default:
                     {
-                        Deactivate();
                         break;
                     }
             }
