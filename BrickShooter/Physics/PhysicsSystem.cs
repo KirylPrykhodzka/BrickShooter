@@ -75,6 +75,7 @@ namespace BrickShooter.Collision
                 var currentObject = mobileObjects[i];
                 var fixedVelocity = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
                 currentObject.Position += fixedVelocity;
+
                 //check collision with other mobile and immobile objects
                 foreach (var otherObject in mobileObjects.Where(x => x != currentObject).Concat(immobileObjects))
                 {
@@ -86,13 +87,13 @@ namespace BrickShooter.Collision
 
                     //get all collisions
                     var (collides, minimumTranslation) = GetCollisionResult(currentObject.ColliderBounds, otherObject.ColliderBounds);
-                    if (collides && minimumTranslation.ToPoint() != Point.Zero)
+                    if (collides && minimumTranslation != Vector2.Zero)
                     {
                         currentObjectCollisions.Add(new CollisionInfo { CollisionSubject = currentObject, CollisionObject = otherObject, MinimumTranslation = minimumTranslation });
                     }
                 }
 
-                if(currentObjectCollisions.Count == 0)
+                if (currentObjectCollisions.Count == 0)
                 {
                     continue;
                 }
@@ -102,7 +103,7 @@ namespace BrickShooter.Collision
                 //if > 0, try finding the one which leaves 0 collisions among other ones
                 //if all collisions leave >0 after applying, apply the one that leaves least collisions and repeat the steps
                 var remainingCollisions = currentObjectCollisions;
-                List<(CollisionInfo collision, List<CollisionInfo> remainingAfterApplication)> collisionApplicationResults = new();
+                List<(CollisionInfo collisionInfo, List<CollisionInfo> remainingAfterApplication)> collisionApplicationResults = new();
                 while (remainingCollisions.Count > 0)
                 {
                     foreach (var collision in remainingCollisions)
@@ -112,7 +113,7 @@ namespace BrickShooter.Collision
                         var stillRemainingCollisions = remainingCollisions.Where(x =>
                         {
                             var (collides, minimumTranslation) = GetCollisionResult(x.CollisionSubject.ColliderBounds, x.CollisionObject.ColliderBounds);
-                            return collides && minimumTranslation.ToPoint() != Point.Zero;
+                            return collides && minimumTranslation != Vector2.Zero;
                         }).ToList();
                         collisionApplicationResults.Add((collision, stillRemainingCollisions));
                         currentObject.Position = previousPosition;
@@ -122,10 +123,23 @@ namespace BrickShooter.Collision
                         }
                     }
 
-                    var optimalCollision = collisionApplicationResults.MinBy(x => x.remainingAfterApplication.Count);
-                    ApplyCollision(optimalCollision.collision);
-                    remainingCollisions = optimalCollision.remainingAfterApplication;
+                    var (collisionInfo, remainingAfterApplication) = collisionApplicationResults.MinBy(x => x.remainingAfterApplication.Count);
+                    remainingCollisions = remainingAfterApplication;
                     collisionApplicationResults.Clear();
+
+                    collisionInfo.CollisionSubject.Position += collisionInfo.MinimumTranslation;
+                }
+
+                //bounce
+                var bounceForce = currentObject.Bounciness + currentObjectCollisions.Average(x => x.CollisionObject.Bounciness);
+                if (bounceForce > 0)
+                {
+                    Vector2 bounceVector = new Vector2(currentObjectCollisions[0].MinimumTranslation.ToPoint().X == 0 ? 1 : -1, currentObjectCollisions[0].MinimumTranslation.ToPoint().Y == 0 ? 1 : -1);
+                    if (currentObjectCollisions.Count > 1)
+                    {
+                        bounceVector = currentObjectCollisions.All(x => x.MinimumTranslation.X >= 0) || currentObjectCollisions.All(x => x.MinimumTranslation.X <= 0) ? new Vector2(-1, 1) : new Vector2(1, -1);
+                    }
+                    currentObject.Velocity *= bounceVector * bounceForce;
                 }
 
                 allCollisions.AddRange(currentObjectCollisions);
@@ -136,22 +150,6 @@ namespace BrickShooter.Collision
             foreach (var collisionInfo in allCollisions)
             {
                 collisionInfo.CollisionSubject.OnCollision(collisionInfo.CollisionObject);
-            }
-
-            static void ApplyCollision(CollisionInfo collisionInfo)
-            {
-                collisionInfo.CollisionSubject.Position += collisionInfo.MinimumTranslation;
-
-                //bounce
-                var bounceForce = collisionInfo.CollisionSubject.Bounciness + collisionInfo.CollisionObject.Bounciness;
-                if (bounceForce > 0)
-                {
-                    collisionInfo.CollisionSubject.Velocity *= new Vector2(collisionInfo.MinimumTranslation.ToPoint().X == 0 ? 1 : -1, collisionInfo.MinimumTranslation.ToPoint().Y == 0 ? 1 : -1) * bounceForce;
-                    if(collisionInfo.MinimumTranslation.ToPoint().X != 0 && collisionInfo.MinimumTranslation.ToPoint().Y != 0)
-                    {
-                        Debug.WriteLine("Incorrect bounce");
-                    }
-                }
             }
         }
 

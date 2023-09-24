@@ -38,7 +38,10 @@ namespace BrickShooter
         {
             GlobalObjects.GameTime = gameTime;
 
-            level.Update();
+            if(IsActive)
+            {
+                level.Update();
+            }
             PhysicsSystem.Run();
 
             base.Update(gameTime);
