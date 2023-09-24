@@ -1,10 +1,12 @@
 ﻿using BrickShooter.Extensions;
+using BrickShooter.GameObjects;
 using BrickShooter.GameObjects.Bullets;
 using BrickShooter.Helpers;
 using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.Collision
@@ -26,7 +28,8 @@ namespace BrickShooter.Collision
         //If an object of Key type collides with an object contained in Value, collision is ignored completely
         private static readonly Dictionary<string, List<string>> IgnoredCollisions = new()
         {
-            { typeof(Bullet).Name, new() { typeof(Bullet).Name } },
+            { typeof(Bullet).Name, new() { typeof(Bullet).Name, typeof(Player).Name } },
+            { typeof(Player).Name, new() { typeof(Bullet).Name, } },
         };
 
         public static void RegisterMobileObject(MobileMaterialObject mobileObject)
@@ -105,8 +108,7 @@ namespace BrickShooter.Collision
                     foreach (var collision in remainingCollisions)
                     {
                         var previousPosition = currentObject.Position;
-                        var previousVelocity = currentObject.Velocity;
-                        ApplyCollision(collision);
+                        currentObject.Position += collision.MinimumTranslation;
                         var stillRemainingCollisions = remainingCollisions.Where(x =>
                         {
                             var (collides, minimumTranslation) = GetCollisionResult(x.CollisionSubject.ColliderBounds, x.CollisionObject.ColliderBounds);
@@ -114,7 +116,6 @@ namespace BrickShooter.Collision
                         }).ToList();
                         collisionApplicationResults.Add((collision, stillRemainingCollisions));
                         currentObject.Position = previousPosition;
-                        currentObject.Velocity = previousVelocity;
                         if (!stillRemainingCollisions.Any())
                         {
                             break;
@@ -145,7 +146,11 @@ namespace BrickShooter.Collision
                 var bounceForce = collisionInfo.CollisionSubject.Bounciness + collisionInfo.CollisionObject.Bounciness;
                 if (bounceForce > 0)
                 {
-                    collisionInfo.CollisionSubject.Velocity *= new Vector2(collisionInfo.MinimumTranslation.X == 0 ? 1 : -1, collisionInfo.MinimumTranslation.Y == 0 ? 1 : -1) * bounceForce;
+                    collisionInfo.CollisionSubject.Velocity *= new Vector2(collisionInfo.MinimumTranslation.ToPoint().X == 0 ? 1 : -1, collisionInfo.MinimumTranslation.ToPoint().Y == 0 ? 1 : -1) * bounceForce;
+                    if(collisionInfo.MinimumTranslation.ToPoint().X != 0 && collisionInfo.MinimumTranslation.ToPoint().Y != 0)
+                    {
+                        Debug.WriteLine("Incorrect bounce");
+                    }
                 }
             }
         }
