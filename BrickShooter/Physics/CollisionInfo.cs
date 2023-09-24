@@ -7,6 +7,6 @@ namespace BrickShooter.Physics
     {
         public MobileMaterialObject CollisionSubject { get; set; }
         public IMaterialObject CollisionObject { get; set; }
-        public Vector2 MinimumTranslationVector { get; set; }
+        public Vector2 MinimumTranslation { get; set; }
     }
 }

@@ -29,7 +29,7 @@ namespace BrickShooter.GameObjects.Bullets
 
         public static void Return(Bullet bullet)
         {
-            bullet.Position = Point.Zero;
+            bullet.Position = Vector2.Zero;
             bullet.Velocity = Vector2.Zero;
             bullets.AddLast(bullet);
         }

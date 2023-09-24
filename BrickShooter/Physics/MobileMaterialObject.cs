@@ -9,9 +9,9 @@ namespace BrickShooter.Physics
     {
         public ColliderPolygon ColliderBounds => GetGlobalColliderBounds();
         public virtual float Bounciness => 0f;
-        public Point Position { get; set; }
+        public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
-        protected Point[] localColliderBounds;
+        protected Vector2[] localColliderBounds;
         protected float rotation;
 
         public virtual void OnCollision(IMaterialObject otherCollider) { }
@@ -25,17 +25,16 @@ namespace BrickShooter.Physics
         private ColliderPolygon GetGlobalColliderBounds()
         {
             var result = new ColliderPolygon();
-            var center = Position;
             result.Points.AddRange(localColliderBounds.Select(x => GetGlobalPosition(x)));
             result.BuildEdges();
             return result;
 
-            Vector2 GetGlobalPosition(Point localPoint)
+            Vector2 GetGlobalPosition(Vector2 localPoint)
             {
                 //get global position
-                Point globalPosition = Position + localPoint;
+                Vector2 globalPosition = Position + localPoint;
                 //rotate collider
-                return globalPosition.Rotate(Position, rotation).ToVector2();
+                return globalPosition.ToPoint().Rotate(Position.ToPoint(), rotation).ToVector2();
             }
         }
     }

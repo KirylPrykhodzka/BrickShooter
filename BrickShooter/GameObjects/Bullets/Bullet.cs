@@ -19,7 +19,7 @@ namespace BrickShooter.GameObjects.Bullets
         public Bullet()
         {
             //4 points describing the sprite rectangle
-            localColliderBounds = new Point[]
+            localColliderBounds = new Vector2[]
             {
                 new(-sprite.Width / 2, -sprite.Height /2),
                 new(sprite.Width / 2, -sprite.Height /2),
@@ -54,7 +54,7 @@ namespace BrickShooter.GameObjects.Bullets
         /// </summary>
         /// <param name="from"></param>
         /// <param name="rotation"></param>
-        public void Move(Point from, float rotation)
+        public void Move(Vector2 from, float rotation)
         {
             Activate();
             Position = from;

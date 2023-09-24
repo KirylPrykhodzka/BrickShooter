@@ -70,13 +70,8 @@ namespace BrickShooter.Collision
             for (int i = 0; i < mobileObjects.Count; i++)
             {
                 var currentObject = mobileObjects[i];
-                //still objects do not change positions and cannot collide with anything by themselves
-                if(currentObject.Velocity == Vector2.Zero)
-                {
-                    continue;
-                }
                 var fixedVelocity = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-                currentObject.Position += fixedVelocity.ToPoint();
+                currentObject.Position += fixedVelocity;
                 //check collision with other mobile and immobile objects
                 foreach (var otherObject in mobileObjects.Where(x => x != currentObject).Concat(immobileObjects))
                 {
@@ -87,39 +82,49 @@ namespace BrickShooter.Collision
                     }
 
                     //get all collisions
-                    var (collides, minimumTranslationVector) = GetCollisionResult(currentObject.ColliderBounds, otherObject.ColliderBounds);
-                    if (collides)
+                    var (collides, minimumTranslation) = GetCollisionResult(currentObject.ColliderBounds, otherObject.ColliderBounds);
+                    if (collides && minimumTranslation.ToPoint() != Point.Zero)
                     {
-                        currentObjectCollisions.Add(new CollisionInfo { CollisionSubject = currentObject, CollisionObject = otherObject, MinimumTranslationVector = minimumTranslationVector });
+                        currentObjectCollisions.Add(new CollisionInfo { CollisionSubject = currentObject, CollisionObject = otherObject, MinimumTranslation = minimumTranslation });
                     }
                 }
 
-                //apply collision(s)
                 if(currentObjectCollisions.Count == 0)
                 {
                     continue;
                 }
-                if(currentObjectCollisions.Count == 1)
-                {
-                    var collision = currentObjectCollisions[0];
-                    if (collision.MinimumTranslationVector != Vector2.Zero)
-                    {
-                        currentObject.Position += collision.MinimumTranslationVector.ToPoint();
 
-                        //bounce
-                        var bounceForce = currentObject.Bounciness + collision.CollisionObject.Bounciness;
-                        if (bounceForce > 0)
+                //apply each collision and check how many collisions remain
+                //if 0, awesome
+                //if > 0, try finding the one which leaves 0 collisions among other ones
+                //if all collisions leave >0 after applying, apply the one that leaves least collisions and repeat the steps
+                var remainingCollisions = currentObjectCollisions;
+                List<(CollisionInfo collision, List<CollisionInfo> remainingAfterApplication)> collisionApplicationResults = new();
+                while (remainingCollisions.Count > 0)
+                {
+                    foreach (var collision in remainingCollisions)
+                    {
+                        var previousPosition = currentObject.Position;
+                        var previousVelocity = currentObject.Velocity;
+                        ApplyCollision(collision);
+                        var stillRemainingCollisions = remainingCollisions.Where(x =>
                         {
-                            currentObject.Velocity *= new Vector2(collision.MinimumTranslationVector.X == 0 ? 1 : -1, collision.MinimumTranslationVector.Y == 0 ? 1 : -1) * bounceForce;
+                            var (collides, minimumTranslation) = GetCollisionResult(x.CollisionSubject.ColliderBounds, x.CollisionObject.ColliderBounds);
+                            return collides && minimumTranslation.ToPoint() != Point.Zero;
+                        }).ToList();
+                        collisionApplicationResults.Add((collision, stillRemainingCollisions));
+                        currentObject.Position = previousPosition;
+                        currentObject.Velocity = previousVelocity;
+                        if (!stillRemainingCollisions.Any())
+                        {
+                            break;
                         }
                     }
-                }
-                if(currentObjectCollisions.Count > 1)
-                {
-                    //apply each collision and check how many collisions remain
-                    //if 0, awesome
-                    //if > 0, try finding the one which leaves 0 collisions among other ones
-                    //if all collisions leave >0 after applying, apply the one that leaves least collisions and repeat the steps
+
+                    var optimalCollision = collisionApplicationResults.MinBy(x => x.remainingAfterApplication.Count);
+                    ApplyCollision(optimalCollision.collision);
+                    remainingCollisions = optimalCollision.remainingAfterApplication;
+                    collisionApplicationResults.Clear();
                 }
 
                 allCollisions.AddRange(currentObjectCollisions);
@@ -130,6 +135,18 @@ namespace BrickShooter.Collision
             foreach (var collisionInfo in allCollisions)
             {
                 collisionInfo.CollisionSubject.OnCollision(collisionInfo.CollisionObject);
+            }
+
+            static void ApplyCollision(CollisionInfo collisionInfo)
+            {
+                collisionInfo.CollisionSubject.Position += collisionInfo.MinimumTranslation;
+
+                //bounce
+                var bounceForce = collisionInfo.CollisionSubject.Bounciness + collisionInfo.CollisionObject.Bounciness;
+                if (bounceForce > 0)
+                {
+                    collisionInfo.CollisionSubject.Velocity *= new Vector2(collisionInfo.MinimumTranslation.X == 0 ? 1 : -1, collisionInfo.MinimumTranslation.Y == 0 ? 1 : -1) * bounceForce;
+                }
             }
         }
 
@@ -149,7 +166,7 @@ namespace BrickShooter.Collision
         /// <param name="first"></param>
         /// <param name="second"></param>
         /// <returns></returns>
-        private static (bool collides, Vector2 minimumTranslationVector) GetCollisionResult(ColliderPolygon first, ColliderPolygon second)
+        private static (bool collides, Vector2 minimumTranslation) GetCollisionResult(ColliderPolygon first, ColliderPolygon second)
         {
             bool collides = true;
 

@@ -21,14 +21,14 @@ namespace BrickShooter.GameObjects
         //stuff to store in json
         private static readonly string spriteName = "player";
         //localColliderBounds
-        private static readonly Point barrelTipOffset = new(35, 12);
+        private static readonly Vector2 barrelTipOffset = new(35, 12);
 
-        public Player(Point initialPosition)
+        public Player(Vector2 initialPosition)
         {
             sprite = GlobalObjects.Content.Load<Texture2D>($"Player/{spriteName}");
             Position = initialPosition;
             //4 points describing the sprite rectangle
-            localColliderBounds = new Point[]
+            localColliderBounds = new Vector2[]
             {
                 new(-sprite.Width / 2, -sprite.Height /2),
                 new(0, -sprite.Height /2),
@@ -169,7 +169,7 @@ namespace BrickShooter.GameObjects
         private void Shoot()
         {
             var bullet = BulletFactory.GetBullet();
-            var initialPosition = (Position + barrelTipOffset).Rotate(Position, rotation);
+            var initialPosition = (Position + barrelTipOffset).ToPoint().Rotate(Position.ToPoint(), rotation).ToVector2();
             bullet.Move(initialPosition, rotation);
         }
 
