@@ -201,7 +201,7 @@ namespace BrickShooter.Collision
                 // ===== 1. Find if the polygons are currently intersecting =====
 
                 // Find the axis perpendicular to the current edge
-                Vector2 axis = new Vector2(-edge.Y, edge.X);
+                Vector2 axis = new(-edge.Y, edge.X);
                 axis.Normalize();
 
                 // Find the projection of the polygon on the current axis
@@ -209,14 +209,15 @@ namespace BrickShooter.Collision
                 ProjectPolygon(axis, first, ref minA, ref maxA);
                 ProjectPolygon(axis, second, ref minB, ref maxB);
 
-                // Check if the polygon projections are currentlty intersecting
-                if (IntervalDistance(minA, maxA, minB, maxB) > 0)
+                float intervalDistance = IntervalDistance(minA, maxA, minB, maxB);
+                if(intervalDistance > 0)
                 {
                     collides = false;
                 }
-
-                // Do the same test as above for the new projection
-                float intervalDistance = IntervalDistance(minA, maxA, minB, maxB);
+                if(!collides)
+                {
+                    break;
+                }
 
                 // Check if the current interval distance is the minimum one. If so store
                 // the interval distance and the current distance.
