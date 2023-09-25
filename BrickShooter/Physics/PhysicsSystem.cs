@@ -87,9 +87,10 @@ namespace BrickShooter.Collision
 
                     //get all collisions
                     var (collides, minimumTranslation) = GetCollisionResult(currentObject.ColliderBounds, otherObject.ColliderBounds);
-                    if (collides && minimumTranslation != Vector2.Zero)
+                    //.ToPoint() is to avoid detecting miniscule collisions which we do not care about
+                    if (collides && minimumTranslation.ToPoint() != Point.Zero)
                     {
-                        currentObjectCollisions.Add(new CollisionInfo { CollisionSubject = currentObject, CollisionObject = otherObject, MinimumTranslation = minimumTranslation });
+                        currentObjectCollisions.Add(new CollisionInfo { CollisionSubject = currentObject, CollisionObject = otherObject, Translation = minimumTranslation });
                     }
                 }
 
@@ -103,17 +104,18 @@ namespace BrickShooter.Collision
                 //if > 0, try finding the one which leaves 0 collisions among other ones
                 //if all collisions leave >0 after applying, apply the one that leaves least collisions and repeat the steps
                 var remainingCollisions = currentObjectCollisions;
+                HashSet<CollisionInfo> appliedCollisions = new();
                 List<(CollisionInfo collisionInfo, List<CollisionInfo> remainingAfterApplication)> collisionApplicationResults = new();
                 while (remainingCollisions.Count > 0)
                 {
                     foreach (var collision in remainingCollisions)
                     {
                         var previousPosition = currentObject.Position;
-                        currentObject.Position += collision.MinimumTranslation;
+                        currentObject.Position += collision.Translation;
                         var stillRemainingCollisions = remainingCollisions.Where(x =>
                         {
                             var (collides, minimumTranslation) = GetCollisionResult(x.CollisionSubject.ColliderBounds, x.CollisionObject.ColliderBounds);
-                            return collides && minimumTranslation != Vector2.Zero;
+                            return collides && minimumTranslation.ToPoint() != Point.Zero;
                         }).ToList();
                         collisionApplicationResults.Add((collision, stillRemainingCollisions));
                         currentObject.Position = previousPosition;
@@ -127,17 +129,22 @@ namespace BrickShooter.Collision
                     remainingCollisions = remainingAfterApplication;
                     collisionApplicationResults.Clear();
 
-                    collisionInfo.CollisionSubject.Position += collisionInfo.MinimumTranslation;
+                    collisionInfo.CollisionSubject.Position += collisionInfo.Translation;
+                    appliedCollisions.Add(collisionInfo);
                 }
 
                 //bounce
-                var bounceForce = currentObject.Bounciness + currentObjectCollisions.Average(x => x.CollisionObject.Bounciness);
+                var bounceForce = currentObject.Bounciness + appliedCollisions.Average(x => x.CollisionObject.Bounciness);
                 if (bounceForce > 0)
                 {
-                    Vector2 bounceVector = new Vector2(currentObjectCollisions[0].MinimumTranslation.ToPoint().X == 0 ? 1 : -1, currentObjectCollisions[0].MinimumTranslation.ToPoint().Y == 0 ? 1 : -1);
-                    if (currentObjectCollisions.Count > 1)
+                    Vector2 bounceVector = new(appliedCollisions.First().Translation.ToPoint().X == 0 ? 1 : -1, appliedCollisions.First().Translation.ToPoint().Y == 0 ? 1 : -1);
+                    if (appliedCollisions.Count > 1)
                     {
-                        bounceVector = currentObjectCollisions.All(x => x.MinimumTranslation.X >= 0) || currentObjectCollisions.All(x => x.MinimumTranslation.X <= 0) ? new Vector2(-1, 1) : new Vector2(1, -1);
+                        var allXTranslations = appliedCollisions.Select(x => x.Translation.X).Where(x => x != 0);
+                        var areAllXTranslationsInSameDirection = allXTranslations.All(x => x > 0) || allXTranslations.All(x => x < 0);
+                        var allYTranslations = appliedCollisions.Select(x => x.Translation.Y).Where(y => y != 0);
+                        var areAllYTranslationsInSameDirection = allYTranslations.All(y => y > 0) || allYTranslations.All(y => y < 0);
+                        bounceVector = new Vector2(areAllXTranslationsInSameDirection ? -1 : 1, areAllYTranslationsInSameDirection ? -1 : 1);
                     }
                     currentObject.Velocity *= bounceVector * bounceForce;
                 }
