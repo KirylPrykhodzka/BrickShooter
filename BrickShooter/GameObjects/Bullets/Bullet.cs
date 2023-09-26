@@ -1,17 +1,14 @@
-﻿using BrickShooter.Collision;
-using BrickShooter.Constants;
+﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
 using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Diagnostics;
 
 namespace BrickShooter.GameObjects.Bullets
 {
-    public class Bullet : MobileMaterialObject, IDrawableObject
+    public class Bullet : MaterialObject, IDrawableObject
     {
-        public override float Bounciness => 1f;
         private static readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>("Bullets/Bullet");
 
         private bool isActive = false;
@@ -26,9 +23,10 @@ namespace BrickShooter.GameObjects.Bullets
                 new(sprite.Width / 2, sprite.Height /2),
                 new(-sprite.Width / 2, sprite.Height /2),
             };
+            Bounciness = 1f;
         }
 
-        public override void OnCollision(IMaterialObject otherCollider)
+        public override void OnCollision(MaterialObject otherCollider)
         {
             switch(otherCollider.GetType().Name)
             {
@@ -59,7 +57,7 @@ namespace BrickShooter.GameObjects.Bullets
             Activate();
             Position = from;
             Velocity = new Vector2((float)Math.Cos(rotation), (float)Math.Sin(rotation)) * BulletConstants.VELOCITY;
-            this.rotation = rotation;
+            Rotation = rotation;
         }
 
         public void Draw()
@@ -73,7 +71,7 @@ namespace BrickShooter.GameObjects.Bullets
                 new Vector2(Position.X, Position.Y),
                 null,
                 Color.White,
-                rotation,
+                Rotation,
                 new Vector2(sprite.Width / 2f, sprite.Height / 2f),
                 1f,
                 SpriteEffects.None,
@@ -83,14 +81,14 @@ namespace BrickShooter.GameObjects.Bullets
         private void Activate()
         {
             isActive = true;
-            PhysicsSystem.RegisterMobileObject(this);
+            physicsSystem.RegisterMobileObject(this);
             DrawingSystem.Register(this);
         }
 
         private void Deactivate()
         {
             isActive = false;
-            PhysicsSystem.RemoveMobileObject(this);
+            physicsSystem.UnregisterMobileObject(this);
             DrawingSystem.Unregister(this);
             BulletFactory.Return(this);
         }

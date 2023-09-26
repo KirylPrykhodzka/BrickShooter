@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrickShooter.Collision
+namespace BrickShooter.Physics
 {
     public class ColliderPolygon
     {

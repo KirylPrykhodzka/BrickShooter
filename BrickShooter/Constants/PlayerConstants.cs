@@ -9,6 +9,6 @@
         public const float ACCELERATION_FACTOR = 0.1f;
         //player decelerates twice as fast as accelerates
         public const float DECELERATION_FACTOR = 0.2f;
-        public const int SHOOTING_COOLDOWN_MS = 1000;
+        public const int SHOOTING_COOLDOWN_MS = 100;
     }
 }

@@ -1,6 +1,8 @@
-﻿using BrickShooter.Collision;
+﻿using BrickShooter.Configuration;
 using BrickShooter.Drawing;
 using BrickShooter.GameObjects;
+using BrickShooter.Physics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -8,6 +10,7 @@ namespace BrickShooter
 {
     public class BrickShooterGame : Game
     {
+        private IPhysicsSystem physicsSystem;
         private Level level;
 
         public BrickShooterGame()
@@ -22,7 +25,7 @@ namespace BrickShooter
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            physicsSystem = ServiceProviderFactory.ServiceProvider.GetService<IPhysicsSystem>();
             base.Initialize();
         }
 
@@ -42,7 +45,7 @@ namespace BrickShooter
             {
                 level.Update();
             }
-            PhysicsSystem.Run();
+            physicsSystem.Run();
 
             base.Update(gameTime);
         }
@@ -54,7 +57,7 @@ namespace BrickShooter
 
             DrawingSystem.Run();
 #if DEBUG
-            PhysicsSystem.Visualize();
+            physicsSystem.Visualize();
 #endif
 
             GlobalObjects.SpriteBatch.End();

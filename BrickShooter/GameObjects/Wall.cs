@@ -1,30 +1,31 @@
-﻿using BrickShooter.Collision;
-using BrickShooter.Constants;
+﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
+using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Sprites;
 
 namespace BrickShooter.GameObjects
 {
-    public class Wall : IMaterialObject, IDrawableObject
+    public class Wall : MaterialObject, IDrawableObject
     {
         public Texture2D Texture { get; set; }
         public Rectangle RectBounds { get; set; }
-        public ColliderPolygon ColliderBounds { get; }
-        public float Bounciness => 0f;
 
-        public Wall(Texture2D texture, Rectangle rectBounds)
+        public Wall(Texture2D texture, Rectangle rectBounds) : base()
         {
             Texture = texture;
             RectBounds = rectBounds;
-            ColliderBounds = new ColliderPolygon();
-            ColliderBounds.Points.Add(new Vector2(RectBounds.X, RectBounds.Y));
-            ColliderBounds.Points.Add(new Vector2(RectBounds.X + RectBounds.Width, RectBounds.Y));
-            ColliderBounds.Points.Add(new Vector2(RectBounds.X + RectBounds.Width, RectBounds.Y + RectBounds.Height));
-            ColliderBounds.Points.Add(new Vector2(RectBounds.X, RectBounds.Y + RectBounds.Height));
-            ColliderBounds.BuildEdges();
+            //4 points describing the sprite rectangle
+            localColliderBounds = new Vector2[]
+            {
+                new(RectBounds.X, RectBounds.Y),
+                new(RectBounds.X + RectBounds.Width, RectBounds.Y),
+                new(RectBounds.X + RectBounds.Width, RectBounds.Y + RectBounds.Height),
+                new(RectBounds.X, RectBounds.Y + RectBounds.Height),
+            };
 
-            PhysicsSystem.RegisterImmobileObject(this);
+            physicsSystem.RegisterImmobileObject(this);
             DrawingSystem.Register(this);
         }
 

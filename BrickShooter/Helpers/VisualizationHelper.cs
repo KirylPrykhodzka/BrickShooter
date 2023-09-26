@@ -1,6 +1,6 @@
-﻿using BrickShooter.Collision;
-using BrickShooter.Constants;
+﻿using BrickShooter.Constants;
 using BrickShooter.Extensions;
+using BrickShooter.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

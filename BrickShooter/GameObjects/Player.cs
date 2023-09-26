@@ -1,5 +1,4 @@
-﻿using BrickShooter.Collision;
-using BrickShooter.Constants;
+﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
 using BrickShooter.Extensions;
 using BrickShooter.GameObjects.Bullets;
@@ -12,7 +11,7 @@ using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
-    public class Player : MobileMaterialObject, IDrawableObject
+    public class Player : MaterialObject, IDrawableObject
     {
         private readonly Texture2D sprite;
         //for the cooldown calculation purposes
@@ -36,7 +35,7 @@ namespace BrickShooter.GameObjects
                 new(-sprite.Width / 2, sprite.Height /2),
             };
 
-            PhysicsSystem.RegisterMobileObject(this);
+            physicsSystem.RegisterMobileObject(this);
             DrawingSystem.Register(this);
         }
 
@@ -163,14 +162,14 @@ namespace BrickShooter.GameObjects
         {
             var diffX = mouseState.X - Position.X;
             var diffY = mouseState.Y - Position.Y;
-            rotation = (float)Math.Atan2(diffY, diffX);
+            Rotation = (float)Math.Atan2(diffY, diffX);
         }
 
         private void Shoot()
         {
             var bullet = BulletFactory.GetBullet();
-            var initialPosition = (Position + barrelTipOffset).ToPoint().Rotate(Position.ToPoint(), rotation).ToVector2();
-            bullet.Move(initialPosition, rotation);
+            var initialPosition = (Position + barrelTipOffset).ToPoint().Rotate(Position.ToPoint(), Rotation).ToVector2();
+            bullet.Move(initialPosition, Rotation);
         }
 
         public void Draw()
@@ -180,7 +179,7 @@ namespace BrickShooter.GameObjects
                 new Vector2(Position.X, Position.Y),
                 null,
                 Color.White,
-                rotation,
+                Rotation,
                 new Vector2(sprite.Width / 2f, sprite.Height / 2f),
                 1f,
                 SpriteEffects.None,

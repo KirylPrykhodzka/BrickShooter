@@ -1,20 +1,28 @@
-﻿using BrickShooter.Collision;
+﻿using BrickShooter.Configuration;
 using BrickShooter.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using System.Linq;
 
 namespace BrickShooter.Physics
 {
-    public abstract class MobileMaterialObject : IMaterialObject
+    public abstract class MaterialObject
     {
-        public ColliderPolygon ColliderBounds => GetGlobalColliderBounds();
-        public virtual float Bounciness => 0f;
+        protected static readonly IPhysicsSystem physicsSystem;
+
+        static MaterialObject()
+        {
+            physicsSystem = ServiceProviderFactory.ServiceProvider.GetService<IPhysicsSystem>();
+        }
+
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
+        public float Rotation { get; set; }
+        public float Bounciness { get; set; }
+        public ColliderPolygon ColliderBounds => GetGlobalColliderBounds();
         protected Vector2[] localColliderBounds;
-        protected float rotation;
 
-        public virtual void OnCollision(IMaterialObject otherCollider) { }
+        public virtual void OnCollision(MaterialObject otherCollider) { }
 
         /// <summary>
         /// ColliderBounds depend on position, rotation and scale of the object
@@ -34,7 +42,7 @@ namespace BrickShooter.Physics
                 //get global position
                 Vector2 globalPosition = Position + localPoint;
                 //rotate collider
-                return globalPosition.ToPoint().Rotate(Position.ToPoint(), rotation).ToVector2();
+                return globalPosition.ToPoint().Rotate(Position.ToPoint(), Rotation).ToVector2();
             }
         }
     }
