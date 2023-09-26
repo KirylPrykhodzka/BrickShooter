@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using BrickShooter.Physics.Models;
 
-namespace BrickShooter.Physics
+namespace BrickShooter.Physics.Interfaces
 {
     public interface IPotentialCollisionsDetector
     {

@@ -2,6 +2,8 @@
 using BrickShooter.GameObjects;
 using System.Collections.Generic;
 using System.Linq;
+using BrickShooter.Physics.Interfaces;
+using BrickShooter.Physics.Models;
 
 namespace BrickShooter.Physics
 {

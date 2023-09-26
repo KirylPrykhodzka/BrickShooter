@@ -2,7 +2,7 @@
 using BrickShooter.Drawing;
 using BrickShooter.Extensions;
 using BrickShooter.GameObjects.Bullets;
-using BrickShooter.Physics;
+using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

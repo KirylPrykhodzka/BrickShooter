@@ -1,4 +1,7 @@
-﻿namespace BrickShooter.Physics
+﻿using BrickShooter.Physics.Interfaces;
+using BrickShooter.Physics.Models;
+
+namespace BrickShooter.Physics
 {
     public class MaterialObjectMover : IMaterialObjectMover
     {

@@ -1,6 +1,8 @@
 ﻿using BrickShooter.GameObjects;
 using BrickShooter.GameObjects.Bullets;
 using BrickShooter.Helpers;
+using BrickShooter.Physics.Interfaces;
+using BrickShooter.Physics.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;

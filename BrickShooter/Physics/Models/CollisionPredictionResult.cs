@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace BrickShooter.Physics
+namespace BrickShooter.Physics.Models
 {
     public record CollisionPredictionResult
     {

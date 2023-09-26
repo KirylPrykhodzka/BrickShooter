@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using BrickShooter.Physics.Interfaces;
+using BrickShooter.Physics.Models;
 
 namespace BrickShooter.Physics
 {

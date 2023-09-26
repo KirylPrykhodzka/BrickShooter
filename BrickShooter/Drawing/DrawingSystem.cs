@@ -4,7 +4,7 @@ namespace BrickShooter.Drawing
 {
     public static class DrawingSystem
     {
-        private static readonly List<IDrawableObject> drawableObjects = new();
+        private static readonly HashSet<IDrawableObject> drawableObjects = new();
 
         public static void Register(IDrawableObject drawable)
         {

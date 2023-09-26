@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrickShooter.Physics
+namespace BrickShooter.Physics.Models
 {
     public class ColliderPolygon
     {
@@ -55,7 +55,7 @@ namespace BrickShooter.Physics
                     totalY += points[i].Y;
                 }
 
-                return new Vector2(totalX / (float)points.Count, totalY / (float)points.Count);
+                return new Vector2(totalX / points.Count, totalY / points.Count);
             }
         }
 

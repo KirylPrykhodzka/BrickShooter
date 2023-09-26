@@ -1,10 +1,11 @@
 ﻿using BrickShooter.Configuration;
 using BrickShooter.Extensions;
+using BrickShooter.Physics.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using System.Linq;
 
-namespace BrickShooter.Physics
+namespace BrickShooter.Physics.Models
 {
     public abstract class MaterialObject
     {

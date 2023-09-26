@@ -1,7 +1,7 @@
 ﻿using BrickShooter.Configuration;
 using BrickShooter.Drawing;
 using BrickShooter.GameObjects;
-using BrickShooter.Physics;
+using BrickShooter.Physics.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

@@ -1,4 +1,4 @@
-﻿namespace BrickShooter.Physics
+﻿namespace BrickShooter.Physics.Interfaces
 {
     public interface ICollisionCalculator
     {
