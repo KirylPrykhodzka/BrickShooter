@@ -162,13 +162,22 @@ namespace BrickShooter.GameObjects
         {
             var diffX = mouseState.X - Position.X;
             var diffY = mouseState.Y - Position.Y;
-            Rotation = (float)Math.Atan2(diffY, diffX);
+            var newRotation = (float)Math.Atan2(diffY, diffX);
+            if(newRotation != Rotation)
+            {
+                Rotation = newRotation;
+                DidRotate = true;
+            }
+            else
+            {
+                DidRotate = false;
+            }
         }
 
         private void Shoot()
         {
             var bullet = BulletFactory.GetBullet();
-            var initialPosition = (Position + barrelTipOffset).ToPoint().Rotate(Position.ToPoint(), Rotation).ToVector2();
+            var initialPosition = (Position + barrelTipOffset).Rotate(Position, Rotation);
             bullet.Move(initialPosition, Rotation);
         }
 

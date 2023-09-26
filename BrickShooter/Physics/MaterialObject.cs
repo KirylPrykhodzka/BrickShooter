@@ -18,6 +18,7 @@ namespace BrickShooter.Physics
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
         public float Rotation { get; set; }
+        public bool DidRotate { get; set; }
         public float Bounciness { get; set; }
         public ColliderPolygon ColliderBounds => GetGlobalColliderBounds();
         protected Vector2[] localColliderBounds;
@@ -42,7 +43,7 @@ namespace BrickShooter.Physics
                 //get global position
                 Vector2 globalPosition = Position + localPoint;
                 //rotate collider
-                return globalPosition.ToPoint().Rotate(Position.ToPoint(), Rotation).ToVector2();
+                return globalPosition.Rotate(Position, Rotation);
             }
         }
     }

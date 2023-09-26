@@ -3,6 +3,7 @@ using BrickShooter.GameObjects.Bullets;
 using BrickShooter.Helpers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace BrickShooter.Physics
 {
@@ -13,26 +14,27 @@ namespace BrickShooter.Physics
     /// </summary>
     public class PhysicsSystem : IPhysicsSystem
     {
-        private readonly ICollisionsCalculator collisionsCalculator;
+        private readonly IPotentialCollisionsDetector potentialCollisionsDetector;
+        private readonly ICollisionCalculator collisionCalculator;
+        private readonly ICollisionProcessor collisionProcessor;
+        private readonly IMaterialObjectMover materialObjectMover;
 
-        public PhysicsSystem(ICollisionsCalculator collisionsCalculator)
+        public PhysicsSystem(
+            IPotentialCollisionsDetector potentialCollisionsDetector,
+            ICollisionCalculator collisionCalculator,
+            ICollisionProcessor collisionProcessor,
+            IMaterialObjectMover materialObjectMover)
         {
-            this.collisionsCalculator = collisionsCalculator;
+            this.potentialCollisionsDetector = potentialCollisionsDetector;
+            this.collisionCalculator = collisionCalculator;
+            this.collisionProcessor = collisionProcessor;
+            this.materialObjectMover = materialObjectMover;
         }
 
         //all objects that can be repositioned in space based on their velocity and initiate collisions
         private readonly HashSet<MaterialObject> mobileObjects = new();
         //objects that mobile objects can collide with
         private readonly HashSet<MaterialObject> immobileObjects = new();
-
-        //each Key is a name of a type that inherits from MaterialObject class.
-        //Values are names of types that implement MaterialObject interface
-        //If an object of Key type collides with an object contained in Value, collision is ignored completely
-        private static readonly Dictionary<string, HashSet<string>> IgnoredCollisions = new()
-        {
-            { typeof(Bullet).Name, new() { typeof(Bullet).Name, typeof(Player).Name } },
-            { typeof(Player).Name, new() { typeof(Bullet).Name, } },
-        };
 
         public void RegisterMobileObject(MaterialObject mobileObject)
         {
@@ -55,44 +57,30 @@ namespace BrickShooter.Physics
             immobileObjects.Clear();
         }
 
+        private HashSet<CollisionPredictionResult> currentObjectPredictedCollisions = new();
         /// <summary>
         /// on each trigger, moves all mobile objects in space based on their velocity (first on X, and then on Y axis)
         /// after movement on each axis, checks and handles collisions
         /// </summary>
         public void Run()
         {
-            //TODO: iterate only through mobileObjects that have velocity != 0 && !didRotate
-            foreach(var currentObject in mobileObjects)
+            foreach (var currentObject in mobileObjects.Where(x => x.Velocity != Vector2.Zero || x.DidRotate).ToList())
             {
-                var potentialCollisions = GetPotentialCollisions(currentObject);
-                foreach (var otherObject in potentialCollisions)
+                currentObjectPredictedCollisions = potentialCollisionsDetector.DetectPotentialCollisions(currentObject, mobileObjects.Where(x => x != currentObject).Concat(immobileObjects))
+                    .Select(x => collisionCalculator.CalculateCollision(currentObject, x))
+                    .Where(x => x.WillCollide)
+                    .ToHashSet();
+                if(currentObjectPredictedCollisions.Count == 0)
                 {
-                    //get all collisions
-                    var collisionResult = collisionsCalculator.CalculateCollision(currentObject, otherObject);
+                    materialObjectMover.MoveWithoutObstruction(currentObject);
                 }
+                else
+                {
+                    collisionProcessor.ProcessFutureCollisions(currentObject, currentObjectPredictedCollisions);
+                }
+
+                currentObjectPredictedCollisions.Clear();
             }
-        }
-
-        //collision detection broad phase
-        private IEnumerable<MaterialObject> GetPotentialCollisions(MaterialObject currentObject)
-        {
-            var potentialCollisions = mobileObjects
-                .Where(x => x != currentObject)
-                .Concat(immobileObjects)
-                //since I will be projecting objects, this might break things
-                //.Where(x => !DefinitelyDoNotCollide(currentObject, x))
-                .Where(x => !IgnoredCollisions.TryGetValue(currentObject.GetType().Name, out var ignoredCollisions) || !ignoredCollisions.Contains(x.GetType().Name));
-
-            return potentialCollisions;
-        }
-
-        private static bool DefinitelyDoNotCollide(MaterialObject first, MaterialObject second)
-        {
-            return
-                first.ColliderBounds.MaxX < second.ColliderBounds.MinX ||
-                second.ColliderBounds.MaxX < first.ColliderBounds.MinX ||
-                first.ColliderBounds.MaxY < second.ColliderBounds.MinY ||
-                second.ColliderBounds.MaxY < first.ColliderBounds.MinY;
         }
 
         public void Visualize()
