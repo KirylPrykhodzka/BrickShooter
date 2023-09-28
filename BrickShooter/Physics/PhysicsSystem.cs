@@ -1,6 +1,4 @@
-﻿using BrickShooter.GameObjects;
-using BrickShooter.GameObjects.Bullets;
-using BrickShooter.Helpers;
+﻿using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using System.Collections.Generic;
@@ -90,7 +88,7 @@ namespace BrickShooter.Physics
 #if DEBUG
             foreach (var collisionActor in immobileObjects.Concat(mobileObjects))
             {
-                VisualizationHelper.VisualizeCollider(collisionActor.ColliderBounds);
+                VisualizationHelper.VisualizeCollider(collisionActor.GlobalColliderPolygon);
             }
 #endif
         }

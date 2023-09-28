@@ -32,10 +32,10 @@ namespace BrickShooter.Physics
         private static bool DefinitelyDoNotCollide(MaterialObject first, MaterialObject second)
         {
             return
-                first.ColliderBounds.MaxX < second.ColliderBounds.MinX ||
-                second.ColliderBounds.MaxX < first.ColliderBounds.MinX ||
-                first.ColliderBounds.MaxY < second.ColliderBounds.MinY ||
-                second.ColliderBounds.MaxY < first.ColliderBounds.MinY;
+                first.GlobalColliderPolygon.MaxX < second.GlobalColliderPolygon.MinX ||
+                second.GlobalColliderPolygon.MaxX < first.GlobalColliderPolygon.MinX ||
+                first.GlobalColliderPolygon.MaxY < second.GlobalColliderPolygon.MinY ||
+                second.GlobalColliderPolygon.MaxY < first.GlobalColliderPolygon.MinY;
         }
     }
 }

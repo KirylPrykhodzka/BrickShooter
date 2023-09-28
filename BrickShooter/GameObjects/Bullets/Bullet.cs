@@ -4,6 +4,7 @@ using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Diagnostics;
 
 namespace BrickShooter.GameObjects.Bullets
 {
@@ -16,7 +17,7 @@ namespace BrickShooter.GameObjects.Bullets
         public Bullet()
         {
             //4 points describing the sprite rectangle
-            localColliderBounds = new Vector2[]
+            initialLocalColliderPoints = new Vector2[]
             {
                 new(-sprite.Width / 2, -sprite.Height /2),
                 new(sprite.Width / 2, -sprite.Height /2),

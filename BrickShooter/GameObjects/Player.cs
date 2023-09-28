@@ -26,8 +26,7 @@ namespace BrickShooter.GameObjects
         {
             sprite = GlobalObjects.Content.Load<Texture2D>($"Player/{spriteName}");
             Position = initialPosition;
-            //4 points describing the sprite rectangle
-            localColliderBounds = new Vector2[]
+            initialLocalColliderPoints = new Vector2[]
             {
                 new(-sprite.Width / 2, -sprite.Height /2),
                 new(0, -sprite.Height /2),

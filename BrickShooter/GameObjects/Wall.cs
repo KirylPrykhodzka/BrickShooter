@@ -3,7 +3,6 @@ using BrickShooter.Drawing;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.Sprites;
 
 namespace BrickShooter.GameObjects
 {
@@ -17,7 +16,7 @@ namespace BrickShooter.GameObjects
             Texture = texture;
             RectBounds = rectBounds;
             //4 points describing the sprite rectangle
-            localColliderBounds = new Vector2[]
+            initialLocalColliderPoints = new Vector2[]
             {
                 new(RectBounds.X, RectBounds.Y),
                 new(RectBounds.X + RectBounds.Width, RectBounds.Y),

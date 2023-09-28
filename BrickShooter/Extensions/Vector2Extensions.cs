@@ -25,5 +25,15 @@ namespace BrickShooter.Extensions
                     cosTheta * (point.Y - origin.Y) + origin.Y)
             };
         }
+
+        public static float Magnitude(this Vector2 vector) => (float)Math.Sqrt((Math.Pow(vector.X, 2) + Math.Pow(vector.Y, 2)));
+
+        public static Vector2 Project(this Vector2 point, Vector2 axis)
+        {
+            var dotProduct = point.DotProduct(axis);
+            var magnitude = axis.Magnitude();
+            var result = axis * dotProduct / (float)Math.Pow(magnitude, 2);
+            return result;
+        }
     }
 }

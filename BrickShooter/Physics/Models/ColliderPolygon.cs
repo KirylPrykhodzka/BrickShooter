@@ -6,7 +6,15 @@ namespace BrickShooter.Physics.Models
 {
     public class ColliderPolygon
     {
-        private readonly List<Vector2> points = new();
+        public ColliderPolygon() { }
+
+        public ColliderPolygon(IEnumerable<Vector2> points)
+        {
+            this.points = new List<Vector2>(points);
+            BuildEdges();
+        }
+
+        private readonly List<Vector2> points;
         private readonly List<Vector2> edges = new();
         public float MaxX => points.Max(x => x.X);
         public float MinX => points.Min(x => x.X);
