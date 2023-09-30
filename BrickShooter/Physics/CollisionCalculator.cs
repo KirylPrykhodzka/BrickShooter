@@ -38,14 +38,46 @@ namespace BrickShooter.Physics
             IEnumerable<(Vector2 key, Vector2 value)> perpendicularProjections = localColliderPoints
                 //need to add * new Vector2(1, -1) because in Monogame Y axis is inverted
                 .Select(x => (x, x.Project(perpendicularAxis)));
-            var ordered = perpendicularProjections.OrderBy(x => projectionComparisonAxis == 'x' ? x.value.X : x.value.Y);
 
-            //it does not actually matter which one is min and which one is max, we just need two most extreme points
-            Vector2 min = ordered.First().key;
-            Vector2 max = ordered.Last().key;
+            Vector2 min = Vector2.Zero;
+            Vector2 max = Vector2.Zero;
+            if (projectionComparisonAxis == 'x')
+            {
+                var minX = perpendicularProjections.Min(x => x.value.X);
+                var maxX = perpendicularProjections.Max(x => x.value.X);
+                var minGroup = perpendicularProjections.Where(x => x.value.X == minX);
+                var maxGroup = perpendicularProjections.Where(x => x.value.X == maxX);
+                if(materialObject.Velocity.Y > 0)
+                {
+                    min = minGroup.MaxBy(x => x.key.Y).key;
+                    max = maxGroup.MaxBy(x => x.key.Y).key;
+                }
+                else
+                {
+                    min = minGroup.MinBy(x => x.key.Y).key;
+                    max = maxGroup.MinBy(x => x.key.Y).key;
+                }
+            }
+            else
+            {
+                var minY = perpendicularProjections.Min(x => x.value.Y);
+                var maxY = perpendicularProjections.Max(x => x.value.Y);
+                var minGroup = perpendicularProjections.Where(x => x.value.Y == minY);
+                var maxGroup = perpendicularProjections.Where(x => x.value.Y == maxY);
+                if (materialObject.Velocity.X > 0)
+                {
+                    min = minGroup.MaxBy(x => x.key.X).key;
+                    max = maxGroup.MaxBy(x => x.key.X).key;
+                }
+                else
+                {
+                    min = minGroup.MinBy(x => x.key.X).key;
+                    max = maxGroup.MinBy(x => x.key.X).key;
+                }
+            }
 
-            //find all points that are closer to velocity than the min-max vector
-            var threshold = max - min;
+            //find all points that are closer to velocity than the min-max line
+            var slope = (min.Y - max.Y) / (min.X - max.X);
 
             return new List<Vector2>();
         }
