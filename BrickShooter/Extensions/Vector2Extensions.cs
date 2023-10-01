@@ -7,7 +7,7 @@ namespace BrickShooter.Extensions
     {
         public static float DotProduct(this Vector2 thisVector, Vector2 otherVector)
         {
-            return thisVector.X * otherVector.X + thisVector.Y * otherVector.Y;
+            return (float)Math.Round(thisVector.X * otherVector.X + thisVector.Y * otherVector.Y, 2);
         }
         public static Vector2 Rotate(this Vector2 point, Vector2 origin, float angle)
         {
@@ -26,7 +26,7 @@ namespace BrickShooter.Extensions
             };
         }
 
-        public static float Magnitude(this Vector2 vector) => (float)Math.Sqrt((Math.Pow(vector.X, 2) + Math.Pow(vector.Y, 2)));
+        public static float Magnitude(this Vector2 vector) => (float)Math.Round(Math.Sqrt(Math.Pow(vector.X, 2) + Math.Pow(vector.Y, 2)), 2);
 
         public static Vector2 Project(this Vector2 point, Vector2 axis)
         {

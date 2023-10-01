@@ -1,4 +1,5 @@
 ﻿using BrickShooter.Extensions;
+using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
@@ -6,6 +7,7 @@ using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace BrickShooter.Physics
 {
@@ -26,7 +28,11 @@ namespace BrickShooter.Physics
 
         public static IList<Vector2> GetFrontFacingPoints(MaterialObject materialObject)
         {
-            var localColliderPoints = materialObject.LocalColliderPolygon.Points;
+            var localColliderPoints = materialObject.LocalColliderPolygon.Points
+                //this makes sure that polygon center is in (0,0) which makes it much easier to operate on
+                .Select(x => x - materialObject.LocalColliderPolygon.Center)
+                .ToList();
+
             if (materialObject.Velocity == Vector2.Zero || localColliderPoints.Count <= 2)
             {
                 return localColliderPoints;
@@ -76,10 +82,21 @@ namespace BrickShooter.Physics
                 }
             }
 
-            //find all points that are closer to velocity than the min-max line
-            var slope = (min.Y - max.Y) / (min.X - max.X);
+            var localizedResult = new List<Vector2> { min, max };
 
-            return new List<Vector2>();
+            if(projectionComparisonAxis == 'y')
+            {
+                var aboveY = localColliderPoints.Where(x => x.Y < 0);
+                var belowY = localColliderPoints.Where(x => x.Y >= 0);
+                var distanceToMin = materialObject.Velocity.X - min.X;
+                var distanceToMax = materialObject.Velocity.X - max.X;
+                localizedResult.AddRange(aboveY.Where(x => Math.Abs(materialObject.Velocity.X - x.X) < Math.Abs(distanceToMin)));
+                localizedResult.AddRange(belowY.Where(x => Math.Abs(materialObject.Velocity.X - x.X) < distanceToMax));
+            }
+
+            //need to "move" polygon back to its original position relative to object's position before returning
+            var result = localizedResult.Select(x => x + materialObject.LocalColliderPolygon.Center).ToList();
+            return result;
         }
     }
 }
