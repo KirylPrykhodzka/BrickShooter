@@ -2,7 +2,6 @@
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 
@@ -58,7 +57,7 @@ namespace BrickShooter.Physics
             immobileObjects.Clear();
         }
 
-        private HashSet<CollisionPredictionResult> currentObjectPredictedCollisions = new();
+        private HashSet<CollisionCalculationResult> currentObjectPredictedCollisions = new();
         /// <summary>
         /// on each trigger, moves all mobile objects in space based on their velocity (first on X, and then on Y axis)
         /// after movement on each axis, checks and handles collisions

@@ -1,35 +1,49 @@
 ﻿using BrickShooter.Extensions;
-using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 
 namespace BrickShooter.Physics
 {
     public class CollisionCalculator : ICollisionCalculator
     {
-        public CollisionPredictionResult CalculateCollision(MaterialObject collisionSubject, MaterialObject collisionObject)
+        public CollisionCalculationResult CalculateCollision(MaterialObject collisionSubject, MaterialObject collisionObject)
         {
-            CollisionPredictionResult result = new()
+            CollisionCalculationResult result = new()
             {
-                RelativeVelocity = collisionSubject.Velocity - collisionObject.Velocity
+                RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds,
             };
 
-            var subjectFrontFacingPoints = GetFrontFacingPoints(collisionSubject);
-            var objectFrontFacingPoints = GetFrontFacingPoints(collisionObject);
+            var subjectFrontFacingPoints = GetFrontFacingPoints(collisionSubject, result.RelativeVelocity);
+            var objectFrontFacingPoints = GetFrontFacingPoints(collisionObject, -result.RelativeVelocity);
+
+            //check if velocity leans more towards X or Y
+            //find points intersecting on a respective axis
+            //if intersection is >= relativeVelocity, points intersect already. otherwise, they do not collide yet but will
+
+            if (Math.Abs(result.RelativeVelocity.X) > Math.Abs(result.RelativeVelocity.Y))
+            {
+                var maxSubjectPoint = subjectFrontFacingPoints.Max(x => x.X);
+                var minObjectPoint = objectFrontFacingPoints.Min(x => x.X);
+            }
+            else
+            {
+                
+            }
+
+            var subjectRelativeVelocityProjections = subjectFrontFacingPoints.Select(x => (x, x.Project(result.RelativeVelocity)));
+            var objectRelativeVelocityProjections = objectFrontFacingPoints.Select(x => (x, x.Project(result.RelativeVelocity)));
 
             return result;
         }
 
-        public static IList<Vector2> GetFrontFacingPoints(MaterialObject materialObject)
+        //selects points of a material object's collider that can cause collision based on provided velocity
+        public static IList<Vector2> GetFrontFacingPoints(MaterialObject materialObject, Vector2 velocity)
         {
-
-            if (materialObject.Velocity == Vector2.Zero || materialObject.LocalColliderPolygon.Points.Count <= 2)
+            if (materialObject.LocalColliderPolygon.Points.Count <= 2)
             {
                 return materialObject.LocalColliderPolygon.Points;
             }
@@ -39,7 +53,7 @@ namespace BrickShooter.Physics
                 .Select(x => x - materialObject.LocalColliderPolygon.Center)
                 .ToList();
 
-            var perpendicularAxis = new Vector2(materialObject.Velocity.Y, -materialObject.Velocity.X);
+            var perpendicularAxis = new Vector2(velocity.Y, velocity.X);
             char projectionComparisonAxis = Math.Abs(perpendicularAxis.X) > Math.Abs(perpendicularAxis.Y) ? 'x' : 'y';
 
             //find width of an object relative to its movement direction
@@ -57,7 +71,7 @@ namespace BrickShooter.Physics
                 var maxX = perpendicularProjections.Max(x => x.value.X);
                 var minGroup = perpendicularProjections.Where(x => x.value.X == minX);
                 var maxGroup = perpendicularProjections.Where(x => x.value.X == maxX);
-                if(materialObject.Velocity.Y > 0)
+                if(velocity.Y > 0)
                 {
                     min = minGroup.MaxBy(x => x.key.Y).key;
                     max = maxGroup.MaxBy(x => x.key.Y).key;
@@ -74,7 +88,7 @@ namespace BrickShooter.Physics
                 var maxY = perpendicularProjections.Max(x => x.value.Y);
                 var minGroup = perpendicularProjections.Where(x => x.value.Y == minY);
                 var maxGroup = perpendicularProjections.Where(x => x.value.Y == maxY);
-                if (materialObject.Velocity.X > 0)
+                if(velocity.X > 0)
                 {
                     min = minGroup.MaxBy(x => x.key.X).key;
                     max = maxGroup.MaxBy(x => x.key.X).key;
@@ -94,23 +108,36 @@ namespace BrickShooter.Physics
             {
                 var aboveY = otherLocalColliderPoints.Where(x => x.Y < 0);
                 var belowY = otherLocalColliderPoints.Where(x => x.Y >= 0);
-                var distanceToMin = materialObject.Velocity.X - min.X;
-                var distanceToMax = materialObject.Velocity.X - max.X;
-                result.AddRange(aboveY.Where(x => Math.Abs(materialObject.Velocity.X - x.X) < Math.Abs(distanceToMin)));
-                result.AddRange(belowY.Where(x => Math.Abs(materialObject.Velocity.X - x.X) < distanceToMax));
+                if (velocity.X > 0)
+                {
+                    result.AddRange(aboveY.Where(x => x.X > min.X));
+                    result.AddRange(belowY.Where(x => x.X > max.X));
+                }
+                else
+                {
+                    result.AddRange(aboveY.Where(x => x.X < min.X));
+                    result.AddRange(belowY.Where(x => x.X < max.X));
+                }
             }
             else
             {
                 var leftOfX = otherLocalColliderPoints.Where(x => x.X < 0);
                 var rightToX = otherLocalColliderPoints.Where(x => x.X >= 0);
-                var distanceToMin = materialObject.Velocity.Y - min.Y;
-                var distanceToMax = materialObject.Velocity.Y - max.Y;
-                result.AddRange(leftOfX.Where(x => Math.Abs(materialObject.Velocity.Y - x.Y) < Math.Abs(distanceToMin)));
-                result.AddRange(rightToX.Where(x => Math.Abs(materialObject.Velocity.Y - x.Y) < distanceToMax));
+                if(velocity.Y > 0)
+                {
+                    result.AddRange(leftOfX.Where(x => x.Y > min.Y));
+                    result.AddRange(rightToX.Where(x => x.Y > max.Y));
+                }
+                else
+                {
+                    result.AddRange(leftOfX.Where(x => x.Y < min.Y));
+                    result.AddRange(rightToX.Where(x => x.Y < max.Y));
+                }
             }
 
             //need to "move" polygon back to its original position relative to object's position before returning
-            var result = result.Select(x => x + materialObject.LocalColliderPolygon.Center).ToList();
+            //and then we also need to understand front facing points position in global space
+            result = result.Select(x => x + materialObject.LocalColliderPolygon.Center + materialObject.Position).ToList();
             return result;
         }
     }
