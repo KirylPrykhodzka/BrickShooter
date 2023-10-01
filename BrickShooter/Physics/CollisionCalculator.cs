@@ -4,6 +4,7 @@ using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.Physics
@@ -19,31 +20,46 @@ namespace BrickShooter.Physics
 
             var subjectFrontFacingPoints = GetFrontFacingPoints(collisionSubject, result.RelativeVelocity);
             var objectFrontFacingPoints = GetFrontFacingPoints(collisionObject, -result.RelativeVelocity);
+            var subjectFrontFacingEdges = GetFrontFacingEdges(collisionSubject, subjectFrontFacingPoints);
+            var objectFrontFacingEdges = GetFrontFacingEdges(collisionObject, objectFrontFacingPoints);
 
-            //check if velocity leans more towards X or Y
-            //find points intersecting on a respective axis
-            //if intersection is >= relativeVelocity, points intersect already. otherwise, they do not collide yet but will
+            //for every subject front facing point, 
+            //the shortest projection will tell the point and edge of collision
 
-            if (Math.Abs(result.RelativeVelocity.X) > Math.Abs(result.RelativeVelocity.Y))
+            (Vector2 point, Vector2 edge, float projectionLength) closestCollision = (default, default, float.PositiveInfinity);
+            foreach(var frontFacingPoint in subjectFrontFacingPoints)
             {
-                var maxSubjectPoint = subjectFrontFacingPoints.Max(x => x.X);
-                var minObjectPoint = objectFrontFacingPoints.Min(x => x.X);
+                foreach(var frontFacingEdge in objectFrontFacingEdges)
+                {
+                    var projectionLength = (frontFacingEdge - result.RelativeVelocity - frontFacingPoint).Magnitude();
+                    if(projectionLength < closestCollision.projectionLength)
+                    {
+                        closestCollision = (frontFacingPoint, frontFacingEdge, projectionLength);
+                    }
+                }
             }
-            else
+            foreach (var frontFacingPoint in objectFrontFacingPoints)
             {
-                
+                foreach (var frontFacingEdge in subjectFrontFacingEdges)
+                {
+                    var projectionLength = (frontFacingEdge + result.RelativeVelocity - frontFacingPoint).Project(result.RelativeVelocity).Magnitude();
+                    if (projectionLength < closestCollision.projectionLength)
+                    {
+                        closestCollision = (frontFacingPoint, frontFacingEdge, projectionLength);
+                    }
+                }
             }
 
-            var subjectRelativeVelocityProjections = subjectFrontFacingPoints.Select(x => (x, x.Project(result.RelativeVelocity)));
-            var objectRelativeVelocityProjections = objectFrontFacingPoints.Select(x => (x, x.Project(result.RelativeVelocity)));
-
+            result.ClosestCollisionPoint = closestCollision.point;
+            result.CollisionEdge = closestCollision.edge;
+            result.Collides = Math.Abs(closestCollision.projectionLength) < result.RelativeVelocity.Magnitude();
             return result;
         }
 
         //selects points of a material object's collider that can cause collision based on provided velocity
         public static IList<Vector2> GetFrontFacingPoints(MaterialObject materialObject, Vector2 velocity)
         {
-            if (materialObject.LocalColliderPolygon.Points.Count <= 2)
+            if (materialObject.Velocity == Vector2.Zero || materialObject.LocalColliderPolygon.Points.Count <= 2)
             {
                 return materialObject.LocalColliderPolygon.Points;
             }
@@ -138,6 +154,28 @@ namespace BrickShooter.Physics
             //need to "move" polygon back to its original position relative to object's position before returning
             //and then we also need to understand front facing points position in global space
             result = result.Select(x => x + materialObject.LocalColliderPolygon.Center + materialObject.Position).ToList();
+            return result;
+        }
+
+        public static IList<Vector2> GetFrontFacingEdges(MaterialObject materialObject, IList<Vector2> frontFacingPoints)
+        {
+            var result = new List<Vector2>();
+            var firstPoint = materialObject.GlobalColliderPolygon.Points.First();
+            var lastPoint = materialObject.GlobalColliderPolygon.Points.Last();
+            if (frontFacingPoints.Contains(firstPoint) && frontFacingPoints.Contains(lastPoint))
+            {
+                result.Add(firstPoint - lastPoint);
+            }
+            for(int i = 1; i < materialObject.GlobalColliderPolygon.Points.Count; i++)
+            {
+                var currentPoint = materialObject.GlobalColliderPolygon.Points[i];
+                var previousPoint = materialObject.GlobalColliderPolygon.Points[i - 1];
+                if (frontFacingPoints.Contains(currentPoint) && frontFacingPoints.Contains(previousPoint))
+                {
+                    result.Add(currentPoint - previousPoint);
+                }
+            }
+
             return result;
         }
     }

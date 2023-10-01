@@ -6,50 +6,17 @@ namespace BrickShooter.Physics.Models
 {
     public class ColliderPolygon
     {
-        public ColliderPolygon() { }
 
         public ColliderPolygon(IEnumerable<Vector2> points)
         {
-            this.points = new List<Vector2>(points);
-            BuildEdges();
+            Points = new List<Vector2>(points);
         }
 
-        private readonly List<Vector2> points;
-        private readonly List<Vector2> edges = new();
-        public float MaxX => points.Max(x => x.X);
-        public float MinX => points.Min(x => x.X);
-        public float MaxY => points.Max(x => x.Y);
-        public float MinY => points.Min(x => x.Y);
-
-        public void BuildEdges()
-        {
-            Vector2 p1;
-            Vector2 p2;
-            edges.Clear();
-            for (int i = 0; i < points.Count; i++)
-            {
-                p1 = points[i];
-                if (i + 1 >= points.Count)
-                {
-                    p2 = points[0];
-                }
-                else
-                {
-                    p2 = points[i + 1];
-                }
-                edges.Add(p2 - p1);
-            }
-        }
-
-        public List<Vector2> Edges
-        {
-            get { return edges; }
-        }
-
-        public List<Vector2> Points
-        {
-            get { return points; }
-        }
+        public List<Vector2> Points { get; private set; }
+        public float MaxX => Points.Max(x => x.X);
+        public float MinX => Points.Min(x => x.X);
+        public float MaxY => Points.Max(x => x.Y);
+        public float MinY => Points.Min(x => x.Y);
 
         public Vector2 Center
         {
@@ -57,13 +24,13 @@ namespace BrickShooter.Physics.Models
             {
                 float totalX = 0;
                 float totalY = 0;
-                for (int i = 0; i < points.Count; i++)
+                for (int i = 0; i < Points.Count; i++)
                 {
-                    totalX += points[i].X;
-                    totalY += points[i].Y;
+                    totalX += Points[i].X;
+                    totalY += Points[i].Y;
                 }
 
-                return new Vector2(totalX / points.Count, totalY / points.Count);
+                return new Vector2(totalX / Points.Count, totalY / Points.Count);
             }
         }
 
@@ -74,10 +41,10 @@ namespace BrickShooter.Physics.Models
 
         public void Offset(float x, float y)
         {
-            for (int i = 0; i < points.Count; i++)
+            for (int i = 0; i < Points.Count; i++)
             {
-                Vector2 p = points[i];
-                points[i] = new Vector2(p.X + x, p.Y + y);
+                Vector2 p = Points[i];
+                Points[i] = new Vector2(p.X + x, p.Y + y);
             }
         }
     }

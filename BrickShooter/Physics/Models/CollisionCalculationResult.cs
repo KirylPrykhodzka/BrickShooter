@@ -9,8 +9,7 @@ namespace BrickShooter.Physics.Models
         public Vector2 RelativeVelocity { get; set; }
         public bool Collides { get; set; }
         public bool WillCollide { get; set; }
-        public Vector2 DistanceToCollision { get; set; }
-        public Point[] PointsOfContact { get; set; }
-        public Vector2[] ContactEdges { get; set; }
+        public Vector2 ClosestCollisionPoint { get; set; }
+        public Vector2 CollisionEdge { get; set; }
     }
 }
