@@ -57,7 +57,6 @@ namespace BrickShooter.Physics
             immobileObjects.Clear();
         }
 
-        private HashSet<CollisionCalculationResult> currentObjectPredictedCollisions = new();
         /// <summary>
         /// on each trigger, moves all mobile objects in space based on their velocity (first on X, and then on Y axis)
         /// after movement on each axis, checks and handles collisions
@@ -66,20 +65,29 @@ namespace BrickShooter.Physics
         {
             foreach (var currentObject in mobileObjects.Where(x => x.Velocity != Vector2.Zero || x.DidRotate).ToList())
             {
-                currentObjectPredictedCollisions = potentialCollisionsDetector.DetectPotentialCollisions(currentObject, mobileObjects.Where(x => x != currentObject).Concat(immobileObjects))
-                    .Select(x => collisionCalculator.CalculateCollision(currentObject, x))
-                    .Where(x => x.WillCollide)
-                    .ToHashSet();
-                if(currentObjectPredictedCollisions.Count == 0)
+                var potentialCollisions = potentialCollisionsDetector.DetectPotentialCollisions(currentObject, mobileObjects.Where(x => x != currentObject).Concat(immobileObjects));
+                if(potentialCollisions.Count() == 0)
                 {
                     materialObjectMover.MoveWithoutObstruction(currentObject);
+                    continue;
                 }
-                else
+                if (currentObject.DidRotate)
                 {
-                    collisionProcessor.ProcessFutureCollisions(currentObject, currentObjectPredictedCollisions);
+                    var minimalTranslationVectorForExistingCollisions = collisionCalculator.GetTranslationVectorForExistingCollisions(currentObject, potentialCollisions);
+                    materialObjectMover.Move(currentObject, minimalTranslationVectorForExistingCollisions);
                 }
-
-                currentObjectPredictedCollisions.Clear();
+                if (currentObject.Velocity != Vector2.Zero)
+                {
+                    var futureCollisions = collisionCalculator.FindFutureCollisions(currentObject, potentialCollisions);
+                    if (futureCollisions.Count == 0)
+                    {
+                        materialObjectMover.MoveWithoutObstruction(currentObject);
+                    }
+                    else
+                    {
+                        collisionProcessor.ProcessCollisions(currentObject, futureCollisions);
+                    }
+                }
             }
         }
 

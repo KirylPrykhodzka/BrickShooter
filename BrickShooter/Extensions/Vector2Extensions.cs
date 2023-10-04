@@ -35,5 +35,19 @@ namespace BrickShooter.Extensions
             var result = axis * dotProduct / (float)Math.Pow(magnitude, 2);
             return result;
         }
+
+        //https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+        public static float DistanceTo(this Vector2 point, (Vector2 point1, Vector2 point2) line)
+        {
+            var doubleResult =
+                Math.Abs(
+                    (line.point2.X - line.point1.X) * (line.point1.Y - point.Y) - (line.point1.X - point.X) * (line.point2.Y - line.point1.Y)
+                ) /
+                Math.Sqrt(
+                    Math.Pow(line.point2.X - line.point1.X, 2) + Math.Pow(line.point2.Y - line.point1.Y, 2)
+                );
+
+            return (float)doubleResult;
+        }
     }
 }

@@ -2,18 +2,150 @@
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended.Shapes;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.Physics
 {
     public class CollisionCalculator : ICollisionCalculator
     {
-        public CollisionCalculationResult CalculateCollision(MaterialObject collisionSubject, MaterialObject collisionObject)
+        public Vector2 GetTranslationVectorForExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
-            CollisionCalculationResult result = new()
+            var existingCollisions = potentialCollisions
+                .Select(x => GetCollisionResult(collisionSubject, x))
+                .Where(x => x.isColliding);
+            if(existingCollisions.Count() == 0)
+            {
+                return Vector2.Zero;
+            }
+            return existingCollisions.MinBy(x => x.minimalTranslationVector.Magnitude()).minimalTranslationVector;
+        }
+
+        public IList<CollisionPredictionResult> FindFutureCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+        {
+            return potentialCollisions.Select(x => CalculateFutureCollisionByVelocity(collisionSubject, x)).Where(x => x.WillCollide).ToList();
+        }
+
+        public static (bool isColliding, Vector2 minimalTranslationVector) GetCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
+        {
+            var subjectEdges = BuildEdges(collisionSubject.GlobalColliderPolygon.Points).ToList();
+            var objectEdges = BuildEdges(collisionObject.GlobalColliderPolygon.Points).ToList();
+
+            bool isColliding = true;
+            float minIntervalDistance = float.PositiveInfinity;
+            Vector2 translationAxis = Vector2.Zero;
+            Vector2 edge;
+
+            // Loop through all the edges of both polygons
+            for (int edgeIndex = 0; edgeIndex < subjectEdges.Count + objectEdges.Count; edgeIndex++)
+            {
+                if (edgeIndex < subjectEdges.Count)
+                {
+                    edge = subjectEdges[edgeIndex];
+                }
+                else
+                {
+                    edge = objectEdges[edgeIndex - subjectEdges.Count];
+                }
+
+                // ===== 1. Find if the polygons are currently intersecting =====
+
+                // Find the axis perpendicular to the current edge
+                Vector2 axis = new Vector2(-edge.Y, edge.X);
+                axis.Normalize();
+
+                // Find the projection of the polygon on the current axis
+                float minA = 0; float minB = 0; float maxA = 0; float maxB = 0;
+                ProjectPolygon(axis, collisionSubject.GlobalColliderPolygon, ref minA, ref maxA);
+                ProjectPolygon(axis, collisionObject.GlobalColliderPolygon, ref minB, ref maxB);
+
+                // Check if the polygon projections are currentlty intersecting
+                float intervalDistance = IntervalDistance(minA, maxA, minB, maxB);
+                if (intervalDistance > 0)
+                {
+                    return (false, Vector2.Zero);
+                }
+
+                // Check if the current interval distance is the minimum one. If so store
+                // the interval distance and the current distance.
+                // This will be used to calculate the minimum translation vector
+                intervalDistance = Math.Abs(intervalDistance);
+                if (intervalDistance < minIntervalDistance)
+                {
+                    minIntervalDistance = intervalDistance;
+                    translationAxis = axis;
+
+                    Vector2 d = collisionSubject.GlobalColliderPolygon.Center - collisionObject.GlobalColliderPolygon.Center;
+                    if (d.DotProduct(translationAxis) < 0)
+                        translationAxis = -translationAxis;
+                }
+            }
+
+            return (isColliding, translationAxis * minIntervalDistance);
+        }
+
+        private static void ProjectPolygon(Vector2 axis, ColliderPolygon polygon, ref float min, ref float max)
+        {
+            // To project a point on an axis use the dot product
+            float dotProduct = axis.DotProduct(polygon.Points[0]);
+            min = dotProduct;
+            max = dotProduct;
+            for (int i = 0; i < polygon.Points.Count; i++)
+            {
+                dotProduct = polygon.Points[i].DotProduct(axis);
+                if (dotProduct < min)
+                {
+                    min = dotProduct;
+                }
+                else
+                {
+                    if (dotProduct > max)
+                    {
+                        max = dotProduct;
+                    }
+                }
+            }
+        }
+
+        private static float IntervalDistance(float minA, float maxA, float minB, float maxB)
+        {
+            if (minA < minB)
+            {
+                return minB - maxA;
+            }
+            else
+            {
+                return minA - maxB;
+            }
+        }
+
+        private static IEnumerable<Vector2> BuildEdges(IList<Vector2> points)
+        {
+            var result = new List<Vector2>();
+            Vector2 p1;
+            Vector2 p2;
+            for (int i = 0; i < points.Count; i++)
+            {
+                p1 = points[i];
+                if (i + 1 >= points.Count)
+                {
+                    p2 = points[0];
+                }
+                else
+                {
+                    p2 = points[i + 1];
+                }
+                result.Add(p2 - p1);
+            }
+
+            return result;
+        }
+
+        public static CollisionPredictionResult CalculateFutureCollisionByVelocity(MaterialObject collisionSubject, MaterialObject collisionObject)
+        {
+            CollisionPredictionResult result = new()
             {
                 RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds,
             };
@@ -26,12 +158,12 @@ namespace BrickShooter.Physics
             //for every subject front facing point, 
             //the shortest projection will tell the point and edge of collision
 
-            (Vector2 point, Vector2 edge, float projectionLength) closestCollision = (default, default, float.PositiveInfinity);
+            (Vector2 point, (Vector2 point1, Vector2 point2) edge, float projectionLength) closestCollision = (default, default, float.PositiveInfinity);
             foreach(var frontFacingPoint in subjectFrontFacingPoints)
             {
                 foreach(var frontFacingEdge in objectFrontFacingEdges)
                 {
-                    var projectionLength = (frontFacingEdge - result.RelativeVelocity - frontFacingPoint).Magnitude();
+                    var projectionLength = frontFacingPoint.DistanceTo(frontFacingEdge);
                     if(projectionLength < closestCollision.projectionLength)
                     {
                         closestCollision = (frontFacingPoint, frontFacingEdge, projectionLength);
@@ -42,7 +174,7 @@ namespace BrickShooter.Physics
             {
                 foreach (var frontFacingEdge in subjectFrontFacingEdges)
                 {
-                    var projectionLength = (frontFacingEdge + result.RelativeVelocity - frontFacingPoint).Project(result.RelativeVelocity).Magnitude();
+                    var projectionLength = frontFacingPoint.DistanceTo(frontFacingEdge);
                     if (projectionLength < closestCollision.projectionLength)
                     {
                         closestCollision = (frontFacingPoint, frontFacingEdge, projectionLength);
@@ -52,14 +184,15 @@ namespace BrickShooter.Physics
 
             result.ClosestCollisionPoint = closestCollision.point;
             result.CollisionEdge = closestCollision.edge;
-            result.Collides = Math.Abs(closestCollision.projectionLength) < result.RelativeVelocity.Magnitude();
+            result.CollisionDistance = closestCollision.projectionLength;
+            result.WillCollide = Math.Abs(closestCollision.projectionLength) < result.RelativeVelocity.Magnitude();
             return result;
         }
 
         //selects points of a material object's collider that can cause collision based on provided velocity
         public static IList<Vector2> GetFrontFacingPoints(MaterialObject materialObject, Vector2 velocity)
         {
-            if (materialObject.Velocity == Vector2.Zero || materialObject.LocalColliderPolygon.Points.Count <= 2)
+            if (velocity == Vector2.Zero || materialObject.LocalColliderPolygon.Points.Count <= 2)
             {
                 return materialObject.LocalColliderPolygon.Points;
             }
@@ -157,14 +290,15 @@ namespace BrickShooter.Physics
             return result;
         }
 
-        public static IList<Vector2> GetFrontFacingEdges(MaterialObject materialObject, IList<Vector2> frontFacingPoints)
+        //get all edges that front facing points belong to (edges are described by two points delimiting them)
+        public static IList<(Vector2 point1, Vector2 point2)> GetFrontFacingEdges(MaterialObject materialObject, IList<Vector2> frontFacingPoints)
         {
-            var result = new List<Vector2>();
+            List<(Vector2 point1, Vector2 point2)> result = new();
             var firstPoint = materialObject.GlobalColliderPolygon.Points.First();
             var lastPoint = materialObject.GlobalColliderPolygon.Points.Last();
             if (frontFacingPoints.Contains(firstPoint) && frontFacingPoints.Contains(lastPoint))
             {
-                result.Add(firstPoint - lastPoint);
+                result.Add((firstPoint, lastPoint));
             }
             for(int i = 1; i < materialObject.GlobalColliderPolygon.Points.Count; i++)
             {
@@ -172,7 +306,7 @@ namespace BrickShooter.Physics
                 var previousPoint = materialObject.GlobalColliderPolygon.Points[i - 1];
                 if (frontFacingPoints.Contains(currentPoint) && frontFacingPoints.Contains(previousPoint))
                 {
-                    result.Add(currentPoint - previousPoint);
+                    result.Add((currentPoint, previousPoint));
                 }
             }
 

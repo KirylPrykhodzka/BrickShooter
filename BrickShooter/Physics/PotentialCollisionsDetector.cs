@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
-using Microsoft.Xna.Framework;
 
 namespace BrickShooter.Physics
 {
@@ -45,12 +44,13 @@ namespace BrickShooter.Physics
         private static bool DoProjectedBoundsOverlap(MaterialObject first, MaterialObject second)
         {
             var firstFixedVelocity = first.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-            var secondFixedVelocity = first.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            var secondFixedVelocity = second.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
 
-            return first.GlobalColliderPolygon.MaxX + firstFixedVelocity.X > second.GlobalColliderPolygon.MinX + secondFixedVelocity.X &&
-                second.GlobalColliderPolygon.MaxX + firstFixedVelocity.X > first.GlobalColliderPolygon.MinX + secondFixedVelocity.X &&
+            return
+                first.GlobalColliderPolygon.MaxX + firstFixedVelocity.X > second.GlobalColliderPolygon.MinX + secondFixedVelocity.X &&
+                first.GlobalColliderPolygon.MinX + firstFixedVelocity.X < second.GlobalColliderPolygon.MaxX + secondFixedVelocity.X &&
                 first.GlobalColliderPolygon.MaxY + firstFixedVelocity.Y > second.GlobalColliderPolygon.MinY + secondFixedVelocity.Y &&
-                second.GlobalColliderPolygon.MaxY + firstFixedVelocity.Y > first.GlobalColliderPolygon.MinY + secondFixedVelocity.Y;
+                first.GlobalColliderPolygon.MinY + firstFixedVelocity.Y < second.GlobalColliderPolygon.MaxY + secondFixedVelocity.Y;
         }
     }
 }
