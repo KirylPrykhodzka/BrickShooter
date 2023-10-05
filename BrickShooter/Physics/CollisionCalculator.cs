@@ -1,8 +1,8 @@
 ﻿using BrickShooter.Extensions;
+using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,136 +11,29 @@ namespace BrickShooter.Physics
 {
     public class CollisionCalculator : ICollisionCalculator
     {
-        public Vector2 GetTranslationVectorForExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+        public IList<CollisionData> GetExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
-            var existingCollisions = potentialCollisions
-                .Select(x => GetCollisionResult(collisionSubject, x))
-                .Where(x => x.isColliding);
-            if(existingCollisions.Count() == 0)
-            {
-                return Vector2.Zero;
-            }
-            return existingCollisions.MinBy(x => x.minimalTranslationVector.Magnitude()).minimalTranslationVector;
+            //if an object collides with multiple objects at the same time, we remove 1 collision per update to make it simpler
+            return potentialCollisions
+                .Select(x => SATCollisionCalculator.GetCollisionResult(collisionSubject, x))
+                .Where(x => x.isColliding)
+                .Select(x => new CollisionData
+                {
+                    MinimalTranslationVector = x.minimalTranslationVector
+                })
+                .ToList();
         }
 
-        public IList<CollisionPredictionResult> FindFutureCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+        public CollisionPredictionResult FindNextCollision(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
-            return potentialCollisions.Select(x => CalculateFutureCollisionByVelocity(collisionSubject, x)).Where(x => x.WillCollide).ToList();
-        }
-
-        public static (bool isColliding, Vector2 minimalTranslationVector) GetCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
-        {
-            var subjectEdges = BuildEdges(collisionSubject.GlobalColliderPolygon.Points).ToList();
-            var objectEdges = BuildEdges(collisionObject.GlobalColliderPolygon.Points).ToList();
-
-            bool isColliding = true;
-            float minIntervalDistance = float.PositiveInfinity;
-            Vector2 translationAxis = Vector2.Zero;
-            Vector2 edge;
-
-            // Loop through all the edges of both polygons
-            for (int edgeIndex = 0; edgeIndex < subjectEdges.Count + objectEdges.Count; edgeIndex++)
+            var nextCollisions = potentialCollisions
+                .Select(x => CalculateFutureCollisionByVelocity(collisionSubject, x))
+                .Where(x => x.WillCollide);
+            if(!nextCollisions.Any())
             {
-                if (edgeIndex < subjectEdges.Count)
-                {
-                    edge = subjectEdges[edgeIndex];
-                }
-                else
-                {
-                    edge = objectEdges[edgeIndex - subjectEdges.Count];
-                }
-
-                // ===== 1. Find if the polygons are currently intersecting =====
-
-                // Find the axis perpendicular to the current edge
-                Vector2 axis = new Vector2(-edge.Y, edge.X);
-                axis.Normalize();
-
-                // Find the projection of the polygon on the current axis
-                float minA = 0; float minB = 0; float maxA = 0; float maxB = 0;
-                ProjectPolygon(axis, collisionSubject.GlobalColliderPolygon, ref minA, ref maxA);
-                ProjectPolygon(axis, collisionObject.GlobalColliderPolygon, ref minB, ref maxB);
-
-                // Check if the polygon projections are currentlty intersecting
-                float intervalDistance = IntervalDistance(minA, maxA, minB, maxB);
-                if (intervalDistance > 0)
-                {
-                    return (false, Vector2.Zero);
-                }
-
-                // Check if the current interval distance is the minimum one. If so store
-                // the interval distance and the current distance.
-                // This will be used to calculate the minimum translation vector
-                intervalDistance = Math.Abs(intervalDistance);
-                if (intervalDistance < minIntervalDistance)
-                {
-                    minIntervalDistance = intervalDistance;
-                    translationAxis = axis;
-
-                    Vector2 d = collisionSubject.GlobalColliderPolygon.Center - collisionObject.GlobalColliderPolygon.Center;
-                    if (d.DotProduct(translationAxis) < 0)
-                        translationAxis = -translationAxis;
-                }
+                return null;
             }
-
-            return (isColliding, translationAxis * minIntervalDistance);
-        }
-
-        private static void ProjectPolygon(Vector2 axis, ColliderPolygon polygon, ref float min, ref float max)
-        {
-            // To project a point on an axis use the dot product
-            float dotProduct = axis.DotProduct(polygon.Points[0]);
-            min = dotProduct;
-            max = dotProduct;
-            for (int i = 0; i < polygon.Points.Count; i++)
-            {
-                dotProduct = polygon.Points[i].DotProduct(axis);
-                if (dotProduct < min)
-                {
-                    min = dotProduct;
-                }
-                else
-                {
-                    if (dotProduct > max)
-                    {
-                        max = dotProduct;
-                    }
-                }
-            }
-        }
-
-        private static float IntervalDistance(float minA, float maxA, float minB, float maxB)
-        {
-            if (minA < minB)
-            {
-                return minB - maxA;
-            }
-            else
-            {
-                return minA - maxB;
-            }
-        }
-
-        private static IEnumerable<Vector2> BuildEdges(IList<Vector2> points)
-        {
-            var result = new List<Vector2>();
-            Vector2 p1;
-            Vector2 p2;
-            for (int i = 0; i < points.Count; i++)
-            {
-                p1 = points[i];
-                if (i + 1 >= points.Count)
-                {
-                    p2 = points[0];
-                }
-                else
-                {
-                    p2 = points[i + 1];
-                }
-                result.Add(p2 - p1);
-            }
-
-            return result;
+            return nextCollisions.MinBy(x => x.DistanceToCollision);
         }
 
         public static CollisionPredictionResult CalculateFutureCollisionByVelocity(MaterialObject collisionSubject, MaterialObject collisionObject)
@@ -154,7 +47,10 @@ namespace BrickShooter.Physics
             var objectFrontFacingPoints = GetFrontFacingPoints(collisionObject, -result.RelativeVelocity);
             var subjectFrontFacingEdges = GetFrontFacingEdges(collisionSubject, subjectFrontFacingPoints);
             var objectFrontFacingEdges = GetFrontFacingEdges(collisionObject, objectFrontFacingPoints);
+            if(!subjectFrontFacingEdges.Any() || !objectFrontFacingEdges.Any())
+            {
 
+            }
             //for every subject front facing point, 
             //the shortest projection will tell the point and edge of collision
 
@@ -163,7 +59,14 @@ namespace BrickShooter.Physics
             {
                 foreach(var frontFacingEdge in objectFrontFacingEdges)
                 {
-                    var projectionLength = frontFacingPoint.DistanceTo(frontFacingEdge);
+                    var intersectionResult = FindIntersection((frontFacingPoint, frontFacingPoint + result.RelativeVelocity), frontFacingEdge);
+                    if(!intersectionResult.intersect)
+                    {
+                        continue;
+                    }
+                    //check if edge intersects with the line formed by point and point + fixedVelocity
+                    //if yes, projectionLength = distance between point and point of intersection
+                    var projectionLength = (intersectionResult.pointOfIntersection - frontFacingPoint).Magnitude();
                     if(projectionLength < closestCollision.projectionLength)
                     {
                         closestCollision = (frontFacingPoint, frontFacingEdge, projectionLength);
@@ -174,7 +77,14 @@ namespace BrickShooter.Physics
             {
                 foreach (var frontFacingEdge in subjectFrontFacingEdges)
                 {
-                    var projectionLength = frontFacingPoint.DistanceTo(frontFacingEdge);
+                    var intersectionResult = FindIntersection((frontFacingPoint, frontFacingPoint + result.RelativeVelocity), frontFacingEdge);
+                    if (!intersectionResult.intersect)
+                    {
+                        continue;
+                    }
+                    //check if edge intersects with the line formed by point and point + fixedVelocity
+                    //if yes, projectionLength = distance between point and point of intersection
+                    var projectionLength = (intersectionResult.pointOfIntersection - frontFacingPoint).Magnitude();
                     if (projectionLength < closestCollision.projectionLength)
                     {
                         closestCollision = (frontFacingPoint, frontFacingEdge, projectionLength);
@@ -184,31 +94,30 @@ namespace BrickShooter.Physics
 
             result.ClosestCollisionPoint = closestCollision.point;
             result.CollisionEdge = closestCollision.edge;
-            result.CollisionDistance = closestCollision.projectionLength;
+            result.DistanceToCollision = closestCollision.projectionLength;
             result.WillCollide = Math.Abs(closestCollision.projectionLength) < result.RelativeVelocity.Magnitude();
             return result;
         }
 
         //selects points of a material object's collider that can cause collision based on provided velocity
         public static IList<Vector2> GetFrontFacingPoints(MaterialObject materialObject, Vector2 velocity)
-        {
-            if (velocity == Vector2.Zero || materialObject.LocalColliderPolygon.Points.Count <= 2)
+         {
+            if (velocity == Vector2.Zero || materialObject.GlobalColliderPolygon.Points.Count <= 2)
             {
-                return materialObject.LocalColliderPolygon.Points;
+                return materialObject.GlobalColliderPolygon.Points;
             }
 
-            var localColliderPoints = materialObject.LocalColliderPolygon.Points
-                //this makes sure that polygon center is in (0,0) which makes it much easier to operate on
-                .Select(x => x - materialObject.LocalColliderPolygon.Center)
+            var localizedColliderPoints = materialObject.GlobalColliderPolygon.Points
+                //this makes sure that center of localizedColliderPoints is (0,0) which makes finding front facing points much handier
+                .Select(x => x - materialObject.GlobalColliderPolygon.Center)
                 .ToList();
 
-            var perpendicularAxis = new Vector2(velocity.Y, velocity.X);
-            char projectionComparisonAxis = Math.Abs(perpendicularAxis.X) > Math.Abs(perpendicularAxis.Y) ? 'x' : 'y';
+            var perpendicularVelocity = new Vector2(velocity.Y, -velocity.X);
+            char projectionComparisonAxis = Math.Abs(perpendicularVelocity.X) > Math.Abs(perpendicularVelocity.Y) ? 'x' : 'y';
 
             //find width of an object relative to its movement direction
-            IEnumerable<(Vector2 key, Vector2 value)> perpendicularProjections = localColliderPoints
-                //need to add * new Vector2(1, -1) because in Monogame Y axis is inverted
-                .Select(x => (x, x.Project(perpendicularAxis)));
+            IEnumerable<(Vector2 key, Vector2 value)> perpendicularProjections = localizedColliderPoints
+                .Select(x => (x, x.Project(perpendicularVelocity)));
 
             //left- and right-most points of the polygon relative to its velocity
             Vector2 min = Vector2.Zero;
@@ -251,7 +160,7 @@ namespace BrickShooter.Physics
 
             //find all points closer to the front then min and max
             var result = new List<Vector2> { min, max };
-            var otherLocalColliderPoints = localColliderPoints.Where(x => x != min && x != max);
+            var otherLocalColliderPoints = localizedColliderPoints.Where(x => x != min && x != max);
 
             if (projectionComparisonAxis == 'y')
             {
@@ -286,7 +195,7 @@ namespace BrickShooter.Physics
 
             //need to "move" polygon back to its original position relative to object's position before returning
             //and then we also need to understand front facing points position in global space
-            result = result.Select(x => x + materialObject.LocalColliderPolygon.Center + materialObject.Position).ToList();
+            result = result.Select(x => x + materialObject.GlobalColliderPolygon.Center).ToList();
             return result;
         }
 
@@ -311,6 +220,36 @@ namespace BrickShooter.Physics
             }
 
             return result;
+        }
+
+        //http://www.csharphelper.com/howtos/howto_segment_intersection.html
+        private static (bool intersect, Vector2 pointOfIntersection) FindIntersection((Vector2 point1, Vector2 point2) segment1, (Vector2 point1, Vector2 point2) segment2)
+        {
+            // Get the segments' parameters.
+            float distanceX1 = segment2.point1.X - segment1.point1.X;
+            float distanceY1 = segment2.point1.Y - segment1.point1.Y;
+            float distanceX2 = segment2.point2.X - segment1.point2.X;
+            float distanceY2 = segment2.point2.Y - segment1.point2.Y;
+
+            // Solve for t1 and t2
+            float denominator = distanceY1 * distanceX2 - distanceX1 * distanceY2;
+            if(denominator == 0)
+            {
+                return (false, Vector2.Zero);
+            }
+
+            float t1 = ((segment1.point1.X - segment2.point1.X) * distanceY2 + (segment2.point1.Y - segment1.point1.Y) * distanceX2) / denominator;
+            float t2 = ((segment2.point1.X - segment1.point1.X) * distanceY1 + (segment1.point1.Y - segment2.point1.Y) * distanceX1) / -denominator;
+
+            // The segments intersect if t1 and t2 are between 0 and 1.
+            var intersect =
+                ((t1 >= 0) && (t1 <= 1) &&
+                 (t2 >= 0) && (t2 <= 1));
+
+            // Find the point of intersection.
+            var pointOfIntersection = new Vector2(segment1.point1.X + distanceX1 * t1, segment1.point1.Y + distanceY1 * t1);
+
+            return (intersect, pointOfIntersection);
         }
     }
 }

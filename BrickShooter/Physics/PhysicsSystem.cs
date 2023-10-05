@@ -2,6 +2,7 @@
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 
@@ -16,18 +17,15 @@ namespace BrickShooter.Physics
     {
         private readonly IPotentialCollisionsDetector potentialCollisionsDetector;
         private readonly ICollisionCalculator collisionCalculator;
-        private readonly ICollisionProcessor collisionProcessor;
         private readonly IMaterialObjectMover materialObjectMover;
 
         public PhysicsSystem(
             IPotentialCollisionsDetector potentialCollisionsDetector,
             ICollisionCalculator collisionCalculator,
-            ICollisionProcessor collisionProcessor,
             IMaterialObjectMover materialObjectMover)
         {
             this.potentialCollisionsDetector = potentialCollisionsDetector;
             this.collisionCalculator = collisionCalculator;
-            this.collisionProcessor = collisionProcessor;
             this.materialObjectMover = materialObjectMover;
         }
 
@@ -66,26 +64,26 @@ namespace BrickShooter.Physics
             foreach (var currentObject in mobileObjects.Where(x => x.Velocity != Vector2.Zero || x.DidRotate).ToList())
             {
                 var potentialCollisions = potentialCollisionsDetector.DetectPotentialCollisions(currentObject, mobileObjects.Where(x => x != currentObject).Concat(immobileObjects));
-                if(potentialCollisions.Count() == 0)
+                if(!potentialCollisions.Any())
                 {
                     materialObjectMover.MoveWithoutObstruction(currentObject);
                     continue;
                 }
                 if (currentObject.DidRotate)
                 {
-                    var minimalTranslationVectorForExistingCollisions = collisionCalculator.GetTranslationVectorForExistingCollisions(currentObject, potentialCollisions);
-                    materialObjectMover.Move(currentObject, minimalTranslationVectorForExistingCollisions);
+                    var existingCollisions = collisionCalculator.GetExistingCollisions(currentObject, potentialCollisions);
+                    materialObjectMover.ProcessExistingCollisions(currentObject, existingCollisions);
                 }
                 if (currentObject.Velocity != Vector2.Zero)
                 {
-                    var futureCollisions = collisionCalculator.FindFutureCollisions(currentObject, potentialCollisions);
-                    if (futureCollisions.Count == 0)
+                    var nextCollision = collisionCalculator.FindNextCollision(currentObject, potentialCollisions);
+                    if (nextCollision is null)
                     {
                         materialObjectMover.MoveWithoutObstruction(currentObject);
                     }
                     else
                     {
-                        collisionProcessor.ProcessCollisions(currentObject, futureCollisions);
+                        materialObjectMover.ProcessNextCollision(currentObject, nextCollision);
                     }
                 }
             }

@@ -49,7 +49,7 @@ namespace BrickShooter.Physics.Models
         /// </summary>
         /// <returns></returns>
         private (float rotation, ColliderPolygon Value) localColliderPolygonCache = new();
-        public ColliderPolygon LocalColliderPolygon
+        private ColliderPolygon LocalColliderPolygon
         {
             get
             {

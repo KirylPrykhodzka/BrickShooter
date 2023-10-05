@@ -12,6 +12,6 @@ namespace BrickShooter.Physics.Models
         public (Vector2 point1, Vector2 point2) CollisionEdge { get; set; }
         //if WillCollide, shows distance still left between CollisionSubject and CollisionObject
         //if IsColliding, shows penetration depth
-        public float CollisionDistance { get; set; }
+        public float DistanceToCollision { get; set; }
     }
 }
