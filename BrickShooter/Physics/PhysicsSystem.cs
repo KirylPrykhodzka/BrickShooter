@@ -72,7 +72,10 @@ namespace BrickShooter.Physics
                 if (currentObject.DidRotate)
                 {
                     var existingCollisions = collisionCalculator.GetExistingCollisions(currentObject, potentialCollisions);
-                    materialObjectMover.ProcessExistingCollisions(currentObject, existingCollisions);
+                    if(existingCollisions.Count > 0)
+                    {
+                        materialObjectMover.ProcessExistingCollisions(currentObject, existingCollisions);
+                    }
                 }
                 if (currentObject.Velocity != Vector2.Zero)
                 {

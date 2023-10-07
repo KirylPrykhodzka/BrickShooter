@@ -1,7 +1,9 @@
 ﻿using BrickShooter.Extensions;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BrickShooter.Physics
 {
@@ -14,10 +16,7 @@ namespace BrickShooter.Physics
 
         public void ProcessExistingCollisions(MaterialObject materialObject, IList<CollisionData> existingCollisions)
         {
-            if(existingCollisions.Count == 1)
-            {
-                materialObject.Position += existingCollisions[0].MinimalTranslationVector;
-            }
+            materialObject.Position += existingCollisions.MaxBy(x => Math.Abs(x.MinimalTranslationVector.X) + Math.Abs(x.MinimalTranslationVector.Y)).MinimalTranslationVector;
         }
 
         public void ProcessNextCollision(MaterialObject currentObject, CollisionPredictionResult nextCollision)
