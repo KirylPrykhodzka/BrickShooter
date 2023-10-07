@@ -27,7 +27,6 @@ namespace BrickShooter.GameObjects
         {
             sprite = GlobalObjects.Content.Load<Texture2D>($"Player/{spriteName}");
             Position = initialPosition;
-            Rotation = (float)Math.PI / 4;
             initialLocalColliderPoints = new Vector2[]
             {
                 new(-sprite.Width / 2, -sprite.Height /2),
@@ -45,7 +44,7 @@ namespace BrickShooter.GameObjects
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             var mouseState = Mouse.GetState();
             HandleMovementInput(pressedKeys);
-            //HandleRotationInput(mouseState);
+            HandleRotationInput(mouseState);
             if (mouseState.LeftButton == ButtonState.Pressed)
             {
                 var now = DateTime.Now.Ticks / 10000;

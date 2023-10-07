@@ -5,6 +5,7 @@ using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace BrickShooter.Physics
@@ -47,10 +48,6 @@ namespace BrickShooter.Physics
             var objectFrontFacingPoints = GetFrontFacingPoints(collisionObject, -result.RelativeVelocity);
             var subjectFrontFacingEdges = GetFrontFacingEdges(collisionSubject, subjectFrontFacingPoints);
             var objectFrontFacingEdges = GetFrontFacingEdges(collisionObject, objectFrontFacingPoints);
-            if(!subjectFrontFacingEdges.Any() || !objectFrontFacingEdges.Any())
-            {
-
-            }
             //for every subject front facing point, 
             //the shortest projection will tell the point and edge of collision
 
@@ -222,34 +219,28 @@ namespace BrickShooter.Physics
             return result;
         }
 
-        //http://www.csharphelper.com/howtos/howto_segment_intersection.html
+        //https://stackoverflow.com/questions/4543506/algorithm-for-intersection-of-2-lines
         private static (bool intersect, Vector2 pointOfIntersection) FindIntersection((Vector2 point1, Vector2 point2) segment1, (Vector2 point1, Vector2 point2) segment2)
         {
-            // Get the segments' parameters.
-            float distanceX1 = segment2.point1.X - segment1.point1.X;
-            float distanceY1 = segment2.point1.Y - segment1.point1.Y;
-            float distanceX2 = segment2.point2.X - segment1.point2.X;
-            float distanceY2 = segment2.point2.Y - segment1.point2.Y;
+            var A1 = segment1.point2.Y - segment1.point1.Y;
+            var B1 = segment1.point1.X - segment1.point2.X;
+            var C1 = A1 * segment1.point1.X + B1 * segment1.point1.Y;
 
-            // Solve for t1 and t2
-            float denominator = distanceY1 * distanceX2 - distanceX1 * distanceY2;
-            if(denominator == 0)
+            var A2 = segment2.point2.Y - segment2.point1.Y;
+            var B2 = segment2.point1.X - segment2.point2.X;
+            var C2 = A2 * segment2.point1.X + B2 * segment2.point1.Y;
+
+            float delta = A1 * B2 - A2 * B1;
+
+            if (delta == 0)
             {
-                return (false, Vector2.Zero);
+                return (false, default);
             }
 
-            float t1 = ((segment1.point1.X - segment2.point1.X) * distanceY2 + (segment2.point1.Y - segment1.point1.Y) * distanceX2) / denominator;
-            float t2 = ((segment2.point1.X - segment1.point1.X) * distanceY1 + (segment1.point1.Y - segment2.point1.Y) * distanceX1) / -denominator;
+            float x = (B2 * C1 - B1 * C2) / delta;
+            float y = (A1 * C2 - A2 * C1) / delta;
 
-            // The segments intersect if t1 and t2 are between 0 and 1.
-            var intersect =
-                ((t1 >= 0) && (t1 <= 1) &&
-                 (t2 >= 0) && (t2 <= 1));
-
-            // Find the point of intersection.
-            var pointOfIntersection = new Vector2(segment1.point1.X + distanceX1 * t1, segment1.point1.Y + distanceY1 * t1);
-
-            return (intersect, pointOfIntersection);
+            return (true, new Vector2(x, y));
         }
     }
 }
