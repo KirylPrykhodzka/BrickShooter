@@ -16,7 +16,11 @@ namespace BrickShooter.Physics
 
         public void ProcessExistingCollisions(MaterialObject materialObject, IList<CollisionData> existingCollisions)
         {
-            materialObject.Position += existingCollisions.MaxBy(x => Math.Abs(x.MinimalTranslationVector.X) + Math.Abs(x.MinimalTranslationVector.Y)).MinimalTranslationVector;
+            //apply the biggest minimal translation vector, hoping that it will fix the rest of the collisions too
+            var biggestTranslationVector = existingCollisions
+                .MaxBy(x => Math.Abs(x.MinimalTranslationVector.X) + Math.Abs(x.MinimalTranslationVector.Y))
+                .MinimalTranslationVector;
+            materialObject.Position += biggestTranslationVector;
         }
 
         public void ProcessNextCollision(MaterialObject currentObject, CollisionPredictionResult nextCollision)

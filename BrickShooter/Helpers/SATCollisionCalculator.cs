@@ -64,7 +64,11 @@ namespace BrickShooter.Helpers
                 }
             }
 
-            return (isColliding, translationAxis * minIntervalDistance);
+            var minimalTranslationVector = translationAxis * minIntervalDistance;
+            //increase translation by 1px to move the object outside of colliding object's borders
+            minimalTranslationVector += new Vector2(Math.Sign(minimalTranslationVector.X), Math.Sign(minimalTranslationVector.Y));
+
+            return (isColliding, minimalTranslationVector);
         }
 
         private static void ProjectPolygon(Vector2 axis, ColliderPolygon polygon, ref float min, ref float max)
