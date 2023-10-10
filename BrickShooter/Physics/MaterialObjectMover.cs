@@ -26,9 +26,12 @@ namespace BrickShooter.Physics
         public void ProcessNextCollision(MaterialObject currentObject, CollisionPredictionResult nextCollision)
         {
             var fullMovement = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-            var fullMovementDistance = fullMovement.Magnitude();
+            var fullMovementDistancePortion = nextCollision.DistanceToCollision < 1f ? 0f : nextCollision.DistanceToCollision / fullMovement.Magnitude();
 
-            currentObject.Position += fullMovement * nextCollision.DistanceToCollision / fullMovementDistance;
+            currentObject.Position += fullMovement * fullMovementDistancePortion;
+
+            var adjustedVelocity = currentObject.Velocity.Project(nextCollision.CollisionEdge.point2 - nextCollision.CollisionEdge.point1);
+            currentObject.Position += adjustedVelocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds * (1 - fullMovementDistancePortion);
         }
     }
 }
