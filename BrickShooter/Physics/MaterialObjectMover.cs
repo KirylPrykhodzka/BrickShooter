@@ -1,6 +1,7 @@
 ﻿using BrickShooter.Extensions;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,13 @@ namespace BrickShooter.Physics
 {
     public class MaterialObjectMover : IMaterialObjectMover
     {
+        private readonly ICollisionCalculator collisionCalculator;
+
+        public MaterialObjectMover(ICollisionCalculator collisionCalculator)
+        {
+            this.collisionCalculator = collisionCalculator;
+        }
+
         public void MoveWithoutObstruction(MaterialObject materialObject)
         {
             materialObject.Position += materialObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
@@ -25,14 +33,24 @@ namespace BrickShooter.Physics
 
         public void ProcessNextCollisions(MaterialObject currentObject, IList<CollisionPredictionResult> nextCollisions)
         {
-            var nextCollision = nextCollisions.MinBy(x => x.DistanceToCollision);
-            var fullMovement = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-            var fullMovementDistancePortion = nextCollision.DistanceToCollision < 1f ? 0f : nextCollision.DistanceToCollision / fullMovement.Magnitude();
+            var originalVelocity = currentObject.Velocity;
+            while(currentObject.Velocity != Vector2.Zero)
+            {
+                if(!nextCollisions.Any())
+                {
+                    MoveWithoutObstruction(currentObject);
+                    break;
+                }
+                var remainingTravelDistance = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+                var nextCollision = nextCollisions.MinBy(x => x.DistanceToCollision);
+                var unobstructedMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance.Magnitude();
 
-            currentObject.Position += fullMovement * fullMovementDistancePortion;
+                currentObject.Position += remainingTravelDistance * unobstructedMovementPortion;
 
-            var adjustedVelocity = currentObject.Velocity.Project(nextCollision.CollisionEdge.point2 - nextCollision.CollisionEdge.point1);
-            currentObject.Position += adjustedVelocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds * (1 - fullMovementDistancePortion);
+                currentObject.Velocity = currentObject.Velocity.Project(nextCollision.CollisionEdge.point2 - nextCollision.CollisionEdge.point1) * (1 - unobstructedMovementPortion);
+                nextCollisions = collisionCalculator.FindNextCollisions(currentObject, nextCollisions.Where(x => x != nextCollision).Select(x => x.CollisionObject));
+            }
+            currentObject.Velocity = originalVelocity;
         }
     }
 }

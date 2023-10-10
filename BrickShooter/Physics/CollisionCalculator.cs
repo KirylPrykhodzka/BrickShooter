@@ -38,6 +38,8 @@ namespace BrickShooter.Physics
         {
             CollisionPredictionResult result = new()
             {
+                CollisionSubject = collisionSubject,
+                CollisionObject = collisionObject,
                 RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds,
             };
 
