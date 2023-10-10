@@ -7,6 +7,6 @@ namespace BrickShooter.Physics.Interfaces
     {
         void MoveWithoutObstruction(MaterialObject materialObject);
         void ProcessExistingCollisions(MaterialObject materialObject, IList<CollisionData> existingCollisions);
-        void ProcessNextCollision(MaterialObject currentObject, CollisionPredictionResult nextCollision);
+        void ProcessNextCollisions(MaterialObject currentObject, IList<CollisionPredictionResult> nextCollisions);
     }
 }

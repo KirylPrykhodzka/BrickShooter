@@ -5,6 +5,7 @@ using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 
@@ -25,16 +26,12 @@ namespace BrickShooter.Physics
                 .ToList();
         }
 
-        public CollisionPredictionResult FindNextCollision(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+        public IList<CollisionPredictionResult> FindNextCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
-            var nextCollisions = potentialCollisions
+            return potentialCollisions
                 .Select(x => CalculateFutureCollisionByVelocity(collisionSubject, x))
-                .Where(x => x.WillCollide);
-            if(!nextCollisions.Any())
-            {
-                return null;
-            }
-            return nextCollisions.MinBy(x => x.DistanceToCollision);
+                .Where(x => x.WillCollide)
+                .ToList();
         }
 
         public static CollisionPredictionResult CalculateFutureCollisionByVelocity(MaterialObject collisionSubject, MaterialObject collisionObject)

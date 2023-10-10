@@ -69,24 +69,21 @@ namespace BrickShooter.Physics
                     materialObjectMover.MoveWithoutObstruction(currentObject);
                     continue;
                 }
-                if (currentObject.DidRotate)
+                var existingCollisions = collisionCalculator.GetExistingCollisions(currentObject, potentialCollisions);
+                if (existingCollisions.Count > 0)
                 {
-                    var existingCollisions = collisionCalculator.GetExistingCollisions(currentObject, potentialCollisions);
-                    if(existingCollisions.Count > 0)
-                    {
-                        materialObjectMover.ProcessExistingCollisions(currentObject, existingCollisions);
-                    }
+                    materialObjectMover.ProcessExistingCollisions(currentObject, existingCollisions);
                 }
                 if (currentObject.Velocity != Vector2.Zero)
                 {
-                    var nextCollision = collisionCalculator.FindNextCollision(currentObject, potentialCollisions);
-                    if (nextCollision is null)
+                    var nextCollisions = collisionCalculator.FindNextCollisions(currentObject, potentialCollisions);
+                    if (!nextCollisions.Any())
                     {
                         materialObjectMover.MoveWithoutObstruction(currentObject);
                     }
                     else
                     {
-                        materialObjectMover.ProcessNextCollision(currentObject, nextCollision);
+                        materialObjectMover.ProcessNextCollisions(currentObject, nextCollisions);
                     }
                 }
             }
