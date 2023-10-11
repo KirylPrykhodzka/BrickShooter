@@ -1,9 +1,11 @@
-﻿using BrickShooter.Extensions;
+﻿using BrickShooter.Constants;
+using BrickShooter.Extensions;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.Physics
@@ -30,10 +32,9 @@ namespace BrickShooter.Physics
             materialObject.Position += longestTranslationVector;
         }
 
+        //recursively moves close to the collision point, then starts moving along its collision edge until velocity is expired
         public void ProcessNextCollisions(MaterialObject currentObject, IList<CollisionPredictionResult> nextCollisions)
         {
-            //moves along nextCollisions edges starting from the closest one, without moving towards them
-            //for correct simulation, the object needs to move toward nextCollision until it reaches it, but that does not work for some reason
             var originalVelocity = currentObject.Velocity;
             while(currentObject.Velocity != Vector2.Zero)
             {
@@ -46,7 +47,15 @@ namespace BrickShooter.Physics
                 var remainingTravelDistance = fixedVelocity.Magnitude();
                 var nextCollision = nextCollisions.MinBy(x => x.DistanceToCollision);
                 var regularMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance;
+                var regularMovement = fixedVelocity * regularMovementPortion;
+                //the fractions are cut because it causes clipping sometimes.
+                //in worst case scenario the object stops 1 unit from collision which does not matter
+                currentObject.Position += new Vector2((int)regularMovement.X, (int)regularMovement.Y);
                 currentObject.Velocity = currentObject.Velocity.Project(nextCollision.CollisionEdge.point2 - nextCollision.CollisionEdge.point1) * (1 - regularMovementPortion);
+                if(Math.Abs(currentObject.Velocity.X) < PhysicsConstants.MIN_VELOCITY && Math.Abs(currentObject.Velocity.Y) < PhysicsConstants.MIN_VELOCITY)
+                {
+                    break;
+                }
                 nextCollisions = collisionCalculator.FindNextCollisions(currentObject, nextCollisions.Where(x => x != nextCollision).Select(x => x.CollisionObject));
             }
             currentObject.Velocity = originalVelocity;

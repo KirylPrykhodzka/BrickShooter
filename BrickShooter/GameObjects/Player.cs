@@ -134,7 +134,7 @@ namespace BrickShooter.GameObjects
         {
             if (axis == 'x')
             {
-                if (Math.Abs(Velocity.X) <= PlayerConstants.MIN_VELOCITY)
+                if (Math.Abs(Velocity.X) <= PhysicsConstants.MIN_VELOCITY)
                 {
                     Velocity = new Vector2(0, Velocity.Y);
                 }
@@ -146,7 +146,7 @@ namespace BrickShooter.GameObjects
             }
             if (axis == 'y')
             {
-                if (Math.Abs(Velocity.Y) <= PlayerConstants.MIN_VELOCITY)
+                if (Math.Abs(Velocity.Y) <= PhysicsConstants.MIN_VELOCITY)
                 {
                     Velocity = new Vector2(Velocity.X, 0);
                 }
