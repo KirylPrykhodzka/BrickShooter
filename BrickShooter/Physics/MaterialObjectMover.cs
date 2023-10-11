@@ -43,9 +43,21 @@ namespace BrickShooter.Physics
                 }
                 var remainingTravelDistance = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
                 var nextCollision = nextCollisions.MinBy(x => x.DistanceToCollision);
-                var unobstructedMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance.Magnitude();
 
-                currentObject.Position += remainingTravelDistance * unobstructedMovementPortion;
+                var collision = collisionCalculator.GetExistingCollisions(currentObject, new List<MaterialObject>() { nextCollision.CollisionObject }).Where(x => x.MinimalTranslationVector != Vector2.Zero).FirstOrDefault();
+                if (collision != null)
+                {
+
+                }
+
+                var unobstructedMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance.Magnitude();
+                currentObject.Position += remainingTravelDistance * unobstructedMovementPortion / 2;
+
+                collision = collisionCalculator.GetExistingCollisions(currentObject, new List<MaterialObject>() { nextCollision.CollisionObject }).Where(x => x.MinimalTranslationVector != Vector2.Zero).FirstOrDefault();
+                if (collision != null)
+                {
+                    
+                }
 
                 currentObject.Velocity = currentObject.Velocity.Project(nextCollision.CollisionEdge.point2 - nextCollision.CollisionEdge.point1) * (1 - unobstructedMovementPortion);
                 nextCollisions = collisionCalculator.FindNextCollisions(currentObject, nextCollisions.Where(x => x != nextCollision).Select(x => x.CollisionObject));

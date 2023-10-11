@@ -2,6 +2,7 @@
 using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
+using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -218,28 +219,39 @@ namespace BrickShooter.Physics
             return result;
         }
 
-        //https://stackoverflow.com/questions/4543506/algorithm-for-intersection-of-2-lines
+        //http://www.csharphelper.com/howtos/howto_segment_intersection.html
         private static (bool intersect, Vector2 pointOfIntersection) FindIntersection((Vector2 point1, Vector2 point2) segment1, (Vector2 point1, Vector2 point2) segment2)
         {
-            var A1 = segment1.point2.Y - segment1.point1.Y;
-            var B1 = segment1.point1.X - segment1.point2.X;
-            var C1 = A1 * segment1.point1.X + B1 * segment1.point1.Y;
+            // Get the segments' parameters.
+            float dx12 = segment1.point2.X - segment1.point1.X;
+            float dy12 = segment1.point2.Y - segment1.point1.Y;
+            float dx34 = segment2.point2.X - segment2.point1.X;
+            float dy34 = segment2.point2.Y - segment2.point1.Y;
 
-            var A2 = segment2.point2.Y - segment2.point1.Y;
-            var B2 = segment2.point1.X - segment2.point2.X;
-            var C2 = A2 * segment2.point1.X + B2 * segment2.point1.Y;
+            // Solve for t1 and t2
+            float denominator = (dy12 * dx34 - dx12 * dy34);
 
-            float delta = A1 * B2 - A2 * B1;
-
-            if (delta == 0)
+            float t1 =
+                ((segment1.point1.X - segment2.point1.X) * dy34 + (segment2.point1.Y - segment1.point1.Y) * dx34)
+                    / denominator;
+            if (float.IsInfinity(t1))
             {
-                return (false, default);
+                return (false, Vector2.Zero);
             }
 
-            float x = (B2 * C1 - B1 * C2) / delta;
-            float y = (A1 * C2 - A2 * C1) / delta;
+            float t2 =
+                ((segment2.point1.X - segment1.point1.X) * dy12 + (segment1.point1.Y - segment2.point1.Y) * dx12)
+                    / -denominator;
 
-            return (true, new Vector2(x, y));
+            // Find the point of intersection.
+            var pointOfIntersection = new Vector2(segment1.point1.X + dx12 * t1, segment1.point1.Y + dy12 * t1);
+
+            // The segments intersect if t1 and t2 are between 0 and 1.
+            var intersect =
+                ((t1 >= 0) && (t1 <= 1) &&
+                 (t2 >= 0) && (t2 <= 1));
+
+            return (intersect, pointOfIntersection);
         }
     }
 }

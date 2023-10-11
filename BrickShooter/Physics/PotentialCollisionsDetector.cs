@@ -22,7 +22,7 @@ namespace BrickShooter.Physics
         public IEnumerable<MaterialObject> DetectPotentialCollisions(MaterialObject currentObject, IEnumerable<MaterialObject> otherObjects)
         {
             var potentialCollisions = otherObjects
-                .Where(x => IsCollisionPossible(currentObject, x))
+                //.Where(x => IsCollisionPossible(currentObject, x))
                 .Where(x => !IgnoredCollisions.TryGetValue(currentObject.GetType().Name, out var ignoredCollisions) || !ignoredCollisions.Contains(x.GetType().Name));
 
             return potentialCollisions;
