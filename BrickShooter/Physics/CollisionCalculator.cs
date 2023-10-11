@@ -67,7 +67,7 @@ namespace BrickShooter.Physics
             {
                 foreach (var frontFacingEdge in subjectFrontFacingEdges)
                 {
-                    var intersectionResult = FindIntersection((frontFacingPoint, frontFacingPoint + result.RelativeVelocity), frontFacingEdge);
+                    var intersectionResult = FindIntersection((frontFacingPoint, frontFacingPoint - result.RelativeVelocity), frontFacingEdge);
                     if (!intersectionResult.intersect)
                     {
                         continue;
