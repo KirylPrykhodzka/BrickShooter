@@ -44,7 +44,7 @@ namespace BrickShooter.GameObjects
             var pressedKeys = Keyboard.GetState().GetPressedKeys();
             var mouseState = Mouse.GetState();
             HandleMovementInput(pressedKeys);
-            //HandleRotationInput(mouseState);
+            HandleRotationInput(mouseState);
             if (mouseState.LeftButton == ButtonState.Pressed)
             {
                 var now = DateTime.Now.Ticks / 10000;

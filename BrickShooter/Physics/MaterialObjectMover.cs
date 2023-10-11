@@ -51,7 +51,9 @@ namespace BrickShooter.Physics
                 }
 
                 var unobstructedMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance.Magnitude();
-                currentObject.Position += remainingTravelDistance * unobstructedMovementPortion / 2;
+                //this is a workaround to not move too close to collisionObject (used to happen for unknown reason)
+                unobstructedMovementPortion /= 2;
+                currentObject.Position += remainingTravelDistance * unobstructedMovementPortion;
 
                 collision = collisionCalculator.GetExistingCollisions(currentObject, new List<MaterialObject>() { nextCollision.CollisionObject }).Where(x => x.MinimalTranslationVector != Vector2.Zero).FirstOrDefault();
                 if (collision != null)
