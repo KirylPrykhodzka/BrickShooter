@@ -59,7 +59,7 @@ namespace BrickShooter.Helpers
                     translationAxis = axis;
 
                     Vector2 d = collisionSubject.ColliderPolygon.Center - collisionObject.ColliderPolygon.Center;
-                    if (d.DotProduct(translationAxis) < 0)
+                    if (Vector2.Dot(d, translationAxis) < 0)
                         translationAxis = -translationAxis;
                 }
             }
@@ -74,12 +74,12 @@ namespace BrickShooter.Helpers
         private static void ProjectPolygon(Vector2 axis, ColliderPolygon polygon, ref float min, ref float max)
         {
             // To project a point on an axis use the dot product
-            float dotProduct = axis.DotProduct(polygon.Points[0]);
+            float dotProduct = Vector2.Dot(axis, polygon.Points[0]);
             min = dotProduct;
             max = dotProduct;
             for (int i = 0; i < polygon.Points.Count; i++)
             {
-                dotProduct = polygon.Points[i].DotProduct(axis);
+                dotProduct = Vector2.Dot(axis, polygon.Points[i]);
                 if (dotProduct < min)
                 {
                     min = dotProduct;

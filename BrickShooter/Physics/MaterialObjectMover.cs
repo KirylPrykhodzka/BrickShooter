@@ -28,7 +28,7 @@ namespace BrickShooter.Physics
         {
             //apply the biggest minimal translation vector, hoping that it will fix the rest of the collisions too
             var longestTranslationVector = translationVectors
-                .MaxBy(x => x.Magnitude());
+                .MaxBy(x => x.Length());
             materialObject.Position += longestTranslationVector;
         }
 
@@ -44,7 +44,7 @@ namespace BrickShooter.Physics
                     break;
                 }
                 var fixedVelocity = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-                var remainingTravelDistance = fixedVelocity.Magnitude();
+                var remainingTravelDistance = fixedVelocity.Length();
                 var nextCollision = nextCollisions.MinBy(x => x.DistanceToCollision);
                 var regularMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance;
                 var regularMovement = fixedVelocity * regularMovementPortion;

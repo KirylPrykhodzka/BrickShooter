@@ -56,7 +56,7 @@ namespace BrickShooter.Physics
                     }
                     //check if edge intersects with the line formed by point and point + fixedVelocity
                     //if yes, projectionLength = distance between point and point of intersection
-                    var projectionLength = (intersectionResult.pointOfIntersection - frontFacingPoint).Magnitude();
+                    var projectionLength = (intersectionResult.pointOfIntersection - frontFacingPoint).Length();
                     if(projectionLength < closestCollision.projectionLength)
                     {
                         closestCollision = (frontFacingPoint, frontFacingEdge, projectionLength);
@@ -74,7 +74,7 @@ namespace BrickShooter.Physics
                     }
                     //check if edge intersects with the line formed by point and point + fixedVelocity
                     //if yes, projectionLength = distance between point and point of intersection
-                    var projectionLength = (intersectionResult.pointOfIntersection - frontFacingPoint).Magnitude();
+                    var projectionLength = (intersectionResult.pointOfIntersection - frontFacingPoint).Length();
                     if (projectionLength < closestCollision.projectionLength)
                     {
                         closestCollision = (frontFacingPoint, frontFacingEdge, projectionLength);
@@ -85,7 +85,7 @@ namespace BrickShooter.Physics
             result.ClosestCollisionPoint = closestCollision.point;
             result.CollisionEdge = closestCollision.edge;
             result.DistanceToCollision = closestCollision.projectionLength;
-            result.WillCollide = Math.Abs(closestCollision.projectionLength) < result.RelativeVelocity.Magnitude();
+            result.WillCollide = Math.Abs(closestCollision.projectionLength) < result.RelativeVelocity.Length();
             return result;
         }
 
