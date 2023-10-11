@@ -4,6 +4,7 @@ using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.Physics
@@ -44,24 +45,7 @@ namespace BrickShooter.Physics
                 var remainingTravelDistance = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
                 var nextCollision = nextCollisions.MinBy(x => x.DistanceToCollision);
 
-                var collision = collisionCalculator.GetExistingCollisions(currentObject, new List<MaterialObject>() { nextCollision.CollisionObject }).Where(x => x.MinimalTranslationVector != Vector2.Zero).FirstOrDefault();
-                if (collision != null)
-                {
-
-                }
-
-                var unobstructedMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance.Magnitude();
-                //this is a workaround to not move too close to collisionObject (used to happen for unknown reason)
-                unobstructedMovementPortion /= 2;
-                currentObject.Position += remainingTravelDistance * unobstructedMovementPortion;
-
-                collision = collisionCalculator.GetExistingCollisions(currentObject, new List<MaterialObject>() { nextCollision.CollisionObject }).Where(x => x.MinimalTranslationVector != Vector2.Zero).FirstOrDefault();
-                if (collision != null)
-                {
-                    
-                }
-
-                currentObject.Velocity = currentObject.Velocity.Project(nextCollision.CollisionEdge.point2 - nextCollision.CollisionEdge.point1) * (1 - unobstructedMovementPortion);
+                currentObject.Velocity = currentObject.Velocity.Project(nextCollision.CollisionEdge.point2 - nextCollision.CollisionEdge.point1);
                 nextCollisions = collisionCalculator.FindNextCollisions(currentObject, nextCollisions.Where(x => x != nextCollision).Select(x => x.CollisionObject));
             }
             currentObject.Velocity = originalVelocity;
