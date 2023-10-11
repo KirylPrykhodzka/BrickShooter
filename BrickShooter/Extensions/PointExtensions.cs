@@ -9,17 +9,13 @@ namespace BrickShooter.Extensions
         {
             double cosTheta = Math.Cos(angle);
             double sinTheta = Math.Sin(angle);
-            return new Point
-            {
-                X =
-                    (int)
-                    (cosTheta * (point.X - origin.X) -
-                    sinTheta * (point.Y - origin.Y) + origin.X),
-                Y =
-                    (int)
-                    (sinTheta * (point.X - origin.X) +
-                    cosTheta * (point.Y - origin.Y) + origin.Y)
-            };
+
+            // Calculate the new coordinates with double precision
+            double newX = cosTheta * (point.X - origin.X) - sinTheta * (point.Y - origin.Y) + origin.X;
+            double newY = sinTheta * (point.X - origin.X) + cosTheta * (point.Y - origin.Y) + origin.Y;
+
+            // Round to integers and create a new Point
+            return new Point((int)Math.Round(newX), (int)Math.Round(newY));
         }
     }
 }
