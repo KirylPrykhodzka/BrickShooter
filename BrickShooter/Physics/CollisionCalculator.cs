@@ -2,28 +2,21 @@
 using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
-using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
 
 namespace BrickShooter.Physics
 {
     public class CollisionCalculator : ICollisionCalculator
     {
-        public IList<CollisionData> GetExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+        public IList<Vector2> GetTranslationVectorsForExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
-            //if an object collides with multiple objects at the same time, we remove 1 collision per update to make it simpler
             return potentialCollisions
                 .Select(x => SATCollisionCalculator.GetCollisionResult(collisionSubject, x))
                 .Where(x => x.isColliding)
-                .Select(x => new CollisionData
-                {
-                    MinimalTranslationVector = x.minimalTranslationVector
-                })
+                .Select(x => x.minimalTranslationVector)
                 .ToList();
         }
 
@@ -99,14 +92,14 @@ namespace BrickShooter.Physics
         //selects points of a material object's collider that can cause collision based on provided velocity
         public static IList<Vector2> GetFrontFacingPoints(MaterialObject materialObject, Vector2 velocity)
          {
-            if (velocity == Vector2.Zero || materialObject.GlobalColliderPolygon.Points.Count <= 2)
+            if (velocity == Vector2.Zero || materialObject.ColliderPolygon.Points.Count <= 2)
             {
-                return materialObject.GlobalColliderPolygon.Points;
+                return materialObject.ColliderPolygon.Points;
             }
 
-            var localizedColliderPoints = materialObject.GlobalColliderPolygon.Points
+            var localizedColliderPoints = materialObject.ColliderPolygon.Points
                 //this makes sure that center of localizedColliderPoints is (0,0) which makes finding front facing points much handier
-                .Select(x => x - materialObject.GlobalColliderPolygon.Center)
+                .Select(x => x - materialObject.ColliderPolygon.Center)
                 .ToList();
 
             var perpendicularVelocity = new Vector2(velocity.Y, -velocity.X);
@@ -192,7 +185,7 @@ namespace BrickShooter.Physics
 
             //need to "move" polygon back to its original position relative to object's position before returning
             //and then we also need to understand front facing points position in global space
-            result = result.Select(x => x + materialObject.GlobalColliderPolygon.Center).ToList();
+            result = result.Select(x => x + materialObject.ColliderPolygon.Center).ToList();
             return result;
         }
 
@@ -200,16 +193,16 @@ namespace BrickShooter.Physics
         public static IList<(Vector2 point1, Vector2 point2)> GetFrontFacingEdges(MaterialObject materialObject, IList<Vector2> frontFacingPoints)
         {
             List<(Vector2 point1, Vector2 point2)> result = new();
-            var firstPoint = materialObject.GlobalColliderPolygon.Points.First();
-            var lastPoint = materialObject.GlobalColliderPolygon.Points.Last();
+            var firstPoint = materialObject.ColliderPolygon.Points.First();
+            var lastPoint = materialObject.ColliderPolygon.Points.Last();
             if (frontFacingPoints.Contains(firstPoint) && frontFacingPoints.Contains(lastPoint))
             {
                 result.Add((firstPoint, lastPoint));
             }
-            for(int i = 1; i < materialObject.GlobalColliderPolygon.Points.Count; i++)
+            for(int i = 1; i < materialObject.ColliderPolygon.Points.Count; i++)
             {
-                var currentPoint = materialObject.GlobalColliderPolygon.Points[i];
-                var previousPoint = materialObject.GlobalColliderPolygon.Points[i - 1];
+                var currentPoint = materialObject.ColliderPolygon.Points[i];
+                var previousPoint = materialObject.ColliderPolygon.Points[i - 1];
                 if (frontFacingPoints.Contains(currentPoint) && frontFacingPoints.Contains(previousPoint))
                 {
                     result.Add((currentPoint, previousPoint));

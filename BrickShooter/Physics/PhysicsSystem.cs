@@ -2,7 +2,6 @@
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 
@@ -71,10 +70,10 @@ namespace BrickShooter.Physics
                 }
                 if(currentObject.DidRotate)
                 {
-                    var existingCollisions = collisionCalculator.GetExistingCollisions(currentObject, potentialCollisions);
-                    if (existingCollisions.Count > 0)
+                    var translationVectors = collisionCalculator.GetTranslationVectorsForExistingCollisions(currentObject, potentialCollisions);
+                    if (translationVectors.Count > 0)
                     {
-                        materialObjectMover.ProcessExistingCollisions(currentObject, existingCollisions);
+                        materialObjectMover.ProcessExistingCollisions(currentObject, translationVectors);
                     }
                 }
                 if (currentObject.Velocity != Vector2.Zero)
@@ -97,7 +96,7 @@ namespace BrickShooter.Physics
 #if DEBUG
             foreach (var collisionActor in immobileObjects.Concat(mobileObjects))
             {
-                VisualizationHelper.VisualizeCollider(collisionActor.GlobalColliderPolygon);
+                VisualizationHelper.VisualizeCollider(collisionActor.ColliderPolygon);
             }
 #endif
         }

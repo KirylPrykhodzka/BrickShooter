@@ -16,7 +16,7 @@ namespace BrickShooter.GameObjects
             Texture = texture;
             RectBounds = rectBounds;
             //4 points describing the sprite rectangle
-            initialLocalColliderPoints = new Vector2[]
+            initialColliderPoints = new Vector2[]
             {
                 new(RectBounds.X, RectBounds.Y),
                 new(RectBounds.X + RectBounds.Width, RectBounds.Y),

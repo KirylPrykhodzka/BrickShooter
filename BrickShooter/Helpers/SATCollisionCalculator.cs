@@ -11,8 +11,8 @@ namespace BrickShooter.Helpers
     {
         public static (bool isColliding, Vector2 minimalTranslationVector) GetCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
         {
-            var subjectEdges = BuildEdges(collisionSubject.GlobalColliderPolygon.Points).ToList();
-            var objectEdges = BuildEdges(collisionObject.GlobalColliderPolygon.Points).ToList();
+            var subjectEdges = BuildEdges(collisionSubject.ColliderPolygon.Points).ToList();
+            var objectEdges = BuildEdges(collisionObject.ColliderPolygon.Points).ToList();
 
             bool isColliding = true;
             float minIntervalDistance = float.PositiveInfinity;
@@ -39,8 +39,8 @@ namespace BrickShooter.Helpers
 
                 // Find the projection of the polygon on the current axis
                 float minA = 0; float minB = 0; float maxA = 0; float maxB = 0;
-                ProjectPolygon(axis, collisionSubject.GlobalColliderPolygon, ref minA, ref maxA);
-                ProjectPolygon(axis, collisionObject.GlobalColliderPolygon, ref minB, ref maxB);
+                ProjectPolygon(axis, collisionSubject.ColliderPolygon, ref minA, ref maxA);
+                ProjectPolygon(axis, collisionObject.ColliderPolygon, ref minB, ref maxB);
 
                 // Check if the polygon projections are currentlty intersecting
                 float intervalDistance = IntervalDistance(minA, maxA, minB, maxB);
@@ -58,7 +58,7 @@ namespace BrickShooter.Helpers
                     minIntervalDistance = intervalDistance;
                     translationAxis = axis;
 
-                    Vector2 d = collisionSubject.GlobalColliderPolygon.Center - collisionObject.GlobalColliderPolygon.Center;
+                    Vector2 d = collisionSubject.ColliderPolygon.Center - collisionObject.ColliderPolygon.Center;
                     if (d.DotProduct(translationAxis) < 0)
                         translationAxis = -translationAxis;
                 }

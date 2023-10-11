@@ -16,7 +16,7 @@ namespace BrickShooter.GameObjects.Bullets
         public Bullet()
         {
             //4 points describing the sprite rectangle
-            initialLocalColliderPoints = new Vector2[]
+            initialColliderPoints = new Vector2[]
             {
                 new(-sprite.Width / 2, -sprite.Height /2),
                 new(sprite.Width / 2, -sprite.Height /2),

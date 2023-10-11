@@ -22,7 +22,7 @@ namespace BrickShooter.Physics
         public IEnumerable<MaterialObject> DetectPotentialCollisions(MaterialObject currentObject, IEnumerable<MaterialObject> otherObjects)
         {
             var potentialCollisions = otherObjects
-                //.Where(x => IsCollisionPossible(currentObject, x))
+                .Where(x => IsCollisionPossible(currentObject, x))
                 .Where(x => !IgnoredCollisions.TryGetValue(currentObject.GetType().Name, out var ignoredCollisions) || !ignoredCollisions.Contains(x.GetType().Name));
 
             return potentialCollisions;
@@ -35,10 +35,11 @@ namespace BrickShooter.Physics
 
         private static bool DoBoundsOverlap(MaterialObject first, MaterialObject second)
         {
-            return first.GlobalColliderPolygon.MaxX > second.GlobalColliderPolygon.MinX &&
-                second.GlobalColliderPolygon.MaxX > first.GlobalColliderPolygon.MinX &&
-                first.GlobalColliderPolygon.MaxY > second.GlobalColliderPolygon.MinY &&
-                second.GlobalColliderPolygon.MaxY > first.GlobalColliderPolygon.MinY;
+            return
+                first.ColliderPolygon.MaxX > second.ColliderPolygon.MinX &&
+                first.ColliderPolygon.MaxY > second.ColliderPolygon.MinY &&
+                first.ColliderPolygon.MinX < second.ColliderPolygon.MaxX &&
+                first.ColliderPolygon.MinY < second.ColliderPolygon.MaxY;
         }
 
         private static bool DoProjectedBoundsOverlap(MaterialObject first, MaterialObject second)
@@ -47,10 +48,10 @@ namespace BrickShooter.Physics
             var secondFixedVelocity = second.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
 
             return
-                first.GlobalColliderPolygon.MaxX + firstFixedVelocity.X > second.GlobalColliderPolygon.MinX + secondFixedVelocity.X &&
-                first.GlobalColliderPolygon.MinX + firstFixedVelocity.X < second.GlobalColliderPolygon.MaxX + secondFixedVelocity.X &&
-                first.GlobalColliderPolygon.MaxY + firstFixedVelocity.Y > second.GlobalColliderPolygon.MinY + secondFixedVelocity.Y &&
-                first.GlobalColliderPolygon.MinY + firstFixedVelocity.Y < second.GlobalColliderPolygon.MaxY + secondFixedVelocity.Y;
+                first.ColliderPolygon.MaxX + firstFixedVelocity.X > second.ColliderPolygon.MinX + secondFixedVelocity.X &&
+                first.ColliderPolygon.MinX + firstFixedVelocity.X < second.ColliderPolygon.MaxX + secondFixedVelocity.X &&
+                first.ColliderPolygon.MaxY + firstFixedVelocity.Y > second.ColliderPolygon.MinY + secondFixedVelocity.Y &&
+                first.ColliderPolygon.MinY + firstFixedVelocity.Y < second.ColliderPolygon.MaxY + secondFixedVelocity.Y;
         }
     }
 }

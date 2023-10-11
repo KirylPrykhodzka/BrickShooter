@@ -6,13 +6,7 @@ namespace BrickShooter.Physics.Models
 {
     public class ColliderPolygon
     {
-
-        public ColliderPolygon(IEnumerable<Vector2> points)
-        {
-            Points = new List<Vector2>(points);
-        }
-
-        public List<Vector2> Points { get; private set; }
+        public List<Vector2> Points { get; private set; } = new List<Vector2>();
         public float MaxX => Points.Max(x => x.X);
         public float MinX => Points.Min(x => x.X);
         public float MaxY => Points.Max(x => x.Y);
@@ -32,6 +26,12 @@ namespace BrickShooter.Physics.Models
 
                 return new Vector2(totalX / Points.Count, totalY / Points.Count);
             }
+        }
+
+        public void SetPoints(IEnumerable<Vector2> points)
+        {
+            Points.Clear();
+            Points.AddRange(points);
         }
 
         public void Offset(Vector2 v)

@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.GameObjects
@@ -27,7 +26,7 @@ namespace BrickShooter.GameObjects
         {
             sprite = GlobalObjects.Content.Load<Texture2D>($"Player/{spriteName}");
             Position = initialPosition;
-            initialLocalColliderPoints = new Vector2[]
+            initialColliderPoints = new Vector2[]
             {
                 new(-sprite.Width / 2, -sprite.Height /2),
                 new(0, -sprite.Height /2),

@@ -22,42 +22,28 @@ namespace BrickShooter.Physics.Models
         public bool DidRotate { get; set; }
         public float Bounciness { get; set; }
 
-        protected Vector2[] initialLocalColliderPoints;
+        protected Vector2[] initialColliderPoints;
 
         /// <summary>
-        /// global collider bounds are affected by local bounds + position and should be recalculated whenever any of these values changes
+        /// global collider bounds are affected by Position + Rotation and should be recalculated whenever any of these values changes
         /// </summary>
-        private (Vector2 Position, ColliderPolygon localPolygon, ColliderPolygon Value) globalColliderPolygonCache = new();
-        public ColliderPolygon GlobalColliderPolygon
+        private (Vector2 Position, float Rotation, ColliderPolygon Value) colliderPolygonCache = new();
+        public ColliderPolygon ColliderPolygon
         {
             get
             {
-                var localPolygon = LocalColliderPolygon;
-                if (globalColliderPolygonCache.Value == null || Position != globalColliderPolygonCache.Position || localPolygon != globalColliderPolygonCache.localPolygon)
+                if(colliderPolygonCache.Value == null)
                 {
-                    var globalPolygon = new ColliderPolygon(localPolygon.Points);
-                    globalPolygon.Offset(Position);
-                    globalColliderPolygonCache = (Position, localPolygon, globalPolygon);
+                    var globalPolygon = new ColliderPolygon();
+                    globalPolygon.SetPoints(initialColliderPoints.Select(x => x.Rotate(Vector2.Zero, Rotation) + Position));
+                    colliderPolygonCache = (Position, Rotation, globalPolygon);
                 }
-                return globalColliderPolygonCache.Value;
-            }
-        }
-
-        /// <summary>
-        /// positions of collider points relative to this object's position are at any time determined by this object's rotation, and should be
-        /// recalculated whenever rotation changes. If scale parameter is added in the future, it will affect this value as well
-        /// </summary>
-        /// <returns></returns>
-        private (float rotation, ColliderPolygon Value) localColliderPolygonCache = new();
-        private ColliderPolygon LocalColliderPolygon
-        {
-            get
-            {
-                if (localColliderPolygonCache.Value == null || Rotation != localColliderPolygonCache.rotation)
+                if (Position != colliderPolygonCache.Position || Rotation != colliderPolygonCache.Rotation)
                 {
-                    localColliderPolygonCache = (Rotation, new ColliderPolygon(initialLocalColliderPoints.Select(x => x.Rotate(Vector2.Zero, Rotation)).ToList()));
+                    colliderPolygonCache.Value.SetPoints(initialColliderPoints.Select(x => x.Rotate(Vector2.Zero, Rotation) + Position));
+                    colliderPolygonCache.Position = Position;
                 }
-                return localColliderPolygonCache.Value;
+                return colliderPolygonCache.Value;
             }
         }
 
