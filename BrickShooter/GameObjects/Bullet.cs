@@ -16,7 +16,7 @@ namespace BrickShooter.GameObjects
     [CollisionLayer("Bullet")]
     public class Bullet : MaterialObject, IDrawableObject, IResetable
     {
-        private static readonly Texture2D defaultSprite = GlobalObjects.Content.Load<Texture2D>("Bullets/Bullet");
+        private readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>("Bullets/Bullet");
 
         public OnPlayerHit OnPlayerHit;
 
@@ -60,12 +60,12 @@ namespace BrickShooter.GameObjects
         public void Draw()
         {
             GlobalObjects.SpriteBatch.Draw(
-                defaultSprite,
+                sprite,
                 Position,
                 null,
                 Color.White,
                 Rotation,
-                new Vector2(defaultSprite.Width / 2f, defaultSprite.Height / 2f),
+                new Vector2(sprite.Width / 2f, sprite.Height / 2f),
                 1f,
                 SpriteEffects.None,
                 Layers.BULLETS);

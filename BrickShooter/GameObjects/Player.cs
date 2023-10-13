@@ -14,25 +14,15 @@ namespace BrickShooter.GameObjects
     [CollisionLayer("Player")]
     public class Player : MaterialObject, IDrawableObject
     {
-        //stuff to store in json
-        private static readonly string spriteName = "player";
-        private readonly Texture2D sprite;
-        private static readonly Vector2 barrelTipOffset = new(35, 12);
-
-        public Vector2 InitialBulletPosition => (Position + barrelTipOffset).Rotate(Position, Rotation);
+        private readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>($"Player/player");
 
         public Player(Vector2 initialPosition)
         {
-            sprite = GlobalObjects.Content.Load<Texture2D>($"Player/{spriteName}");
             Position = initialPosition;
-            initialColliderPoints = new Vector2[]
-            {
-                new(-sprite.Width / 2, -sprite.Height /2),
-                new(0, -sprite.Height /2),
-                new(0, sprite.Height /2),
-                new(-sprite.Width / 2, sprite.Height /2),
-            };
+            initialColliderPoints = PlayerConstants.INITIAL_COLLIDER_POINTS;
         }
+
+        public Vector2 InitialBulletPosition => (Position + PlayerConstants.BARREL_TIP_OFFSET).Rotate(Position, Rotation);
 
         public void Update()
         {
@@ -42,52 +32,27 @@ namespace BrickShooter.GameObjects
             HandleRotationInput(mouseState);
         }
 
+        public void Draw()
+        {
+            GlobalObjects.SpriteBatch.Draw(
+                sprite,
+                new Vector2(Position.X, Position.Y),
+                null,
+                Color.White,
+                Rotation,
+                new Vector2(sprite.Width / 2f, sprite.Height / 2f),
+                1f,
+                SpriteEffects.None,
+                Layers.PLAYER);
+        }
+
         private void HandleMovementInput(Keys[] pressedKeys)
         {
-            if (pressedKeys.Contains(Keys.W))
-            {
-                if(Velocity.Y > 0)
-                {
-                    Velocity = new Vector2(Velocity.X, 0);
-                }
-                else
-                {
-                    Accelerate('y', -1);
-                }
-            }
-            if (pressedKeys.Contains(Keys.S))
-            {
-                if (Velocity.Y < 0)
-                {
-                    Velocity = new Vector2(Velocity.X, 0);
-                }
-                else
-                {
-                    Accelerate('y', 1);
-                }
-            }
-            if (pressedKeys.Contains(Keys.A))
-            {
-                if (Velocity.X > 0)
-                {
-                    Velocity = new Vector2(0, Velocity.Y);
-                }
-                else
-                {
-                    Accelerate('x', -1);
-                }
-            }
-            if (pressedKeys.Contains(Keys.D))
-            {
-                if (Velocity.X < 0)
-                {
-                    Velocity = new Vector2(0, Velocity.Y);
-                }
-                else
-                {
-                    Accelerate('x', 1);
-                }
-            }
+            HandleDirectionInput(pressedKeys, Keys.W, 'y', -1);
+            HandleDirectionInput(pressedKeys, Keys.S, 'y', 1);
+            HandleDirectionInput(pressedKeys, Keys.A, 'x', -1);
+            HandleDirectionInput(pressedKeys, Keys.D, 'x', 1);
+
             if (!pressedKeys.Contains(Keys.W) && !pressedKeys.Contains(Keys.S) && Velocity.Y != 0)
             {
                 Decelerate('y');
@@ -96,53 +61,60 @@ namespace BrickShooter.GameObjects
             {
                 Decelerate('x');
             }
-            //normalize diagonal movement
-            if(Math.Abs(Velocity.X) == Math.Abs(Velocity.Y) && Math.Abs(Velocity.X) + Math.Abs(Velocity.Y) > PlayerConstants.MAX_VELOCITY * Math.Sqrt(2))
+
+            // Normalize diagonal movement
+            if (Math.Abs(Velocity.X) == Math.Abs(Velocity.Y) && Math.Abs(Velocity.X) + Math.Abs(Velocity.Y) > PlayerConstants.MAX_VELOCITY * Math.Sqrt(2))
             {
                 Velocity *= PlayerConstants.MAX_VELOCITY * (float)Math.Sqrt(2) / (Math.Abs(Velocity.X) + Math.Abs(Velocity.Y));
             }
         }
 
+        private void HandleDirectionInput(Keys[] pressedKeys, Keys key, char axis, int direction)
+        {
+            if (pressedKeys.Contains(key))
+            {
+                Accelerate(axis, direction);
+            }
+        }
+
         private void Accelerate(char axis, int direction)
         {
+            float currentVelocity = axis == 'x' ? Math.Abs(Velocity.X) : Math.Abs(Velocity.Y);
+            float acceleration = MathHelper.Clamp(PlayerConstants.MAX_VELOCITY * PlayerConstants.ACCELERATION_FACTOR, 0, PlayerConstants.MAX_VELOCITY - currentVelocity);
+
             if (axis == 'x')
             {
-                var diff = MathHelper.Clamp(PlayerConstants.MAX_VELOCITY * PlayerConstants.ACCELERATION_FACTOR, 0, PlayerConstants.MAX_VELOCITY - Math.Abs(Velocity.X));
-                Velocity += new Vector2(diff * direction, 0);
+                Velocity += new Vector2(acceleration * direction, 0);
             }
-            if (axis == 'y')
+            else
             {
-                var diff = MathHelper.Clamp(PlayerConstants.MAX_VELOCITY * PlayerConstants.ACCELERATION_FACTOR, 0, PlayerConstants.MAX_VELOCITY - Math.Abs(Velocity.Y));
-                Velocity += new Vector2(0, diff * direction);
+                Velocity += new Vector2(0, acceleration * direction);
             }
         }
 
         private void Decelerate(char axis)
         {
-            if (axis == 'x')
-            {
-                if (Math.Abs(Velocity.X) <= PhysicsConstants.MIN_VELOCITY)
-                {
-                    Velocity = new Vector2(0, Velocity.Y);
-                }
-                else
-                {
-                    Velocity /= new Vector2(1 + PlayerConstants.DECELERATION_FACTOR, 1);
-                }
+            float currentVelocity = axis == 'x' ? Velocity.X : Velocity.Y;
 
-            }
-            if (axis == 'y')
+            if (Math.Abs(currentVelocity) > PhysicsConstants.MIN_VELOCITY)
             {
-                if (Math.Abs(Velocity.Y) <= PhysicsConstants.MIN_VELOCITY)
+                float deceleration = currentVelocity * PlayerConstants.DECELERATION_FACTOR;
+
+                if (axis == 'x')
                 {
-                    Velocity = new Vector2(Velocity.X, 0);
+                    Velocity -= new Vector2(deceleration, 0);
                 }
                 else
                 {
-                    Velocity /= new Vector2(1, 1 + PlayerConstants.DECELERATION_FACTOR);
+                    Velocity -= new Vector2(0, deceleration);
                 }
+            }
+            else
+            {
+                Velocity = axis == 'x' ? new Vector2(0, Velocity.Y) : new Vector2(Velocity.X, 0);
             }
         }
+
 
         private void HandleRotationInput(MouseState mouseState)
         {
@@ -158,20 +130,6 @@ namespace BrickShooter.GameObjects
             {
                 DidRotate = false;
             }
-        }
-
-        public void Draw()
-        {
-            GlobalObjects.SpriteBatch.Draw(
-                sprite,
-                new Vector2(Position.X, Position.Y),
-                null,
-                Color.White,
-                Rotation,
-                new Vector2(sprite.Width / 2f, sprite.Height / 2f),
-                1f,
-                SpriteEffects.None,
-                Layers.PLAYER);
         }
     }
 }
