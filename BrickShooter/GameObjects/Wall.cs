@@ -1,11 +1,13 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
+using BrickShooter.Physics;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace BrickShooter.GameObjects
 {
+    [CollisionLayer("Wall")]
     public class Wall : MaterialObject, IDrawableObject
     {
         public Texture2D Texture { get; set; }

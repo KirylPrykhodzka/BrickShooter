@@ -1,5 +1,7 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
+using BrickShooter.Helpers;
+using BrickShooter.Physics;
 using BrickShooter.Physics.Models;
 using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
@@ -11,9 +13,10 @@ namespace BrickShooter.GameObjects
 
     public delegate void OnPlayerHit(Bullet bullet);
 
+    [CollisionLayer("Bullet")]
     public class Bullet : MaterialObject, IDrawableObject, IResetable
     {
-        private static readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>("Bullets/Bullet");
+        private static readonly Texture2D defaultSprite = GlobalObjects.Content.Load<Texture2D>("Bullets/Bullet");
 
         public OnPlayerHit OnPlayerHit;
 
@@ -22,23 +25,18 @@ namespace BrickShooter.GameObjects
             //4 points describing the sprite rectangle
             initialColliderPoints = new Vector2[]
             {
-                new(-sprite.Width / 2, -sprite.Height /2),
-                new(sprite.Width / 2, -sprite.Height /2),
-                new(sprite.Width / 2, sprite.Height /2),
-                new(-sprite.Width / 2, sprite.Height /2),
+                new(-BulletConstants.WIDTH / 2, -BulletConstants.HEIGHT /2),
+                new(BulletConstants.WIDTH / 2, -BulletConstants.HEIGHT /2),
+                new(BulletConstants.WIDTH / 2, BulletConstants.HEIGHT /2),
+                new(-BulletConstants.WIDTH / 2, BulletConstants.HEIGHT /2),
             };
             Bounciness = BulletConstants.BOUNCINESS;
         }
 
         public override void OnCollision(MaterialObject otherCollider)
         {
-            switch (otherCollider.GetType().Name)
+            switch (CollisionLayerHelper.GetCollisionLayer(otherCollider))
             {
-                case "Wall":
-                    {
-                        //rotate
-                        break;
-                    }
                 case "Player":
                     {
                         OnPlayerHit?.Invoke(this);
@@ -62,12 +60,12 @@ namespace BrickShooter.GameObjects
         public void Draw()
         {
             GlobalObjects.SpriteBatch.Draw(
-                sprite,
-                new Vector2(Position.X, Position.Y),
+                defaultSprite,
+                Position,
                 null,
                 Color.White,
                 Rotation,
-                new Vector2(sprite.Width / 2f, sprite.Height / 2f),
+                new Vector2(defaultSprite.Width / 2f, defaultSprite.Height / 2f),
                 1f,
                 SpriteEffects.None,
                 Layers.BULLETS);
@@ -75,9 +73,9 @@ namespace BrickShooter.GameObjects
 
         public void Reset()
         {
-            Position = default;
-            Rotation = default;
-            Velocity = default;
+            Position = Vector2.Zero;
+            Rotation = 0f;
+            Velocity = Vector2.Zero;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
 using BrickShooter.Extensions;
+using BrickShooter.Physics;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,6 +11,7 @@ using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
+    [CollisionLayer("Player")]
     public class Player : MaterialObject, IDrawableObject
     {
         //stuff to store in json

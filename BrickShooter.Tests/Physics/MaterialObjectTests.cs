@@ -2,7 +2,7 @@
 using BrickShooter.Configuration;
 using BrickShooter.Extensions;
 using BrickShooter.Physics.Interfaces;
-using BrickShooter.Tests.Physics;
+using BrickShooter.Tests.Mocks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
@@ -35,7 +35,7 @@ namespace BrickShooter.Physics.Models.Tests
         public void GetGlobalColliderPolygon_PositionAndRotationDidNotChange_ReturnsSamePoints()
         {
             //Arrange
-            var materialObject = new TestMaterialObject(fixture.CreateMany<Vector2>(4).ToArray());
+            var materialObject = new MaterialObjectMock(fixture.CreateMany<Vector2>(4).ToArray());
 
             //Act
             var colliderPolygon = materialObject.ColliderPolygon;
@@ -52,7 +52,7 @@ namespace BrickShooter.Physics.Models.Tests
         {
             //Arrange
             var initialColliderPoints = fixture.CreateMany<Vector2>(4).ToArray();
-            var materialObject = new TestMaterialObject(initialColliderPoints);
+            var materialObject = new MaterialObjectMock(initialColliderPoints);
             materialObject.Rotation = fixture.Create<float>();
             materialObject.Position = fixture.Create<Vector2>();
             var expectedColliderPoints = initialColliderPoints.Select(x => x.Rotate(Vector2.Zero, materialObject.Rotation) + materialObject.Position).ToArray();
@@ -69,7 +69,7 @@ namespace BrickShooter.Physics.Models.Tests
         {
             //Arrange
             var initialColliderPoints = fixture.CreateMany<Vector2>(4).ToArray();
-            var materialObject = new TestMaterialObject(initialColliderPoints);
+            var materialObject = new MaterialObjectMock(initialColliderPoints);
             materialObject.Rotation = fixture.Create<float>();
             materialObject.Position = fixture.Create<Vector2>();
 

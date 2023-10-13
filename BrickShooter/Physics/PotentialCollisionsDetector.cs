@@ -1,8 +1,8 @@
-﻿using BrickShooter.GameObjects;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
+using BrickShooter.Helpers;
 
 namespace BrickShooter.Physics
 {
@@ -14,15 +14,14 @@ namespace BrickShooter.Physics
         //If an object of Key type collides with an object contained in Value, collision is ignored completely
         private static readonly Dictionary<string, HashSet<string>> IgnoredCollisions = new()
         {
-            { typeof(Bullet).Name, new() { typeof(Bullet).Name, typeof(Player).Name } },
-            { typeof(Player).Name, new() { typeof(Bullet).Name, } },
+            { "Bullet", new() { "Bullet" } }
         };
 
         public IEnumerable<MaterialObject> DetectPotentialCollisions(MaterialObject currentObject, IEnumerable<MaterialObject> otherObjects)
         {
             var potentialCollisions = otherObjects
                 .Where(x => IsCollisionPossible(currentObject, x))
-                .Where(x => !IgnoredCollisions.TryGetValue(currentObject.GetType().Name, out var ignoredCollisions) || !ignoredCollisions.Contains(x.GetType().Name));
+                .Where(x => !IgnoredCollisions.TryGetValue(CollisionLayerHelper.GetCollisionLayer(currentObject), out var ignoredCollisions) || !ignoredCollisions.Contains(CollisionLayerHelper.GetCollisionLayer(x)));
 
             return potentialCollisions;
         }

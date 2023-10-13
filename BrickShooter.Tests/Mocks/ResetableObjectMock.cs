@@ -1,8 +1,8 @@
 ﻿using BrickShooter.Resources;
 
-namespace BrickShooter.Tests.Resources
+namespace BrickShooter.Tests.Mocks
 {
-    public class ResetableObject : IResetable
+    public class ResetableObjectMock : IResetable
     {
         public int Value { get; set; }
 

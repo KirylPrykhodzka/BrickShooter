@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using BrickShooter.Resources;
+using BrickShooter.Tests.Mocks;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -20,21 +21,21 @@ namespace BrickShooter.Tests.Resources
         public void GetItem_ShouldReturnNewItemWhenEmpty()
         {
             // Arrange
-            var factory = new Factory<ResetableObject>();
+            var factory = new Factory<ResetableObjectMock>();
 
             // Act
             var item = factory.GetItem();
 
             // Assert
             item.Should().NotBeNull();
-            item.Should().BeOfType<ResetableObject>();
+            item.Should().BeOfType<ResetableObjectMock>();
         }
 
         [Test]
         public void GetItem_ShouldReturnPooledItemWhenAvailable()
         {
             // Arrange
-            var factory = new Factory<ResetableObject>();
+            var factory = new Factory<ResetableObjectMock>();
             var item1 = factory.GetItem();
             factory.Return(item1);
 
@@ -50,7 +51,7 @@ namespace BrickShooter.Tests.Resources
         public void Return_ShouldResetAndPoolItem()
         {
             // Arrange
-            var factory = new Factory<ResetableObject>();
+            var factory = new Factory<ResetableObjectMock>();
             var item = factory.GetItem();
             item.Value = fixture.Create<int>();
 
