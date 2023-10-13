@@ -1,7 +1,4 @@
-﻿using BrickShooter.Configuration;
-using BrickShooter.Extensions;
-using BrickShooter.Physics.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
+﻿using BrickShooter.Extensions;
 using Microsoft.Xna.Framework;
 using System.Linq;
 
@@ -9,13 +6,6 @@ namespace BrickShooter.Physics.Models
 {
     public abstract class MaterialObject
     {
-        protected static readonly IPhysicsSystem physicsSystem;
-
-        static MaterialObject()
-        {
-            physicsSystem = ServiceProviderFactory.ServiceProvider.GetService<IPhysicsSystem>();
-        }
-
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
         public float Rotation { get; set; }

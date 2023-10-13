@@ -7,7 +7,7 @@ namespace BrickShooter.Configuration
 {
     public static class ServiceProviderFactory
     {
-        public static IServiceProvider ServiceProvider { get; }
+        public static IServiceProvider ServiceProvider { get; set; }
 
         static ServiceProviderFactory()
         {

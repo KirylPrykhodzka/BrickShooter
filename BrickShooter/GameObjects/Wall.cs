@@ -23,9 +23,6 @@ namespace BrickShooter.GameObjects
                 new(RectBounds.X + RectBounds.Width, RectBounds.Y + RectBounds.Height),
                 new(RectBounds.X, RectBounds.Y + RectBounds.Height),
             };
-
-            physicsSystem.RegisterImmobileObject(this);
-            DrawingSystem.Register(this);
         }
 
         public void Draw()

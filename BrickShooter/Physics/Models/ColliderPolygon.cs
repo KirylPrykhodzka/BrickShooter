@@ -30,8 +30,7 @@ namespace BrickShooter.Physics.Models
 
         public void SetPoints(IEnumerable<Vector2> points)
         {
-            Points.Clear();
-            Points.AddRange(points);
+            Points = points.ToList();
         }
 
         public void Offset(Vector2 v)

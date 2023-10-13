@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using NUnit.Framework;
 using BrickShooter.Extensions;
+using FluentAssertions;
 
 namespace BrickShooter.Tests.Maths
 {
@@ -19,7 +20,7 @@ namespace BrickShooter.Tests.Maths
             var result = point.Rotate(origin, angleInRadians);
 
             // Assert
-            Assert.That(result, Is.EqualTo(point));
+            result.Should().Be(point);
         }
 
         [Test]
@@ -34,7 +35,7 @@ namespace BrickShooter.Tests.Maths
             var result = point.Rotate(origin, angleInRadians);
 
             // Assert
-            Assert.That(result, Is.EqualTo(new Vector2(-3, 2)));
+            result.Should().Be(new Vector2(-3, 2));
         }
 
         [Test]
@@ -49,8 +50,8 @@ namespace BrickShooter.Tests.Maths
             var result = point.Rotate(origin, angleInRadians);
 
             // Assert
-            Assert.That(result.X, Is.EqualTo(3.5355f).Within(0.0001));
-            Assert.That(result.Y, Is.EqualTo(0.7071f).Within(0.0001));
+            result.X.Should().BeApproximately(3.5355f, 0.0001f);
+            result.Y.Should().BeApproximately(0.7071f, 0.0001f);
         }
 
         [Test]
@@ -65,8 +66,8 @@ namespace BrickShooter.Tests.Maths
             var result = point.Rotate(origin, angleInRadians);
 
             // Assert
-            Assert.That(result.X, Is.EqualTo(2).Within(0.0001));
-            Assert.That(result.Y, Is.EqualTo(0).Within(0.0001));
+            result.X.Should().BeApproximately(2, 0.0001f);
+            result.Y.Should().BeApproximately(0, 0.0001f);
         }
 
         [Test]
@@ -81,8 +82,8 @@ namespace BrickShooter.Tests.Maths
             var result = point.Rotate(origin, angleInRadians);
 
             // Assert
-            Assert.That(result.X, Is.EqualTo(1).Within(0.0001));
-            Assert.That(result.Y, Is.EqualTo(2).Within(0.0001));
+            result.X.Should().BeApproximately(1, 0.0001f);
+            result.Y.Should().BeApproximately(2, 0.0001f);
         }
 
         [Test]
@@ -97,8 +98,8 @@ namespace BrickShooter.Tests.Maths
             var result = point.Rotate(origin, angleInRadians);
 
             // Assert
-            Assert.That(result.X, Is.EqualTo(2.3660f).Within(0.0001));
-            Assert.That(result.Y, Is.EqualTo(0.6340f).Within(0.0001));
+            result.X.Should().BeApproximately(2.3660f, 0.0001f);
+            result.Y.Should().BeApproximately(0.6340f, 0.0001f);
         }
 
         [Test]
@@ -111,7 +112,7 @@ namespace BrickShooter.Tests.Maths
             var projected = vector.Project(vector);
 
             // Assert
-            Assert.That(projected, Is.EqualTo(vector).Within(0.0001));
+            projected.Should().Be(vector);
         }
 
         [Test]
@@ -125,8 +126,8 @@ namespace BrickShooter.Tests.Maths
             var projected = vector.Project(axis);
 
             // Assert
-            Assert.That(projected.X, Is.EqualTo(vector.X).Within(0.0001));
-            Assert.That(projected.Y, Is.EqualTo(0).Within(0.0001));
+            projected.X.Should().Be(vector.X);
+            projected.Y.Should().Be(0);
         }
 
         [Test]
@@ -140,8 +141,8 @@ namespace BrickShooter.Tests.Maths
             var projected = vector.Project(axis);
 
             // Assert
-            Assert.That(projected.X, Is.EqualTo(0).Within(0.0001));
-            Assert.That(projected.Y, Is.EqualTo(vector.Y).Within(0.0001));
+            projected.X.Should().Be(0);
+            projected.Y.Should().Be(vector.Y);
         }
 
         [Test]
@@ -155,8 +156,8 @@ namespace BrickShooter.Tests.Maths
             var projected = vector.Project(axis);
 
             // Assert
-            Assert.That(projected.X, Is.EqualTo(3.5f).Within(0.0001));
-            Assert.That(projected.Y, Is.EqualTo(3.5f).Within(0.0001));
+            projected.X.Should().BeApproximately(3.5f, 0.0001f);
+            projected.Y.Should().BeApproximately(3.5f, 0.0001f);
         }
     }
 }

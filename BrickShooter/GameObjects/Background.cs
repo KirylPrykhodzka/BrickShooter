@@ -14,7 +14,6 @@ namespace BrickShooter.GameObjects
         {
             this.texture = texture;
             this.bounds = bounds;
-            DrawingSystem.Register(this);
         }
 
         public void Draw()

@@ -1,17 +1,21 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
 using BrickShooter.Physics.Models;
+using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace BrickShooter.GameObjects.Bullets
+namespace BrickShooter.GameObjects
 {
-    public class Bullet : MaterialObject, IDrawableObject
+
+    public delegate void OnPlayerHit(Bullet bullet);
+
+    public class Bullet : MaterialObject, IDrawableObject, IResetable
     {
         private static readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>("Bullets/Bullet");
 
-        private bool isActive = false;
+        public OnPlayerHit OnPlayerHit;
 
         public Bullet()
         {
@@ -23,12 +27,12 @@ namespace BrickShooter.GameObjects.Bullets
                 new(sprite.Width / 2, sprite.Height /2),
                 new(-sprite.Width / 2, sprite.Height /2),
             };
-            Bounciness = 1f;
+            Bounciness = BulletConstants.BOUNCINESS;
         }
 
         public override void OnCollision(MaterialObject otherCollider)
         {
-            switch(otherCollider.GetType().Name)
+            switch (otherCollider.GetType().Name)
             {
                 case "Wall":
                     {
@@ -37,11 +41,7 @@ namespace BrickShooter.GameObjects.Bullets
                     }
                 case "Player":
                     {
-                        Deactivate();
-                        break;
-                    }
-                default:
-                    {
+                        OnPlayerHit?.Invoke(this);
                         break;
                     }
             }
@@ -54,7 +54,6 @@ namespace BrickShooter.GameObjects.Bullets
         /// <param name="rotation"></param>
         public void Move(Vector2 from, float rotation)
         {
-            Activate();
             Position = from;
             Velocity = new Vector2((float)Math.Cos(rotation), (float)Math.Sin(rotation)) * BulletConstants.VELOCITY;
             Rotation = rotation;
@@ -62,10 +61,6 @@ namespace BrickShooter.GameObjects.Bullets
 
         public void Draw()
         {
-            if(!isActive)
-            {
-                return;
-            }
             GlobalObjects.SpriteBatch.Draw(
                 sprite,
                 new Vector2(Position.X, Position.Y),
@@ -78,19 +73,11 @@ namespace BrickShooter.GameObjects.Bullets
                 Layers.BULLETS);
         }
 
-        private void Activate()
+        public void Reset()
         {
-            isActive = true;
-            physicsSystem.RegisterMobileObject(this);
-            DrawingSystem.Register(this);
-        }
-
-        private void Deactivate()
-        {
-            isActive = false;
-            physicsSystem.UnregisterMobileObject(this);
-            DrawingSystem.Unregister(this);
-            BulletFactory.Return(this);
+            Position = default;
+            Rotation = default;
+            Velocity = default;
         }
     }
 }

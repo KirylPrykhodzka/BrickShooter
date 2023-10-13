@@ -48,6 +48,11 @@ namespace BrickShooter.Physics
             immobileObjects.Add(immobileObject);
         }
 
+        public void UnregisterImmobileObject(MaterialObject immobileObject)
+        {
+            immobileObjects.Remove(immobileObject);
+        }
+
         public void Reset()
         {
             mobileObjects.Clear();

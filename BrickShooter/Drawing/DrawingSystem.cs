@@ -2,27 +2,27 @@
 
 namespace BrickShooter.Drawing
 {
-    public static class DrawingSystem
+    public class DrawingSystem : IDrawingSystem
     {
-        private static readonly HashSet<IDrawableObject> drawableObjects = new();
+        private readonly HashSet<IDrawableObject> drawableObjects = new();
 
-        public static void Register(IDrawableObject drawable)
+        public void Register(IDrawableObject drawable)
         {
             drawableObjects.Add(drawable);
         }
 
-        public static void Unregister(IDrawableObject drawable)
+        public void Unregister(IDrawableObject drawable)
         {
             drawableObjects.Remove(drawable);
         }
 
         //should be called on each level reload
-        public static void Reset()
+        public void Reset()
         {
             drawableObjects.Clear();
         }
 
-        public static void Run()
+        public void Run()
         {
             foreach(var drawableObject in drawableObjects)
             {

@@ -3,5 +3,6 @@
     public static class BulletConstants
     {
         public const float VELOCITY = 1000f;
+        public const float BOUNCINESS = 1f;
     }
 }

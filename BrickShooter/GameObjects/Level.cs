@@ -1,20 +1,40 @@
-﻿using BrickShooter.Models;
+﻿using BrickShooter.Constants;
+using BrickShooter.Drawing;
+using BrickShooter.Models;
+using BrickShooter.Physics.Interfaces;
+using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
     public class Level
     {
-        private readonly Rectangle levelBounds;
-        private readonly LevelData levelData;
+        private readonly IFactory<Bullet> bulletFactory;
+        private readonly IPhysicsSystem physicsSystem;
+        private readonly IDrawingSystem drawingSystem;
 
-        private readonly Background background;
-        private readonly Player player;
-        private readonly Wall[] walls;
+        private Rectangle levelBounds;
+        private LevelData levelData;
+        private Background background;
+        private Player player;
+        //for the cooldown calculation purposes
+        private long lastBulletShot = 0;
+        private readonly List<Wall> walls = new();
 
-        public Level(string name)
+        public Level(IFactory<Bullet> bulletFactory,
+            IPhysicsSystem physicsSystem,
+            IDrawingSystem drawingSystem)
+        {
+            this.bulletFactory = bulletFactory;
+            this.physicsSystem = physicsSystem;
+            this.drawingSystem = drawingSystem;
+        }
+
+        public void Load(string name)
         {
             levelData = GlobalObjects.Content.Load<LevelData>($"Levels/{name}");
 
@@ -26,11 +46,15 @@ namespace BrickShooter.GameObjects
                 levelData.Height);
 
             background = new Background(levelData.BackgroundTexture, levelBounds);
+            drawingSystem.Register(background);
 
             //LevelData.InitialPlayerPosition is of type System.Drawing.Point, so we have to convert it here
             player = new Player(new Vector2(levelBounds.X + levelData.InitialPlayerPosition.X, levelBounds.Y + levelData.InitialPlayerPosition.Y));
+            physicsSystem.RegisterMobileObject(player);
+            drawingSystem.Register(player);
 
-            walls = levelData.Walls.Placements.Select(placement =>
+            walls.Clear();
+            walls.AddRange(levelData.Walls.Placements.Select(placement =>
                 new Wall(
                     levelData.Walls.Texture,
                     new Rectangle(
@@ -39,12 +63,51 @@ namespace BrickShooter.GameObjects
                         levelData.Walls.TileWidth,
                         levelData.Walls.TileHeight)
                     )
-                ).ToArray();
+                ));
+            foreach(var wall in walls)
+            {
+                drawingSystem.Register(wall);
+                physicsSystem.RegisterImmobileObject(wall);
+            }
+        }
+
+        public void Unload()
+        {
+            physicsSystem.Reset();
+            drawingSystem.Reset();
         }
 
         public void Update()
         {
             player.Update();
+
+            if (GlobalObjects.MouseState.LeftButton == ButtonState.Pressed)
+            {
+                var now = DateTime.Now.Ticks / 10000;
+                if (now - lastBulletShot > PlayerConstants.SHOOTING_COOLDOWN_MS)
+                {
+                    Shoot();
+                    lastBulletShot = now;
+                }
+            }
+        }
+
+        private void Shoot()
+        {
+            var bullet = bulletFactory.GetItem();
+            physicsSystem.RegisterMobileObject(bullet);
+            drawingSystem.Register(bullet);
+            bullet.OnPlayerHit = OnBulletHitPlayer;
+            var initialPosition = player.InitialBulletPosition;
+            bullet.Move(initialPosition, player.Rotation);
+        }
+
+        private void OnBulletHitPlayer(Bullet bullet)
+        {
+            bullet.OnPlayerHit = null;
+            physicsSystem.UnregisterMobileObject(bullet);
+            drawingSystem.Unregister(bullet);
+            bulletFactory.Return(bullet);
         }
     }
 }

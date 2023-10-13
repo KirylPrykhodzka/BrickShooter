@@ -1,7 +1,6 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
 using BrickShooter.Extensions;
-using BrickShooter.GameObjects.Bullets;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,14 +12,12 @@ namespace BrickShooter.GameObjects
 {
     public class Player : MaterialObject, IDrawableObject
     {
-        private readonly Texture2D sprite;
-        //for the cooldown calculation purposes
-        private long lastShot = 0;
-
         //stuff to store in json
         private static readonly string spriteName = "player";
-        //localColliderBounds
+        private readonly Texture2D sprite;
         private static readonly Vector2 barrelTipOffset = new(35, 12);
+
+        public Vector2 InitialBulletPosition => (Position + barrelTipOffset).Rotate(Position, Rotation);
 
         public Player(Vector2 initialPosition)
         {
@@ -33,26 +30,14 @@ namespace BrickShooter.GameObjects
                 new(0, sprite.Height /2),
                 new(-sprite.Width / 2, sprite.Height /2),
             };
-
-            physicsSystem.RegisterMobileObject(this);
-            DrawingSystem.Register(this);
         }
 
         public void Update()
         {
-            var pressedKeys = Keyboard.GetState().GetPressedKeys();
-            var mouseState = Mouse.GetState();
+            var pressedKeys = GlobalObjects.KeyboardState.GetPressedKeys();
+            var mouseState = GlobalObjects.MouseState;
             HandleMovementInput(pressedKeys);
             HandleRotationInput(mouseState);
-            if (mouseState.LeftButton == ButtonState.Pressed)
-            {
-                var now = DateTime.Now.Ticks / 10000;
-                if (now - lastShot > PlayerConstants.SHOOTING_COOLDOWN_MS)
-                {
-                    Shoot();
-                    lastShot = now;
-                }
-            }
         }
 
         private void HandleMovementInput(Keys[] pressedKeys)
@@ -171,13 +156,6 @@ namespace BrickShooter.GameObjects
             {
                 DidRotate = false;
             }
-        }
-
-        private void Shoot()
-        {
-            var bullet = BulletFactory.GetBullet();
-            var initialPosition = (Position + barrelTipOffset).Rotate(Position, Rotation);
-            bullet.Move(initialPosition, Rotation);
         }
 
         public void Draw()

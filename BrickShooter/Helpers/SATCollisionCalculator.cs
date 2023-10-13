@@ -1,5 +1,4 @@
-﻿using BrickShooter.Extensions;
-using BrickShooter.Physics.Models;
+﻿using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
