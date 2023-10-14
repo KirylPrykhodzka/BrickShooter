@@ -51,12 +51,12 @@ namespace BrickShooter.GameObjects
         private void HandleMovementInput(Keys[] pressedKeys)
         {
             //if both up and down keys are pressed, player should not move
-            if (Velocity.Y != 0 && pressedKeys.Contains(Keys.W) && pressedKeys.Contains(Keys.S) || !(pressedKeys.Contains(Keys.W) || pressedKeys.Contains(Keys.S)))
+            if (Velocity.Y != 0 && ((pressedKeys.Contains(Keys.W) && pressedKeys.Contains(Keys.S)) || !(pressedKeys.Contains(Keys.W) || pressedKeys.Contains(Keys.S))))
             {
                 Decelerate('y');
             }
             //if player is trying to move in direction opposite to current movement direction, stop immediately
-            else if (Velocity.Y > 0 && pressedKeys.Contains(Keys.W) || Velocity.Y < 0 && pressedKeys.Contains(Keys.S))
+            else if ((Velocity.Y > 0 && pressedKeys.Contains(Keys.W)) || (Velocity.Y < 0 && pressedKeys.Contains(Keys.S)))
             {
                 Velocity = new(Velocity.X, 0);
             }
@@ -66,11 +66,11 @@ namespace BrickShooter.GameObjects
                 HandleDirectionInput(pressedKeys, Keys.S, 'y', 1);
             }
 
-            if (Velocity.X != 0 && pressedKeys.Contains(Keys.A) && pressedKeys.Contains(Keys.D) || !pressedKeys.Contains(Keys.A) && !pressedKeys.Contains(Keys.D))
+            if (Velocity.X != 0 && ((pressedKeys.Contains(Keys.A) && pressedKeys.Contains(Keys.D)) || !(pressedKeys.Contains(Keys.A) || pressedKeys.Contains(Keys.D))))
             {
                 Decelerate('x');
             }
-            else if(Velocity.X > 0 && pressedKeys.Contains(Keys.A) || Velocity.X < 0 && pressedKeys.Contains(Keys.D))
+            else if((Velocity.X > 0 && pressedKeys.Contains(Keys.A)) || (Velocity.X < 0 && pressedKeys.Contains(Keys.D)))
             {
                 Velocity = new(0, Velocity.Y);
             }
@@ -112,12 +112,11 @@ namespace BrickShooter.GameObjects
 
         private void Decelerate(char axis)
         {
-            Debug.WriteLine("Decelerating");
             float currentVelocity = axis == 'x' ? Velocity.X : Velocity.Y;
+            float deceleration = currentVelocity * PlayerConstants.DECELERATION_FACTOR;
 
-            if (Math.Abs(currentVelocity) > PhysicsConstants.MIN_VELOCITY)
+            if (Math.Abs(currentVelocity - deceleration) > PhysicsConstants.MIN_VELOCITY)
             {
-                float deceleration = currentVelocity * PlayerConstants.DECELERATION_FACTOR;
 
                 if (axis == 'x')
                 {
