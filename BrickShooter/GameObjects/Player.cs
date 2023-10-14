@@ -1,12 +1,14 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
 using BrickShooter.Extensions;
+using BrickShooter.Input;
 using BrickShooter.Physics;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.GameObjects
@@ -14,7 +16,7 @@ namespace BrickShooter.GameObjects
     [CollisionLayer("Player")]
     public class Player : MaterialObject, IDrawableObject
     {
-        private readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>($"Player/player");
+        private static readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>($"Player/player");
 
         public Player(Vector2 initialPosition)
         {
@@ -26,7 +28,7 @@ namespace BrickShooter.GameObjects
 
         public void Update()
         {
-            var pressedKeys = GlobalObjects.KeyboardState.GetPressedKeys();
+            var pressedKeys = GlobalObjects.KeyboardState.PressedKeys;
             var mouseState = GlobalObjects.MouseState;
             HandleMovementInput(pressedKeys);
             HandleRotationInput(mouseState);
@@ -48,18 +50,34 @@ namespace BrickShooter.GameObjects
 
         private void HandleMovementInput(Keys[] pressedKeys)
         {
-            HandleDirectionInput(pressedKeys, Keys.W, 'y', -1);
-            HandleDirectionInput(pressedKeys, Keys.S, 'y', 1);
-            HandleDirectionInput(pressedKeys, Keys.A, 'x', -1);
-            HandleDirectionInput(pressedKeys, Keys.D, 'x', 1);
-
-            if (!pressedKeys.Contains(Keys.W) && !pressedKeys.Contains(Keys.S) && Velocity.Y != 0)
+            //if both up and down keys are pressed, player should not move
+            if (Velocity.Y != 0 && pressedKeys.Contains(Keys.W) && pressedKeys.Contains(Keys.S) || !(pressedKeys.Contains(Keys.W) || pressedKeys.Contains(Keys.S)))
             {
                 Decelerate('y');
             }
-            if (!pressedKeys.Contains(Keys.A) && !pressedKeys.Contains(Keys.D) && Velocity.X != 0)
+            //if player is trying to move in direction opposite to current movement direction, stop immediately
+            else if (Velocity.Y > 0 && pressedKeys.Contains(Keys.W) || Velocity.Y < 0 && pressedKeys.Contains(Keys.S))
+            {
+                Velocity = new(Velocity.X, 0);
+            }
+            else
+            {
+                HandleDirectionInput(pressedKeys, Keys.W, 'y', -1);
+                HandleDirectionInput(pressedKeys, Keys.S, 'y', 1);
+            }
+
+            if (Velocity.X != 0 && pressedKeys.Contains(Keys.A) && pressedKeys.Contains(Keys.D) || !pressedKeys.Contains(Keys.A) && !pressedKeys.Contains(Keys.D))
             {
                 Decelerate('x');
+            }
+            else if(Velocity.X > 0 && pressedKeys.Contains(Keys.A) || Velocity.X < 0 && pressedKeys.Contains(Keys.D))
+            {
+                Velocity = new(0, Velocity.Y);
+            }
+            else
+            {
+                HandleDirectionInput(pressedKeys, Keys.A, 'x', -1);
+                HandleDirectionInput(pressedKeys, Keys.D, 'x', 1);
             }
 
             // Normalize diagonal movement
@@ -94,6 +112,7 @@ namespace BrickShooter.GameObjects
 
         private void Decelerate(char axis)
         {
+            Debug.WriteLine("Decelerating");
             float currentVelocity = axis == 'x' ? Velocity.X : Velocity.Y;
 
             if (Math.Abs(currentVelocity) > PhysicsConstants.MIN_VELOCITY)
@@ -115,21 +134,13 @@ namespace BrickShooter.GameObjects
             }
         }
 
-
-        private void HandleRotationInput(MouseState mouseState)
+        private void HandleRotationInput(IMouseState mouseState)
         {
             var diffX = mouseState.X - Position.X;
             var diffY = mouseState.Y - Position.Y;
             var newRotation = (float)Math.Atan2(diffY, diffX);
-            if(newRotation != Rotation)
-            {
-                Rotation = newRotation;
-                DidRotate = true;
-            }
-            else
-            {
-                DidRotate = false;
-            }
+            DidRotate = newRotation != Rotation;
+            Rotation = newRotation;
         }
     }
 }

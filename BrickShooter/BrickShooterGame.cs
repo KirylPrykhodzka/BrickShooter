@@ -47,8 +47,8 @@ namespace BrickShooter
         protected override void Update(GameTime gameTime)
         {
             GlobalObjects.GameTime = gameTime;
-            GlobalObjects.KeyboardState = Keyboard.GetState();
-            GlobalObjects.MouseState = Mouse.GetState();
+            GlobalObjects.KeyboardState.Update(Keyboard.GetState());
+            GlobalObjects.MouseState.Update(Mouse.GetState());
 
             if(IsActive)
             {

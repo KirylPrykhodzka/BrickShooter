@@ -222,7 +222,7 @@ namespace BrickShooter.Physics
             float dy34 = segment2.point2.Y - segment2.point1.Y;
 
             // Solve for t1 and t2
-            float denominator = (dy12 * dx34 - dx12 * dy34);
+            float denominator = dy12 * dx34 - dx12 * dy34;
 
             float t1 =
                 ((segment1.point1.X - segment2.point1.X) * dy34 + (segment2.point1.Y - segment1.point1.Y) * dx34)
@@ -241,8 +241,8 @@ namespace BrickShooter.Physics
 
             // The segments intersect if t1 and t2 are between 0 and 1.
             var intersect =
-                ((t1 >= 0) && (t1 <= 1) &&
-                 (t2 >= 0) && (t2 <= 1));
+                (t1 >= 0) && (t1 <= 1) &&
+                 (t2 >= 0) && (t2 <= 1);
 
             return (intersect, pointOfIntersection);
         }

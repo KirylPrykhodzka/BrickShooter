@@ -16,7 +16,7 @@ namespace BrickShooter.GameObjects
     [CollisionLayer("Bullet")]
     public class Bullet : MaterialObject, IDrawableObject, IResetable
     {
-        private readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>("Bullets/Bullet");
+        private static readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>("Bullets/Bullet");
 
         public OnPlayerHit OnPlayerHit;
 
