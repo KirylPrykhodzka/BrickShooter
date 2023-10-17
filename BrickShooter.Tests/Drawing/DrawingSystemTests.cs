@@ -1,0 +1,97 @@
+﻿using System.Collections.Generic;
+using BrickShooter.Drawing;
+using FluentAssertions;
+using Moq;
+using NUnit.Framework;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+
+namespace BrickShooter.Tests
+{
+    [TestFixture]
+    public class DrawingSystemTests
+    {
+        [Test]
+        public void Run_CallsDrawMethodOnAllDrawableObjects()
+        {
+            // Arrange
+            var drawingSystem = new DrawingSystem();
+            var fixture = new Fixture();
+            fixture.Customize(new AutoMoqCustomization());
+            var mockDrawables = fixture.CreateMany<Mock<IDrawableObject>>();
+            var drawables = mockDrawables.Select(mock => mock.Object).ToList();
+
+            foreach (var drawable in drawables)
+            {
+                drawingSystem.Register(drawable);
+            }
+
+            // Act
+            drawingSystem.Run();
+
+            // Assert
+            foreach (var mockDrawable in mockDrawables)
+            {
+                mockDrawable.Verify(d => d.Draw(), Times.Once);
+            }
+        }
+
+        [Test]
+        public void Run_DoesNotDrawUnregisteredObjects()
+        {
+            // Arrange
+            var drawingSystem = new DrawingSystem();
+            var fixture = new Fixture();
+            fixture.Customize(new AutoMoqCustomization());
+            var mockDrawables = fixture.CreateMany<Mock<IDrawableObject>>();
+            var regularObjects = mockDrawables.Where(x => fixture.Create<int>() % 2 == 0);
+            var unregisteredObjects = mockDrawables.Except(regularObjects);
+
+            foreach (var drawable in mockDrawables.Select(x => x.Object))
+            {
+                drawingSystem.Register(drawable);
+            }
+
+            foreach (var drawable in unregisteredObjects.Select(x => x.Object))
+            {
+                drawingSystem.Unregister(drawable);
+            }
+
+            // Act
+            drawingSystem.Run();
+
+            // Assert
+            foreach (var unregisteredObject in unregisteredObjects)
+            {
+                unregisteredObject.Verify(d => d.Draw(), Times.Never);
+            }
+        }
+
+        [Test]
+        public void Run_UnregistersAllObjectsAfterReset()
+        {
+            // Arrange
+            var drawingSystem = new DrawingSystem();
+            var fixture = new Fixture();
+            fixture.Customize(new AutoMoqCustomization());
+            var mockDrawables = fixture.CreateMany<Mock<IDrawableObject>>();
+            var drawables = mockDrawables.Select(mock => mock.Object).ToList();
+
+            foreach (var drawable in drawables)
+            {
+                drawingSystem.Register(drawable);
+            }
+
+            drawingSystem.Reset();
+
+            // Act
+            drawingSystem.Run();
+
+            // Assert
+            foreach (var mockDrawable in mockDrawables)
+            {
+                mockDrawable.Verify(d => d.Draw(), Times.Never);
+            }
+        }
+    }
+}

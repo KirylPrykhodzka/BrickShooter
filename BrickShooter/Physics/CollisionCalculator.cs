@@ -14,7 +14,7 @@ namespace BrickShooter.Physics
         public IList<Vector2> GetTranslationVectorsForExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
             return potentialCollisions
-                .Select(x => SATCollisionCalculator.GetCollisionResult(collisionSubject, x))
+                .Select(x => SATCollisionCalculator.CalculateCollisionResult(collisionSubject, x))
                 .Where(x => x.isColliding)
                 .Select(x => x.minimalTranslationVector)
                 .ToList();
