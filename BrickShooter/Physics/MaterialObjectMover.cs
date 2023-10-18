@@ -5,6 +5,7 @@ using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.Physics
@@ -20,13 +21,16 @@ namespace BrickShooter.Physics
 
         public void MoveWithoutObstruction(MaterialObject materialObject)
         {
-            materialObject.Position += materialObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            var movement = materialObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            Debug.WriteLine(movement);
+            materialObject.Position += movement;
         }
 
-        public void ProcessExistingCollisions(MaterialObject materialObject, IList<Vector2> translationVectors)
+        public void ProcessExistingCollisions(MaterialObject materialObject, IList<CollisionInfo> existingCollisions)
         {
             //apply the biggest minimal translation vector, hoping that it will fix the rest of the collisions too
-            var longestTranslationVector = translationVectors
+            var longestTranslationVector = existingCollisions
+                .Select(x => x.MinimalTranslationVector)
                 .MaxBy(x => x.Length());
             materialObject.Position += longestTranslationVector;
         }
@@ -55,7 +59,7 @@ namespace BrickShooter.Physics
                 {
                     break;
                 }
-                nextCollisions = futureCollisionCalculator.CalculateFutureCollisions(currentObject, nextCollisions.Where(x => x != nextCollision).Select(x => x.CollisionObject));
+                nextCollisions = futureCollisionCalculator.FindNextCollisions(currentObject, nextCollisions.Where(x => x != nextCollision).Select(x => x.CollisionObject));
             }
             currentObject.Velocity = originalVelocity;
         }
