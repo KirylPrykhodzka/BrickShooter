@@ -2,7 +2,7 @@
 
 namespace BrickShooter.Physics.Models
 {
-    public record CollisionPredictionResult
+    public record FutureCollisionInfo
     {
         public MaterialObject CollisionSubject { get; set; }
         public MaterialObject CollisionObject { get; set; }

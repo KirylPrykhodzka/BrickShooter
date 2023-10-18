@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using BrickShooter.Drawing;
-using FluentAssertions;
+﻿using BrickShooter.Drawing;
 using Moq;
 using NUnit.Framework;
 using AutoFixture;
@@ -41,30 +39,15 @@ namespace BrickShooter.Tests
         {
             // Arrange
             var drawingSystem = new DrawingSystem();
-            var fixture = new Fixture();
-            fixture.Customize(new AutoMoqCustomization());
-            var mockDrawables = fixture.CreateMany<Mock<IDrawableObject>>();
-            var regularObjects = mockDrawables.Where(x => fixture.Create<int>() % 2 == 0);
-            var unregisteredObjects = mockDrawables.Except(regularObjects);
-
-            foreach (var drawable in mockDrawables.Select(x => x.Object))
-            {
-                drawingSystem.Register(drawable);
-            }
-
-            foreach (var drawable in unregisteredObjects.Select(x => x.Object))
-            {
-                drawingSystem.Unregister(drawable);
-            }
+            var drawableObjectMock = new Mock<IDrawableObject>();
+            drawingSystem.Register(drawableObjectMock.Object);
+            drawingSystem.Unregister(drawableObjectMock.Object);
 
             // Act
             drawingSystem.Run();
 
             // Assert
-            foreach (var unregisteredObject in unregisteredObjects)
-            {
-                unregisteredObject.Verify(d => d.Draw(), Times.Never);
-            }
+            drawableObjectMock.Verify(d => d.Draw(), Times.Never);
         }
 
         [Test]

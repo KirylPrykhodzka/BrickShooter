@@ -1,19 +1,31 @@
-﻿using BrickShooter.Physics.Models;
+﻿using BrickShooter.Physics.Interfaces;
+using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrickShooter.Helpers
+namespace BrickShooter.Physics
 {
-    public static class SATCollisionCalculator
+    public class ExistingCollisionsCalculator : IExistingCollisionsCalculator
     {
-        public static (bool isColliding, Vector2 minimalTranslationVector) GetCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
+        public IList<CollisionInfo> GetExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
+            return potentialCollisions.Select(x => CalculateExistingCollisionResult(collisionSubject, x)).ToList();
+        }
+
+        private static CollisionInfo CalculateExistingCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
+        {
+            var result = new CollisionInfo
+            {
+                CollisionSubject = collisionSubject,
+                CollisionObject = collisionObject,
+                IsColliding = true,
+                MinimalTranslationVector = Vector2.Zero
+            };
+
             var subjectEdges = BuildEdges(collisionSubject.ColliderPolygon.Points).ToList();
             var objectEdges = BuildEdges(collisionObject.ColliderPolygon.Points).ToList();
-
-            bool isColliding = true;
             float minIntervalDistance = float.PositiveInfinity;
             Vector2 translationAxis = Vector2.Zero;
             Vector2 edge;
@@ -45,7 +57,8 @@ namespace BrickShooter.Helpers
                 float intervalDistance = IntervalDistance(minA, maxA, minB, maxB);
                 if (intervalDistance > 0)
                 {
-                    return (false, Vector2.Zero);
+                    result.IsColliding = false;
+                    return result;
                 }
 
                 // Check if the current interval distance is the minimum one. If so store
@@ -63,11 +76,11 @@ namespace BrickShooter.Helpers
                 }
             }
 
-            var minimalTranslationVector = translationAxis * minIntervalDistance;
+            result.MinimalTranslationVector = translationAxis * minIntervalDistance;
             //increase translation by 1px to move the object outside of colliding object's borders
-            minimalTranslationVector += new Vector2(Math.Sign(minimalTranslationVector.X), Math.Sign(minimalTranslationVector.Y));
+            result.MinimalTranslationVector += new Vector2(Math.Sign(result.MinimalTranslationVector.X), Math.Sign(result.MinimalTranslationVector.Y));
 
-            return (isColliding, minimalTranslationVector);
+            return result;
         }
 
         private static void ProjectPolygon(Vector2 axis, ColliderPolygon polygon, ref float min, ref float max)
@@ -105,25 +118,15 @@ namespace BrickShooter.Helpers
             }
         }
 
-        private static IEnumerable<Vector2> BuildEdges(IList<Vector2> points)
+        private static IList<Vector2> BuildEdges(IList<Vector2> points)
         {
             var result = new List<Vector2>();
-            Vector2 p1;
-            Vector2 p2;
             for (int i = 0; i < points.Count; i++)
             {
-                p1 = points[i];
-                if (i + 1 >= points.Count)
-                {
-                    p2 = points[0];
-                }
-                else
-                {
-                    p2 = points[i + 1];
-                }
+                Vector2 p1 = points[i];
+                Vector2 p2 = i + 1 >= points.Count ? points[0] : points[i + 1];
                 result.Add(p2 - p1);
             }
-
             return result;
         }
     }

@@ -28,6 +28,7 @@ namespace BrickShooter.GameObjects
 
         public void Update()
         {
+            Debug.WriteLine(Position);
             var pressedKeys = GlobalObjects.KeyboardState.PressedKeys;
             var mouseState = GlobalObjects.MouseState;
             HandleMovementInput(pressedKeys);

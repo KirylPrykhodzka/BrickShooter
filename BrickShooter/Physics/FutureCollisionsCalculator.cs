@@ -1,5 +1,4 @@
 ﻿using BrickShooter.Extensions;
-using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
@@ -9,28 +8,16 @@ using System.Linq;
 
 namespace BrickShooter.Physics
 {
-    public class CollisionCalculator : ICollisionCalculator
+    public class FutureCollisionsCalculator : IFutureCollisionsCalculator
     {
-        public IList<Vector2> GetTranslationVectorsForExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+        public IList<FutureCollisionInfo> CalculateFutureCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
-            return potentialCollisions
-                .Select(x => SATCollisionCalculator.CalculateCollisionResult(collisionSubject, x))
-                .Where(x => x.isColliding)
-                .Select(x => x.minimalTranslationVector)
-                .ToList();
+            return potentialCollisions.Select(x => CalculateFutureCollisionResult(collisionSubject, x)).ToList();
         }
 
-        public IList<CollisionPredictionResult> FindNextCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+        private static FutureCollisionInfo CalculateFutureCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
         {
-            return potentialCollisions
-                .Select(x => CalculateFutureCollisionByVelocity(collisionSubject, x))
-                .Where(x => x.WillCollide)
-                .ToList();
-        }
-
-        public static CollisionPredictionResult CalculateFutureCollisionByVelocity(MaterialObject collisionSubject, MaterialObject collisionObject)
-        {
-            CollisionPredictionResult result = new()
+            FutureCollisionInfo result = new()
             {
                 CollisionSubject = collisionSubject,
                 CollisionObject = collisionObject,
@@ -45,19 +32,19 @@ namespace BrickShooter.Physics
             //the shortest projection will tell the point and edge of collision
 
             (Vector2 point, (Vector2 point1, Vector2 point2) edge, float projectionLength) closestCollision = (default, default, float.PositiveInfinity);
-            foreach(var frontFacingPoint in subjectFrontFacingPoints)
+            foreach (var frontFacingPoint in subjectFrontFacingPoints)
             {
-                foreach(var frontFacingEdge in objectFrontFacingEdges)
+                foreach (var frontFacingEdge in objectFrontFacingEdges)
                 {
                     var intersectionResult = FindIntersection((frontFacingPoint, frontFacingPoint + result.RelativeVelocity), frontFacingEdge);
-                    if(!intersectionResult.intersect)
+                    if (!intersectionResult.intersect)
                     {
                         continue;
                     }
                     //check if edge intersects with the line formed by point and point + fixedVelocity
                     //if yes, projectionLength = distance between point and point of intersection
                     var projectionLength = (intersectionResult.pointOfIntersection - frontFacingPoint).Length();
-                    if(projectionLength < closestCollision.projectionLength)
+                    if (projectionLength < closestCollision.projectionLength)
                     {
                         closestCollision = (frontFacingPoint, frontFacingEdge, projectionLength);
                     }
@@ -90,8 +77,8 @@ namespace BrickShooter.Physics
         }
 
         //selects points of a material object's collider that can cause collision based on provided velocity
-        public static IList<Vector2> GetFrontFacingPoints(MaterialObject materialObject, Vector2 velocity)
-         {
+        private static IList<Vector2> GetFrontFacingPoints(MaterialObject materialObject, Vector2 velocity)
+        {
             if (velocity == Vector2.Zero || materialObject.ColliderPolygon.Points.Count <= 2)
             {
                 return materialObject.ColliderPolygon.Points;
@@ -119,7 +106,7 @@ namespace BrickShooter.Physics
                 var maxX = perpendicularProjections.Max(x => x.value.X);
                 var minGroup = perpendicularProjections.Where(x => x.value.X == minX);
                 var maxGroup = perpendicularProjections.Where(x => x.value.X == maxX);
-                if(velocity.Y > 0)
+                if (velocity.Y > 0)
                 {
                     min = minGroup.MaxBy(x => x.key.Y).key;
                     max = maxGroup.MaxBy(x => x.key.Y).key;
@@ -136,7 +123,7 @@ namespace BrickShooter.Physics
                 var maxY = perpendicularProjections.Max(x => x.value.Y);
                 var minGroup = perpendicularProjections.Where(x => x.value.Y == minY);
                 var maxGroup = perpendicularProjections.Where(x => x.value.Y == maxY);
-                if(velocity.X > 0)
+                if (velocity.X > 0)
                 {
                     min = minGroup.MaxBy(x => x.key.X).key;
                     max = maxGroup.MaxBy(x => x.key.X).key;
@@ -171,7 +158,7 @@ namespace BrickShooter.Physics
             {
                 var leftOfX = otherLocalColliderPoints.Where(x => x.X < 0);
                 var rightToX = otherLocalColliderPoints.Where(x => x.X >= 0);
-                if(velocity.Y > 0)
+                if (velocity.Y > 0)
                 {
                     result.AddRange(leftOfX.Where(x => x.Y > min.Y));
                     result.AddRange(rightToX.Where(x => x.Y > max.Y));
@@ -190,7 +177,7 @@ namespace BrickShooter.Physics
         }
 
         //get all edges that front facing points belong to (edges are described by two points delimiting them)
-        public static IList<(Vector2 point1, Vector2 point2)> GetFrontFacingEdges(MaterialObject materialObject, IList<Vector2> frontFacingPoints)
+        private static IList<(Vector2 point1, Vector2 point2)> GetFrontFacingEdges(MaterialObject materialObject, IList<Vector2> frontFacingPoints)
         {
             List<(Vector2 point1, Vector2 point2)> result = new();
             var firstPoint = materialObject.ColliderPolygon.Points.First();
@@ -199,7 +186,7 @@ namespace BrickShooter.Physics
             {
                 result.Add((firstPoint, lastPoint));
             }
-            for(int i = 1; i < materialObject.ColliderPolygon.Points.Count; i++)
+            for (int i = 1; i < materialObject.ColliderPolygon.Points.Count; i++)
             {
                 var currentPoint = materialObject.ColliderPolygon.Points[i];
                 var previousPoint = materialObject.ColliderPolygon.Points[i - 1];
@@ -241,8 +228,8 @@ namespace BrickShooter.Physics
 
             // The segments intersect if t1 and t2 are between 0 and 1.
             var intersect =
-                (t1 >= 0) && (t1 <= 1) &&
-                 (t2 >= 0) && (t2 <= 1);
+                t1 >= 0 && t1 <= 1 &&
+                 t2 >= 0 && t2 <= 1;
 
             return (intersect, pointOfIntersection);
         }

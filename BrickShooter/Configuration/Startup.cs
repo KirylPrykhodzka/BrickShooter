@@ -17,7 +17,8 @@ namespace BrickShooter.Configuration
             services.AddSingleton<IPhysicsSystem, PhysicsSystem>();
             services.AddSingleton<IDrawingSystem, DrawingSystem>();
             services.AddSingleton<IPotentialCollisionsDetector, PotentialCollisionsDetector>();
-            services.AddSingleton<ICollisionCalculator, CollisionCalculator>();
+            services.AddSingleton<IExistingCollisionsCalculator, ExistingCollisionsCalculator>();
+            services.AddSingleton<IFutureCollisionsCalculator, FutureCollisionsCalculator>();
             services.AddSingleton<IMaterialObjectMover, MaterialObjectMover>();
             services.AddSingleton<IFactory<Bullet>, Factory<Bullet>>();
         }

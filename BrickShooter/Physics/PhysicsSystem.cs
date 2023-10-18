@@ -15,16 +15,19 @@ namespace BrickShooter.Physics
     public class PhysicsSystem : IPhysicsSystem
     {
         private readonly IPotentialCollisionsDetector potentialCollisionsDetector;
-        private readonly ICollisionCalculator collisionCalculator;
+        private readonly IExistingCollisionsCalculator existingCollisionsCalculator;
+        private readonly IFutureCollisionsCalculator futureCollisionsCalculator;
         private readonly IMaterialObjectMover materialObjectMover;
 
         public PhysicsSystem(
             IPotentialCollisionsDetector potentialCollisionsDetector,
-            ICollisionCalculator collisionCalculator,
+            IExistingCollisionsCalculator existingCollisionsCalculator,
+            IFutureCollisionsCalculator futureCollisionsCalculator,
             IMaterialObjectMover materialObjectMover)
         {
             this.potentialCollisionsDetector = potentialCollisionsDetector;
-            this.collisionCalculator = collisionCalculator;
+            this.existingCollisionsCalculator = existingCollisionsCalculator;
+            this.futureCollisionsCalculator = futureCollisionsCalculator;
             this.materialObjectMover = materialObjectMover;
         }
 
@@ -75,7 +78,10 @@ namespace BrickShooter.Physics
                 }
                 if(currentObject.DidRotate)
                 {
-                    var translationVectors = collisionCalculator.GetTranslationVectorsForExistingCollisions(currentObject, potentialCollisions);
+                    var translationVectors = existingCollisionsCalculator.GetExistingCollisions(currentObject, potentialCollisions)
+                        .Where(x => x.IsColliding)
+                        .Select(x => x.MinimalTranslationVector)
+                        .ToList();
                     if (translationVectors.Count > 0)
                     {
                         materialObjectMover.ProcessExistingCollisions(currentObject, translationVectors);
@@ -83,7 +89,9 @@ namespace BrickShooter.Physics
                 }
                 if (currentObject.Velocity != Vector2.Zero)
                 {
-                    var nextCollisions = collisionCalculator.FindNextCollisions(currentObject, potentialCollisions);
+                    var nextCollisions = futureCollisionsCalculator.CalculateFutureCollisions(currentObject, potentialCollisions)
+                        .Where(x => x.WillCollide)
+                        .ToList(); ;
                     if (!nextCollisions.Any())
                     {
                         materialObjectMover.MoveWithoutObstruction(currentObject);

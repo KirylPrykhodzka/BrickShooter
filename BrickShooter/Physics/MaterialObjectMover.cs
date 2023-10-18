@@ -11,11 +11,11 @@ namespace BrickShooter.Physics
 {
     public class MaterialObjectMover : IMaterialObjectMover
     {
-        private readonly ICollisionCalculator collisionCalculator;
+        private readonly IFutureCollisionsCalculator futureCollisionCalculator;
 
-        public MaterialObjectMover(ICollisionCalculator collisionCalculator)
+        public MaterialObjectMover(IFutureCollisionsCalculator futureCollisionCalculator)
         {
-            this.collisionCalculator = collisionCalculator;
+            this.futureCollisionCalculator = futureCollisionCalculator;
         }
 
         public void MoveWithoutObstruction(MaterialObject materialObject)
@@ -32,7 +32,7 @@ namespace BrickShooter.Physics
         }
 
         //recursively moves close to the collision point, then starts moving along its collision edge until velocity is expired
-        public void ProcessNextCollisions(MaterialObject currentObject, IList<CollisionPredictionResult> nextCollisions)
+        public void ProcessNextCollisions(MaterialObject currentObject, IList<FutureCollisionInfo> nextCollisions)
         {
             var originalVelocity = currentObject.Velocity;
             while(currentObject.Velocity != Vector2.Zero)
@@ -55,7 +55,7 @@ namespace BrickShooter.Physics
                 {
                     break;
                 }
-                nextCollisions = collisionCalculator.FindNextCollisions(currentObject, nextCollisions.Where(x => x != nextCollision).Select(x => x.CollisionObject));
+                nextCollisions = futureCollisionCalculator.CalculateFutureCollisions(currentObject, nextCollisions.Where(x => x != nextCollision).Select(x => x.CollisionObject));
             }
             currentObject.Velocity = originalVelocity;
         }
