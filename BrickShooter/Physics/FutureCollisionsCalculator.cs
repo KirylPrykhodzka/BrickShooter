@@ -1,6 +1,7 @@
 ﻿using BrickShooter.Extensions;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
+using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -10,21 +11,25 @@ namespace BrickShooter.Physics
 {
     public class FutureCollisionsCalculator : IFutureCollisionsCalculator
     {
-        public IList<FutureCollisionInfo> FindNextCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+        private readonly IPool<FutureCollisionInfo> futureCollisionInfoPool;
+
+        public FutureCollisionsCalculator(IPool<FutureCollisionInfo> futureCollisionInfoPool)
         {
-            return potentialCollisions.Select(x => CalculateFutureCollisionResult(collisionSubject, x))
-                .Where(x => x.WillCollide)
-                .ToList();
+            this.futureCollisionInfoPool = futureCollisionInfoPool;
         }
 
-        private static FutureCollisionInfo CalculateFutureCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
+        public IEnumerable<FutureCollisionInfo> FindNextCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
-            FutureCollisionInfo result = new()
-            {
-                CollisionSubject = collisionSubject,
-                CollisionObject = collisionObject,
-                RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds,
-            };
+            return potentialCollisions.Select(x => CalculateFutureCollisionResult(collisionSubject, x))
+                .Where(x => x.WillCollide);
+        }
+
+        private FutureCollisionInfo CalculateFutureCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
+        {
+            var result = futureCollisionInfoPool.GetItem();
+            result.CollisionSubject = collisionSubject;
+            result.CollisionObject = collisionObject;
+            result.RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
 
             var subjectFrontFacingPoints = GetFrontFacingPoints(collisionSubject, result.RelativeVelocity);
             var objectFrontFacingPoints = GetFrontFacingPoints(collisionObject, -result.RelativeVelocity);

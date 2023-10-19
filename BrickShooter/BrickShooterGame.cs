@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Diagnostics;
 
 namespace BrickShooter
 {
@@ -38,14 +40,37 @@ namespace BrickShooter
             GlobalObjects.SpriteBatch = new SpriteBatch(GraphicsDevice);
             GlobalObjects.Content = Content;
 
-            level = new Level(ServiceProviderFactory.ServiceProvider.GetService<IFactory<Bullet>>(),
+            level = new Level(ServiceProviderFactory.ServiceProvider.GetService<IPool<Bullet>>(),
                 physicsSystem,
                 drawingSystem);
             level.Load("Level1");
         }
 
+        private int collectionCount_0 = 0;
+        private int collectionCount_1 = 0;
+        private int collectionCount_2 = 0;
+
         protected override void Update(GameTime gameTime)
         {
+            var cc_0 = GC.CollectionCount(0);
+            if(cc_0 > collectionCount_0)
+            {
+                collectionCount_0 = cc_0;
+                Debug.WriteLine("Collected 0");
+            }
+            var cc_1 = GC.CollectionCount(1);
+            if (cc_1 > collectionCount_1)
+            {
+                collectionCount_1 = cc_1;
+                Debug.WriteLine("Collected 1");
+            }
+            var cc_2 = GC.CollectionCount(2);
+            if (cc_2 > collectionCount_2)
+            {
+                collectionCount_2 = cc_2;
+                Debug.WriteLine("Collected 2");
+            }
+
             GlobalObjects.GameTime = gameTime;
             GlobalObjects.KeyboardState.Update(Keyboard.GetState());
             GlobalObjects.MouseState.Update(Mouse.GetState());

@@ -7,7 +7,7 @@ namespace BrickShooter.Physics.Interfaces
     public interface IMaterialObjectMover
     {
         void MoveWithoutObstruction(MaterialObject materialObject);
-        void ProcessExistingCollisions(MaterialObject materialObject, IList<CollisionInfo> translationVectors);
-        void ProcessNextCollisions(MaterialObject currentObject, IList<FutureCollisionInfo> nextCollisions);
+        void ProcessExistingCollisions(MaterialObject materialObject, IEnumerable<CollisionInfo> existingCollisions);
+        void ProcessNextCollisions(MaterialObject currentObject, IEnumerable<FutureCollisionInfo> nextCollisions);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace BrickShooter.Resources
 {
-    public interface IFactory<T>
+    public interface IPool<T>
     {
         T GetItem();
         void Return(T item);

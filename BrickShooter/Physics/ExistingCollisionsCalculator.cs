@@ -1,5 +1,6 @@
 ﻿using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
+using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -9,20 +10,24 @@ namespace BrickShooter.Physics
 {
     public class ExistingCollisionsCalculator : IExistingCollisionsCalculator
     {
-        public IList<CollisionInfo> GetExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+        private readonly IPool<CollisionInfo> collisionInfoPool;
+
+        public ExistingCollisionsCalculator(IPool<CollisionInfo> collisionInfoPool)
         {
-            return potentialCollisions.Select(x => CalculateExistingCollisionResult(collisionSubject, x)).ToList();
+            this.collisionInfoPool = collisionInfoPool;
         }
 
-        private static CollisionInfo CalculateExistingCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
+        public IEnumerable<CollisionInfo> GetExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
-            var result = new CollisionInfo
-            {
-                CollisionSubject = collisionSubject,
-                CollisionObject = collisionObject,
-                IsColliding = true,
-                MinimalTranslationVector = Vector2.Zero
-            };
+            return potentialCollisions.Select(x => CalculateExistingCollisionResult(collisionSubject, x));
+        }
+
+        private CollisionInfo CalculateExistingCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
+        {
+            var result = collisionInfoPool.GetItem();
+            result.CollisionSubject = collisionSubject;
+            result.CollisionObject = collisionObject;
+            result.IsColliding = true;
 
             var subjectEdges = BuildEdges(collisionSubject.ColliderPolygon.Points).ToList();
             var objectEdges = BuildEdges(collisionObject.ColliderPolygon.Points).ToList();

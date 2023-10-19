@@ -1,6 +1,7 @@
 ﻿using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
+using BrickShooter.Resources;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -18,17 +19,23 @@ namespace BrickShooter.Physics
         private readonly IExistingCollisionsCalculator existingCollisionsCalculator;
         private readonly IFutureCollisionsCalculator futureCollisionsCalculator;
         private readonly IMaterialObjectMover materialObjectMover;
+        private readonly IPool<CollisionInfo> collisionInfoPool;
+        private readonly IPool<FutureCollisionInfo> futureCollisionInfoPool;
 
         public PhysicsSystem(
             IPotentialCollisionsDetector potentialCollisionsDetector,
             IExistingCollisionsCalculator existingCollisionsCalculator,
             IFutureCollisionsCalculator futureCollisionsCalculator,
-            IMaterialObjectMover materialObjectMover)
+            IMaterialObjectMover materialObjectMover,
+            IPool<CollisionInfo> collisionInfoPool,
+            IPool<FutureCollisionInfo> futureCollisionInfoPool)
         {
             this.potentialCollisionsDetector = potentialCollisionsDetector;
             this.existingCollisionsCalculator = existingCollisionsCalculator;
             this.futureCollisionsCalculator = futureCollisionsCalculator;
             this.materialObjectMover = materialObjectMover;
+            this.collisionInfoPool = collisionInfoPool;
+            this.futureCollisionInfoPool = futureCollisionInfoPool;
         }
 
         //all objects that can be repositioned in space based on their velocity and initiate collisions
@@ -68,7 +75,7 @@ namespace BrickShooter.Physics
         /// </summary>
         public void Run()
         {
-            foreach (var currentObject in mobileObjects.Where(x => x.Velocity != Vector2.Zero || x.DidRotate).ToList())
+            foreach (var currentObject in mobileObjects.Where(x => x.Velocity != Vector2.Zero || x.DidRotate))
             {
                 var potentialCollisions = potentialCollisionsDetector.DetectPotentialCollisions(currentObject, mobileObjects.Where(x => x != currentObject).Concat(immobileObjects));
                 if(!potentialCollisions.Any())
@@ -79,21 +86,22 @@ namespace BrickShooter.Physics
                 if(currentObject.DidRotate)
                 {
                     var existingCollisions = existingCollisionsCalculator.GetExistingCollisions(currentObject, potentialCollisions);
-                    if (existingCollisions.Count > 0)
+                    if (existingCollisions.Any())
                     {
                         materialObjectMover.ProcessExistingCollisions(currentObject, existingCollisions);
+                    }
+                    foreach(var existingCollision in existingCollisions)
+                    {
+                        collisionInfoPool.Return(existingCollision);
                     }
                 }
                 if (currentObject.Velocity != Vector2.Zero)
                 {
                     var nextCollisions = futureCollisionsCalculator.FindNextCollisions(currentObject, potentialCollisions);
-                    if (!nextCollisions.Any())
+                    materialObjectMover.ProcessNextCollisions(currentObject, nextCollisions);
+                    foreach(var nextCollision in nextCollisions)
                     {
-                        materialObjectMover.MoveWithoutObstruction(currentObject);
-                    }
-                    else
-                    {
-                        materialObjectMover.ProcessNextCollisions(currentObject, nextCollisions);
+                        futureCollisionInfoPool.Return(nextCollision);
                     }
                 }
             }

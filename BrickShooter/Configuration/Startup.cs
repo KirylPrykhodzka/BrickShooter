@@ -2,6 +2,7 @@
 using BrickShooter.GameObjects;
 using BrickShooter.Physics;
 using BrickShooter.Physics.Interfaces;
+using BrickShooter.Physics.Models;
 using BrickShooter.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting.Internal;
@@ -20,7 +21,11 @@ namespace BrickShooter.Configuration
             services.AddSingleton<IExistingCollisionsCalculator, ExistingCollisionsCalculator>();
             services.AddSingleton<IFutureCollisionsCalculator, FutureCollisionsCalculator>();
             services.AddSingleton<IMaterialObjectMover, MaterialObjectMover>();
-            services.AddSingleton<IFactory<Bullet>, Factory<Bullet>>();
+
+            //object pools
+            services.AddSingleton<IPool<Bullet>, Pool<Bullet>>();
+            services.AddSingleton<IPool<CollisionInfo>, Pool<CollisionInfo>>();
+            services.AddSingleton<IPool<FutureCollisionInfo>, Pool<FutureCollisionInfo>>();
         }
     }
 }

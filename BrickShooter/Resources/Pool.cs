@@ -2,7 +2,7 @@
 
 namespace BrickShooter.Resources
 {
-    public class Factory<T> : IFactory<T> where T : IResetable, new()
+    public class Pool<T> : IPool<T> where T : IResetable, new()
     {
         private readonly Queue<T> items = new();
 

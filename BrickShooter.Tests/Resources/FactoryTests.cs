@@ -21,7 +21,7 @@ namespace BrickShooter.Tests.Resources
         public void GetItem_ShouldReturnNewItemWhenEmpty()
         {
             // Arrange
-            var factory = new Factory<ResetableObjectMock>();
+            var factory = new Pool<ResetableObjectMock>();
 
             // Act
             var item = factory.GetItem();
@@ -35,7 +35,7 @@ namespace BrickShooter.Tests.Resources
         public void GetItem_ShouldReturnPooledItemWhenAvailable()
         {
             // Arrange
-            var factory = new Factory<ResetableObjectMock>();
+            var factory = new Pool<ResetableObjectMock>();
             var item1 = factory.GetItem();
             factory.Return(item1);
 
@@ -51,7 +51,7 @@ namespace BrickShooter.Tests.Resources
         public void Return_ShouldResetAndPoolItem()
         {
             // Arrange
-            var factory = new Factory<ResetableObjectMock>();
+            var factory = new Pool<ResetableObjectMock>();
             var item = factory.GetItem();
             item.Value = fixture.Create<int>();
 

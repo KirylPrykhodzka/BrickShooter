@@ -13,7 +13,7 @@ namespace BrickShooter.GameObjects
 {
     public class Level
     {
-        private readonly IFactory<Bullet> bulletFactory;
+        private readonly IPool<Bullet> bulletPool;
         private readonly IPhysicsSystem physicsSystem;
         private readonly IDrawingSystem drawingSystem;
 
@@ -25,11 +25,11 @@ namespace BrickShooter.GameObjects
         private long lastBulletShot = 0;
         private readonly List<Wall> walls = new();
 
-        public Level(IFactory<Bullet> bulletFactory,
+        public Level(IPool<Bullet> bulletPool,
             IPhysicsSystem physicsSystem,
             IDrawingSystem drawingSystem)
         {
-            this.bulletFactory = bulletFactory;
+            this.bulletPool = bulletPool;
             this.physicsSystem = physicsSystem;
             this.drawingSystem = drawingSystem;
         }
@@ -94,7 +94,7 @@ namespace BrickShooter.GameObjects
 
         private void Shoot()
         {
-            var bullet = bulletFactory.GetItem();
+            var bullet = bulletPool.GetItem();
             physicsSystem.RegisterMobileObject(bullet);
             drawingSystem.Register(bullet);
             bullet.OnPlayerHit = OnBulletHitPlayer;
@@ -107,7 +107,7 @@ namespace BrickShooter.GameObjects
             bullet.OnPlayerHit = null;
             physicsSystem.UnregisterMobileObject(bullet);
             drawingSystem.Unregister(bullet);
-            bulletFactory.Return(bullet);
+            bulletPool.Return(bullet);
         }
     }
 }
