@@ -11,25 +11,20 @@ namespace BrickShooter.Physics
 {
     public class FutureCollisionsCalculator : IFutureCollisionsCalculator
     {
-        private readonly IPool<FutureCollisionInfo> futureCollisionInfoPool;
-
-        public FutureCollisionsCalculator(IPool<FutureCollisionInfo> futureCollisionInfoPool)
-        {
-            this.futureCollisionInfoPool = futureCollisionInfoPool;
-        }
-
         public IEnumerable<FutureCollisionInfo> FindNextCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
             return potentialCollisions.Select(x => CalculateFutureCollisionResult(collisionSubject, x))
                 .Where(x => x.WillCollide);
         }
 
-        private FutureCollisionInfo CalculateFutureCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
+        private static FutureCollisionInfo CalculateFutureCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
         {
-            var result = futureCollisionInfoPool.GetItem();
-            result.CollisionSubject = collisionSubject;
-            result.CollisionObject = collisionObject;
-            result.RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            var result = new FutureCollisionInfo
+            {
+                CollisionSubject = collisionSubject,
+                CollisionObject = collisionObject,
+                RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds
+            };
 
             var subjectFrontFacingPoints = GetFrontFacingPoints(collisionSubject, result.RelativeVelocity);
             var objectFrontFacingPoints = GetFrontFacingPoints(collisionObject, -result.RelativeVelocity);

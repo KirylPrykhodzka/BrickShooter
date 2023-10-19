@@ -19,23 +19,17 @@ namespace BrickShooter.Physics
         private readonly IExistingCollisionsCalculator existingCollisionsCalculator;
         private readonly IFutureCollisionsCalculator futureCollisionsCalculator;
         private readonly IMaterialObjectMover materialObjectMover;
-        private readonly IPool<CollisionInfo> collisionInfoPool;
-        private readonly IPool<FutureCollisionInfo> futureCollisionInfoPool;
 
         public PhysicsSystem(
             IPotentialCollisionsDetector potentialCollisionsDetector,
             IExistingCollisionsCalculator existingCollisionsCalculator,
             IFutureCollisionsCalculator futureCollisionsCalculator,
-            IMaterialObjectMover materialObjectMover,
-            IPool<CollisionInfo> collisionInfoPool,
-            IPool<FutureCollisionInfo> futureCollisionInfoPool)
+            IMaterialObjectMover materialObjectMover)
         {
             this.potentialCollisionsDetector = potentialCollisionsDetector;
             this.existingCollisionsCalculator = existingCollisionsCalculator;
             this.futureCollisionsCalculator = futureCollisionsCalculator;
             this.materialObjectMover = materialObjectMover;
-            this.collisionInfoPool = collisionInfoPool;
-            this.futureCollisionInfoPool = futureCollisionInfoPool;
         }
 
         //all objects that can be repositioned in space based on their velocity and initiate collisions
@@ -90,19 +84,11 @@ namespace BrickShooter.Physics
                     {
                         materialObjectMover.ProcessExistingCollisions(currentObject, existingCollisions);
                     }
-                    foreach(var existingCollision in existingCollisions)
-                    {
-                        collisionInfoPool.Return(existingCollision);
-                    }
                 }
                 if (currentObject.Velocity != Vector2.Zero)
                 {
                     var nextCollisions = futureCollisionsCalculator.FindNextCollisions(currentObject, potentialCollisions);
                     materialObjectMover.ProcessNextCollisions(currentObject, nextCollisions);
-                    foreach(var nextCollision in nextCollisions)
-                    {
-                        futureCollisionInfoPool.Return(nextCollision);
-                    }
                 }
             }
         }

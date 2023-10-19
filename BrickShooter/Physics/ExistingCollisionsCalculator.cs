@@ -9,25 +9,19 @@ using System.Linq;
 namespace BrickShooter.Physics
 {
     public class ExistingCollisionsCalculator : IExistingCollisionsCalculator
-    {
-        private readonly IPool<CollisionInfo> collisionInfoPool;
-
-        public ExistingCollisionsCalculator(IPool<CollisionInfo> collisionInfoPool)
-        {
-            this.collisionInfoPool = collisionInfoPool;
-        }
-
-        public IEnumerable<CollisionInfo> GetExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+    {public IEnumerable<CollisionInfo> GetExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
             return potentialCollisions.Select(x => CalculateExistingCollisionResult(collisionSubject, x));
         }
 
-        private CollisionInfo CalculateExistingCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
+        private static CollisionInfo CalculateExistingCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
         {
-            var result = collisionInfoPool.GetItem();
-            result.CollisionSubject = collisionSubject;
-            result.CollisionObject = collisionObject;
-            result.IsColliding = true;
+            var result = new CollisionInfo
+            {
+                CollisionSubject = collisionSubject,
+                CollisionObject = collisionObject,
+                IsColliding = true
+            };
 
             var subjectEdges = BuildEdges(collisionSubject.ColliderPolygon.Points).ToList();
             var objectEdges = BuildEdges(collisionObject.ColliderPolygon.Points).ToList();
