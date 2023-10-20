@@ -17,13 +17,13 @@ namespace BrickShooter.Physics
             { "Bullet", new() { "Bullet" } }
         };
 
-        public IEnumerable<MaterialObject> DetectPotentialCollisions(MaterialObject currentObject, IEnumerable<MaterialObject> otherObjects)
+        public IList<MaterialObject> DetectPotentialCollisions(MaterialObject currentObject, IEnumerable<MaterialObject> otherObjects)
         {
             var potentialCollisions = otherObjects
                 .Where(x => !IgnoredCollisions.TryGetValue(currentObject.CollisionLayer, out var ignoredCollisions) || !ignoredCollisions.Contains(x.CollisionLayer))
                 .Where(x => IsCollisionPossible(currentObject, x));
 
-            return potentialCollisions;
+            return potentialCollisions.ToList();
         }
 
         private static bool IsCollisionPossible(MaterialObject first, MaterialObject second)

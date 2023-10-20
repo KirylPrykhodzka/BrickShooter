@@ -9,9 +9,12 @@ using System.Linq;
 namespace BrickShooter.Physics
 {
     public class ExistingCollisionsCalculator : IExistingCollisionsCalculator
-    {public IEnumerable<CollisionInfo> GetExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+    {
+        public IList<CollisionInfo> GetExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
-            return potentialCollisions.Select(x => CalculateExistingCollisionResult(collisionSubject, x));
+            return potentialCollisions
+                .Select(x => CalculateExistingCollisionResult(collisionSubject, x))
+                .ToList();
         }
 
         private static CollisionInfo CalculateExistingCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)

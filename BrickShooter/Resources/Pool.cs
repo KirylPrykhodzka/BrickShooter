@@ -11,7 +11,6 @@ namespace BrickShooter.Resources
         {
             if (items.Count > 0)
             {
-                Debug.WriteLine($"returning {typeof(T)} from pool");
                 return items.Dequeue();
             }
             return new T();

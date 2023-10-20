@@ -2,7 +2,9 @@
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using BrickShooter.Resources;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 
@@ -69,10 +71,10 @@ namespace BrickShooter.Physics
         /// </summary>
         public void Run()
         {
-            foreach (var currentObject in mobileObjects.Where(x => x.Velocity != Vector2.Zero || x.DidRotate))
+            foreach (var currentObject in mobileObjects.Where(x => x.Velocity != Vector2.Zero || x.DidRotate).ToList())
             {
                 var potentialCollisions = potentialCollisionsDetector.DetectPotentialCollisions(currentObject, mobileObjects.Where(x => x != currentObject).Concat(immobileObjects));
-                if(!potentialCollisions.Any())
+                if (potentialCollisions.Count == 0)
                 {
                     materialObjectMover.MoveWithoutObstruction(currentObject);
                     continue;
@@ -80,7 +82,7 @@ namespace BrickShooter.Physics
                 if(currentObject.DidRotate)
                 {
                     var existingCollisions = existingCollisionsCalculator.GetExistingCollisions(currentObject, potentialCollisions);
-                    if (existingCollisions.Any())
+                    if (existingCollisions.Count == 0)
                     {
                         materialObjectMover.ProcessExistingCollisions(currentObject, existingCollisions);
                     }

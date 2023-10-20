@@ -11,10 +11,11 @@ namespace BrickShooter.Physics
 {
     public class FutureCollisionsCalculator : IFutureCollisionsCalculator
     {
-        public IEnumerable<FutureCollisionInfo> FindNextCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+        public IList<FutureCollisionInfo> FindNextCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
             return potentialCollisions.Select(x => CalculateFutureCollisionResult(collisionSubject, x))
-                .Where(x => x.WillCollide);
+                .Where(x => x.WillCollide)
+                .ToList();
         }
 
         private static FutureCollisionInfo CalculateFutureCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)

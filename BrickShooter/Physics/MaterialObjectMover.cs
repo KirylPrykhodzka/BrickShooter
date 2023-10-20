@@ -5,6 +5,7 @@ using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.Physics
@@ -20,11 +21,10 @@ namespace BrickShooter.Physics
 
         public void MoveWithoutObstruction(MaterialObject materialObject)
         {
-            var movement = materialObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-            materialObject.Position += movement;
+            materialObject.Position += materialObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
         }
 
-        public void ProcessExistingCollisions(MaterialObject materialObject, IEnumerable<CollisionInfo> existingCollisions)
+        public void ProcessExistingCollisions(MaterialObject materialObject, IList<CollisionInfo> existingCollisions)
         {
             //apply the biggest minimal translation vector, hoping that it will fix the rest of the collisions too
             var longestTranslationVector = existingCollisions
@@ -34,12 +34,12 @@ namespace BrickShooter.Physics
         }
 
         //recursively moves close to the collision point, then starts moving along its collision edge until velocity is expired
-        public void ProcessNextCollisions(MaterialObject currentObject, IEnumerable<FutureCollisionInfo> nextCollisions)
+        public void ProcessNextCollisions(MaterialObject currentObject, IList<FutureCollisionInfo> nextCollisions)
         {
             var originalVelocity = currentObject.Velocity;
             while(currentObject.Velocity != Vector2.Zero)
             {
-                if(!nextCollisions.Any())
+                if(nextCollisions.Count == 0)
                 {
                     MoveWithoutObstruction(currentObject);
                     break;
