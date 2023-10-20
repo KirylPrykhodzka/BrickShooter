@@ -21,7 +21,6 @@ namespace BrickShooter.Physics
         {
             var result = new FutureCollisionInfo
             {
-                CollisionSubject = collisionSubject,
                 CollisionObject = collisionObject,
                 RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds
             };

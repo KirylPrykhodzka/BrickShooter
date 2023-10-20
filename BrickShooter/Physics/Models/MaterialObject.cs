@@ -6,6 +6,7 @@ namespace BrickShooter.Physics.Models
 {
     public abstract class MaterialObject
     {
+        public string CollisionLayer { get; set; }
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
         public float Rotation { get; set; }

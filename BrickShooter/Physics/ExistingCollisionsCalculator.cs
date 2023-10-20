@@ -18,8 +18,6 @@ namespace BrickShooter.Physics
         {
             var result = new CollisionInfo
             {
-                CollisionSubject = collisionSubject,
-                CollisionObject = collisionObject,
                 IsColliding = true
             };
 

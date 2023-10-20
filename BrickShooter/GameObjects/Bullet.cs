@@ -13,7 +13,6 @@ namespace BrickShooter.GameObjects
 
     public delegate void OnPlayerHit(Bullet bullet);
 
-    [CollisionLayer("Bullet")]
     public class Bullet : MaterialObject, IDrawableObject, IResetable
     {
         private static readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>("Bullets/Bullet");
@@ -31,11 +30,12 @@ namespace BrickShooter.GameObjects
                 new(-BulletConstants.WIDTH / 2, BulletConstants.HEIGHT /2),
             };
             Bounciness = BulletConstants.BOUNCINESS;
+            CollisionLayer = nameof(Bullet);
         }
 
         public override void OnCollision(MaterialObject otherCollider)
         {
-            switch (CollisionLayerHelper.GetCollisionLayer(otherCollider))
+            switch (otherCollider.CollisionLayer)
             {
                 case "Player":
                     {

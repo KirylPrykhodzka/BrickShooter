@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace BrickShooter.GameObjects
 {
-    [CollisionLayer("Wall")]
     public class Wall : MaterialObject, IDrawableObject
     {
         public Texture2D Texture { get; set; }
@@ -25,6 +24,7 @@ namespace BrickShooter.GameObjects
                 new(RectBounds.X + RectBounds.Width, RectBounds.Y + RectBounds.Height),
                 new(RectBounds.X, RectBounds.Y + RectBounds.Height),
             };
+            CollisionLayer = nameof(Wall);
         }
 
         public void Draw()

@@ -12,7 +12,6 @@ using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
-    [CollisionLayer("Player")]
     public class Player : MaterialObject, IDrawableObject
     {
         private static readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>($"Player/player");
@@ -21,6 +20,7 @@ namespace BrickShooter.GameObjects
         {
             Position = initialPosition;
             initialColliderPoints = PlayerConstants.INITIAL_COLLIDER_POINTS;
+            CollisionLayer = nameof(Player);
         }
 
         public Vector2 InitialBulletPosition => (Position + PlayerConstants.BARREL_TIP_OFFSET).Rotate(Position, Rotation);

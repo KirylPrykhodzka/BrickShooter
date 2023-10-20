@@ -5,7 +5,6 @@ namespace BrickShooter.Physics.Models
 {
     public record struct FutureCollisionInfo
     {
-        public MaterialObject CollisionSubject { get; set; }
         public MaterialObject CollisionObject { get; set; }
         public Vector2 RelativeVelocity { get; set; }
         public bool WillCollide { get; set; }
