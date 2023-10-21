@@ -139,12 +139,13 @@ namespace BrickShooter.Physics
 
             //find all points closer to the front then min and max
             var result = new List<Vector2> { min, max };
-            var otherLocalColliderPoints = polygon.Points.Where(x => x != min && x != max);
+            var otherLocalColliderPoints = polygon.Points.Where(x => x != min && x != max).ToList();
 
             if (projectionComparisonAxis == 'x')
             {
-                var leftOfX = otherLocalColliderPoints.Where(x => x.X < polygon.Center.X);
-                var rightToX = otherLocalColliderPoints.Where(x => x.X >= polygon.Center.X);
+                var center = polygon.Center.X;
+                var leftOfX = otherLocalColliderPoints.Where(x => x.X < center);
+                var rightToX = otherLocalColliderPoints.Where(x => x.X >= center);
                 if (velocity.Y > 0)
                 {
                     result.AddRange(leftOfX.Where(x => x.Y > min.Y));
@@ -158,8 +159,9 @@ namespace BrickShooter.Physics
             }
             else
             {
-                var aboveY = otherLocalColliderPoints.Where(x => x.Y < polygon.Center.Y);
-                var belowY = otherLocalColliderPoints.Where(x => x.Y >= polygon.Center.Y);
+                var center = polygon.Center.Y;
+                var aboveY = otherLocalColliderPoints.Where(x => x.Y < center);
+                var belowY = otherLocalColliderPoints.Where(x => x.Y >= center);
                 if (velocity.X > 0)
                 {
                     result.AddRange(aboveY.Where(x => x.X > min.X));
