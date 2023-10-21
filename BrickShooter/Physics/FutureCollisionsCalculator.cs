@@ -91,16 +91,11 @@ namespace BrickShooter.Physics
                 return polygon.Points;
             }
 
-            var localizedColliderPoints = polygon.Points
-                //this makes sure that center of localizedColliderPoints is (0,0) which makes finding front facing points much handier
-                .Select(x => x - polygon.Center)
-                .ToList();
-
             var perpendicularVelocity = new Vector2(velocity.Y, -velocity.X);
             char projectionComparisonAxis = Math.Abs(perpendicularVelocity.X) > Math.Abs(perpendicularVelocity.Y) ? 'x' : 'y';
 
             //find width of an object relative to its movement direction
-            IEnumerable<(Vector2 key, Vector2 value)> perpendicularProjections = localizedColliderPoints
+            IEnumerable<(Vector2 key, Vector2 value)> perpendicularProjections = polygon.Points
                 .Select(x => (x, x.Project(perpendicularVelocity)));
 
             //left- and right-most points of the polygon relative to its velocity
@@ -144,12 +139,12 @@ namespace BrickShooter.Physics
 
             //find all points closer to the front then min and max
             var result = new List<Vector2> { min, max };
-            var otherLocalColliderPoints = localizedColliderPoints.Where(x => x != min && x != max);
+            var otherLocalColliderPoints = polygon.Points.Where(x => x != min && x != max);
 
             if (projectionComparisonAxis == 'y')
             {
-                var aboveY = otherLocalColliderPoints.Where(x => x.Y < 0);
-                var belowY = otherLocalColliderPoints.Where(x => x.Y >= 0);
+                var aboveY = otherLocalColliderPoints.Where(x => x.Y < polygon.Center.Y);
+                var belowY = otherLocalColliderPoints.Where(x => x.Y >= polygon.Center.Y);
                 if (velocity.X > 0)
                 {
                     result.AddRange(aboveY.Where(x => x.X > min.X));
@@ -163,8 +158,8 @@ namespace BrickShooter.Physics
             }
             else
             {
-                var leftOfX = otherLocalColliderPoints.Where(x => x.X < 0);
-                var rightToX = otherLocalColliderPoints.Where(x => x.X >= 0);
+                var leftOfX = otherLocalColliderPoints.Where(x => x.X < polygon.Center.X);
+                var rightToX = otherLocalColliderPoints.Where(x => x.X >= polygon.Center.X);
                 if (velocity.Y > 0)
                 {
                     result.AddRange(leftOfX.Where(x => x.Y > min.Y));
@@ -177,9 +172,6 @@ namespace BrickShooter.Physics
                 }
             }
 
-            //need to "move" polygon back to its original position relative to object's position before returning
-            //and then we also need to understand front facing points position in global space
-            result = result.Select(x => x + polygon.Center).ToList();
             return result;
         }
 
