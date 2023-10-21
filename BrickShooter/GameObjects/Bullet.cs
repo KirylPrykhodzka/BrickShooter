@@ -1,7 +1,5 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
-using BrickShooter.Helpers;
-using BrickShooter.Physics;
 using BrickShooter.Physics.Models;
 using BrickShooter.Resources;
 using Microsoft.Xna.Framework;

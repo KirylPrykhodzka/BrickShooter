@@ -1,6 +1,5 @@
 ﻿using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
-using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -13,19 +12,19 @@ namespace BrickShooter.Physics
         public IList<CollisionInfo> GetExistingCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
         {
             return potentialCollisions
-                .Select(x => CalculateExistingCollisionResult(collisionSubject, x))
+                .Select(x => CalculateExistingCollisionResult(collisionSubject.ColliderPolygon, x.ColliderPolygon))
                 .ToList();
         }
 
-        private static CollisionInfo CalculateExistingCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
+        private static CollisionInfo CalculateExistingCollisionResult(ColliderPolygon first, ColliderPolygon second)
         {
             var result = new CollisionInfo
             {
                 IsColliding = true
             };
 
-            var subjectEdges = BuildEdges(collisionSubject.ColliderPolygon.Points).ToList();
-            var objectEdges = BuildEdges(collisionObject.ColliderPolygon.Points).ToList();
+            var subjectEdges = BuildEdges(first.Points).ToList();
+            var objectEdges = BuildEdges(second.Points).ToList();
             float minIntervalDistance = float.PositiveInfinity;
             Vector2 translationAxis = Vector2.Zero;
             Vector2 edge;
@@ -42,16 +41,14 @@ namespace BrickShooter.Physics
                     edge = objectEdges[edgeIndex - subjectEdges.Count];
                 }
 
-                // ===== 1. Find if the polygons are currently intersecting =====
-
                 // Find the axis perpendicular to the current edge
-                Vector2 axis = new Vector2(-edge.Y, edge.X);
+                Vector2 axis = new(-edge.Y, edge.X);
                 axis.Normalize();
 
                 // Find the projection of the polygon on the current axis
                 float minA = 0; float minB = 0; float maxA = 0; float maxB = 0;
-                ProjectPolygon(axis, collisionSubject.ColliderPolygon, ref minA, ref maxA);
-                ProjectPolygon(axis, collisionObject.ColliderPolygon, ref minB, ref maxB);
+                ProjectPolygon(axis, first, ref minA, ref maxA);
+                ProjectPolygon(axis, second, ref minB, ref maxB);
 
                 // Check if the polygon projections are currentlty intersecting
                 float intervalDistance = IntervalDistance(minA, maxA, minB, maxB);
@@ -70,7 +67,7 @@ namespace BrickShooter.Physics
                     minIntervalDistance = intervalDistance;
                     translationAxis = axis;
 
-                    Vector2 d = collisionSubject.ColliderPolygon.Center - collisionObject.ColliderPolygon.Center;
+                    Vector2 d = first.Center - second.Center;
                     if (Vector2.Dot(d, translationAxis) < 0)
                         translationAxis = -translationAxis;
                 }

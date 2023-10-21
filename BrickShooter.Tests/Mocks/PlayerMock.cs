@@ -1,5 +1,4 @@
-﻿using BrickShooter.Physics;
-using BrickShooter.Physics.Models;
+﻿using BrickShooter.Physics.Models;
 
 namespace BrickShooter.Tests.Mocks
 {

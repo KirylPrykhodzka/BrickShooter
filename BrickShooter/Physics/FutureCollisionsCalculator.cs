@@ -1,7 +1,6 @@
 ﻿using BrickShooter.Extensions;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
-using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;

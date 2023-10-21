@@ -1,7 +1,6 @@
 ﻿using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
-using BrickShooter.Resources;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

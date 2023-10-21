@@ -2,9 +2,6 @@
 using System.Linq;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
-using BrickShooter.Helpers;
-using System.Diagnostics;
-using System;
 using Microsoft.Xna.Framework;
 
 namespace BrickShooter.Physics
@@ -22,11 +19,11 @@ namespace BrickShooter.Physics
 
         public IList<MaterialObject> DetectPotentialCollisions(MaterialObject currentObject, IEnumerable<MaterialObject> otherObjects)
         {
-            var potentialCollisions = otherObjects
-                .Where(x => !IgnoredCollisions.TryGetValue(currentObject.CollisionLayer, out var ignoredCollisions) || !ignoredCollisions.Contains(x.CollisionLayer))
-                .Where(x => IsCollisionPossible(currentObject, x));
-
-            return potentialCollisions.ToList();
+            return otherObjects
+                .Where(x =>
+                    (!IgnoredCollisions.TryGetValue(currentObject.CollisionLayer, out var ignoredCollisions) || !ignoredCollisions.Contains(x.CollisionLayer)) &&
+                    IsCollisionPossible(currentObject, x))
+                .ToList();
         }
 
         private static bool IsCollisionPossible(MaterialObject first, MaterialObject second)
