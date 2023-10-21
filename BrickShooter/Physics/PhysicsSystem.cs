@@ -88,7 +88,10 @@ namespace BrickShooter.Physics
                 }
                 if (currentObject.Velocity != Vector2.Zero)
                 {
+                    var before = GC.GetTotalAllocatedBytes(true);
                     var nextCollisions = futureCollisionsCalculator.FindNextCollisions(currentObject, potentialCollisions);
+                    var after = GC.GetTotalAllocatedBytes(true);
+                    Debug.WriteLine(after - before);
                     materialObjectMover.ProcessNextCollisions(currentObject, nextCollisions);
                 }
             }
