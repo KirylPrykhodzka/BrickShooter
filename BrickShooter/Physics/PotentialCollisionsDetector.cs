@@ -44,8 +44,8 @@ namespace BrickShooter.Physics
 
         private static bool DoProjectedBoundsOverlap(ColliderPolygon first, Vector2 firstVelocity, ColliderPolygon second, Vector2 secondVelocity)
         {
-            var firstFixedVelocity = firstVelocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-            var secondFixedVelocity = secondVelocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            var firstFixedVelocity = firstVelocity * GlobalObjects.DeltaTime;
+            var secondFixedVelocity = secondVelocity * GlobalObjects.DeltaTime;
 
             return
                 first.MaxX + firstFixedVelocity.X > second.MinX + secondFixedVelocity.X &&

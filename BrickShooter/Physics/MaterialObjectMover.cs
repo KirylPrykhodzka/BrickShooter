@@ -20,7 +20,7 @@ namespace BrickShooter.Physics
 
         public void MoveWithoutObstruction(MaterialObject materialObject)
         {
-            materialObject.Position += materialObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            materialObject.Position += materialObject.Velocity * GlobalObjects.DeltaTime;
         }
 
         public void ProcessExistingCollisions(MaterialObject materialObject, IList<CollisionInfo> existingCollisions)
@@ -43,7 +43,7 @@ namespace BrickShooter.Physics
                     MoveWithoutObstruction(currentObject);
                     break;
                 }
-                var fixedVelocity = currentObject.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+                var fixedVelocity = currentObject.Velocity * GlobalObjects.DeltaTime;
                 var remainingTravelDistance = fixedVelocity.Length();
                 var nextCollision = nextCollisions.MinBy(x => x.DistanceToCollision);
                 var regularMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance;

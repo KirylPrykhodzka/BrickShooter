@@ -2,8 +2,11 @@
 
 namespace BrickShooter.Tests.Mocks
 {
-    [CollisionLayer("Player")]
     public class PlayerMock : MaterialObject
     {
+        public PlayerMock()
+        {
+            CollisionLayer = "Player";
+        }
     }
 }

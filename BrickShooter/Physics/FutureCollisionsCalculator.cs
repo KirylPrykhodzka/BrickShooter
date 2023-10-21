@@ -22,7 +22,7 @@ namespace BrickShooter.Physics
             var result = new FutureCollisionInfo
             {
                 CollisionObject = collisionObject,
-                RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds
+                RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * GlobalObjects.DeltaTime
             };
 
             var subjectFrontFacingPoints = GetFrontFacingPoints(collisionSubject, result.RelativeVelocity);
