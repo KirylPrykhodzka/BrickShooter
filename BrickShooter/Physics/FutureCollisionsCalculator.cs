@@ -141,22 +141,7 @@ namespace BrickShooter.Physics
             var result = new List<Vector2> { min, max };
             var otherLocalColliderPoints = polygon.Points.Where(x => x != min && x != max);
 
-            if (projectionComparisonAxis == 'y')
-            {
-                var aboveY = otherLocalColliderPoints.Where(x => x.Y < polygon.Center.Y);
-                var belowY = otherLocalColliderPoints.Where(x => x.Y >= polygon.Center.Y);
-                if (velocity.X > 0)
-                {
-                    result.AddRange(aboveY.Where(x => x.X > min.X));
-                    result.AddRange(belowY.Where(x => x.X > max.X));
-                }
-                else
-                {
-                    result.AddRange(aboveY.Where(x => x.X < min.X));
-                    result.AddRange(belowY.Where(x => x.X < max.X));
-                }
-            }
-            else
+            if (projectionComparisonAxis == 'x')
             {
                 var leftOfX = otherLocalColliderPoints.Where(x => x.X < polygon.Center.X);
                 var rightToX = otherLocalColliderPoints.Where(x => x.X >= polygon.Center.X);
@@ -169,6 +154,21 @@ namespace BrickShooter.Physics
                 {
                     result.AddRange(leftOfX.Where(x => x.Y < min.Y));
                     result.AddRange(rightToX.Where(x => x.Y < max.Y));
+                }
+            }
+            else
+            {
+                var aboveY = otherLocalColliderPoints.Where(x => x.Y < polygon.Center.Y);
+                var belowY = otherLocalColliderPoints.Where(x => x.Y >= polygon.Center.Y);
+                if (velocity.X > 0)
+                {
+                    result.AddRange(aboveY.Where(x => x.X > min.X));
+                    result.AddRange(belowY.Where(x => x.X > max.X));
+                }
+                else
+                {
+                    result.AddRange(aboveY.Where(x => x.X < min.X));
+                    result.AddRange(belowY.Where(x => x.X < max.X));
                 }
             }
 
