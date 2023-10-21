@@ -71,7 +71,7 @@ namespace BrickShooter.Physics
         /// </summary>
         public void Run()
         {
-            foreach (var currentObject in mobileObjects.Where(x => x.Velocity != Vector2.Zero || x.DidRotate).ToList())
+            foreach (var currentObject in mobileObjects.Where(x => x.Velocity != Vector2.Zero || x.DidRotate))
             {
                 var potentialCollisions = potentialCollisionsDetector.DetectPotentialCollisions(currentObject, mobileObjects.Where(x => x != currentObject).Concat(immobileObjects));
                 if (potentialCollisions.Count == 0)

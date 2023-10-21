@@ -3,6 +3,9 @@ using System.Linq;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using BrickShooter.Helpers;
+using System.Diagnostics;
+using System;
+using Microsoft.Xna.Framework;
 
 namespace BrickShooter.Physics
 {
@@ -28,28 +31,30 @@ namespace BrickShooter.Physics
 
         private static bool IsCollisionPossible(MaterialObject first, MaterialObject second)
         {
-            return DoBoundsOverlap(first, second) || DoProjectedBoundsOverlap(first, second);
+            var firstPolygon = first.ColliderPolygon;
+            var secondPolygon = second.ColliderPolygon;
+            return DoBoundsOverlap(firstPolygon, secondPolygon) || DoProjectedBoundsOverlap(firstPolygon, first.Velocity, secondPolygon, second.Velocity);
         }
 
-        private static bool DoBoundsOverlap(MaterialObject first, MaterialObject second)
+        private static bool DoBoundsOverlap(ColliderPolygon first, ColliderPolygon second)
         {
             return
-                first.ColliderPolygon.MaxX > second.ColliderPolygon.MinX &&
-                first.ColliderPolygon.MaxY > second.ColliderPolygon.MinY &&
-                first.ColliderPolygon.MinX < second.ColliderPolygon.MaxX &&
-                first.ColliderPolygon.MinY < second.ColliderPolygon.MaxY;
+                first.MaxX > second.MinX &&
+                first.MaxY > second.MinY &&
+                first.MinX < second.MaxX &&
+                first.MinY < second.MaxY;
         }
 
-        private static bool DoProjectedBoundsOverlap(MaterialObject first, MaterialObject second)
+        private static bool DoProjectedBoundsOverlap(ColliderPolygon first, Vector2 firstVelocity, ColliderPolygon second, Vector2 secondVelocity)
         {
-            var firstFixedVelocity = first.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
-            var secondFixedVelocity = second.Velocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            var firstFixedVelocity = firstVelocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
+            var secondFixedVelocity = secondVelocity * (float)GlobalObjects.GameTime.ElapsedGameTime.TotalSeconds;
 
             return
-                first.ColliderPolygon.MaxX + firstFixedVelocity.X > second.ColliderPolygon.MinX + secondFixedVelocity.X &&
-                first.ColliderPolygon.MinX + firstFixedVelocity.X < second.ColliderPolygon.MaxX + secondFixedVelocity.X &&
-                first.ColliderPolygon.MaxY + firstFixedVelocity.Y > second.ColliderPolygon.MinY + secondFixedVelocity.Y &&
-                first.ColliderPolygon.MinY + firstFixedVelocity.Y < second.ColliderPolygon.MaxY + secondFixedVelocity.Y;
+                first.MaxX + firstFixedVelocity.X > second.MinX + secondFixedVelocity.X &&
+                first.MinX + firstFixedVelocity.X < second.MaxX + secondFixedVelocity.X &&
+                first.MaxY + firstFixedVelocity.Y > second.MinY + secondFixedVelocity.Y &&
+                first.MinY + firstFixedVelocity.Y < second.MaxY + secondFixedVelocity.Y;
         }
     }
 }
