@@ -13,6 +13,7 @@ namespace BrickShooter.Physics
         {
             return potentialCollisions
                 .Select(x => CalculateExistingCollisionResult(collisionSubject.ColliderPolygon, x.ColliderPolygon))
+                .Where(x => x.IsColliding)
                 .ToList();
         }
 
