@@ -11,12 +11,12 @@ namespace BrickShooter.Configuration
 
         static ServiceProviderFactory()
         {
-            HostingEnvironment env = new HostingEnvironment();
+            HostingEnvironment env = new();
             env.ContentRootPath = Directory.GetCurrentDirectory();
             env.EnvironmentName = "Development";
 
-            Startup startup = new Startup(env);
-            ServiceCollection sc = new ServiceCollection();
+            Startup startup = new(env);
+            ServiceCollection sc = new();
             startup.ConfigureServices(sc);
             ServiceProvider = sc.BuildServiceProvider();
         }

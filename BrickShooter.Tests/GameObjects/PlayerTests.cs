@@ -1,14 +1,15 @@
 ﻿using AutoFixture;
 using AutoFixture.NUnit3;
 using BrickShooter.Constants;
-using BrickShooter.Input;
+using BrickShooter.Framework;
+using BrickShooter.GameObjects;
 using FluentAssertions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Moq;
 using NUnit.Framework;
 
-namespace BrickShooter.GameObjects.Tests
+namespace BrickShooter.Tests.GameObjects
 {
     [TestFixture]
     public class PlayerTests

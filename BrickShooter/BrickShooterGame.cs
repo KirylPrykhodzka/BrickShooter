@@ -1,5 +1,6 @@
 ﻿using BrickShooter.Configuration;
 using BrickShooter.Drawing;
+using BrickShooter.Framework;
 using BrickShooter.GameObjects;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Resources;
@@ -36,12 +37,12 @@ namespace BrickShooter
          protected override void LoadContent()
         {
             GlobalObjects.SpriteBatch = new SpriteBatch(GraphicsDevice);
-            GlobalObjects.Content = Content;
+            GlobalObjects.Content = new ContentManagerWrapper(Content);
 
             level = new Level(ServiceProviderFactory.ServiceProvider.GetService<IPool<Bullet>>(),
                 physicsSystem,
                 drawingSystem);
-            level.Load("Level1");
+            level.Load("Level1", GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds);
         }
 
         protected override void Update(GameTime gameTime)

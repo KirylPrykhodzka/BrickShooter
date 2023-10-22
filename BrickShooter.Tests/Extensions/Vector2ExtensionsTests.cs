@@ -3,7 +3,7 @@ using NUnit.Framework;
 using BrickShooter.Extensions;
 using FluentAssertions;
 
-namespace BrickShooter.Tests.Maths
+namespace BrickShooter.Tests.Extensions
 {
     [TestFixture]
     public class Vector2ExtensionsTests

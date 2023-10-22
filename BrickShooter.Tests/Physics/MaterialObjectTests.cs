@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework;
 using Moq;
 using NUnit.Framework;
 
-namespace BrickShooter.Physics.Models.Tests
+namespace BrickShooter.Tests.Physics
 {
     [TestFixture]
     public class MaterialObjectTests

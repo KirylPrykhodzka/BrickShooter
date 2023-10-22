@@ -4,7 +4,7 @@ using NUnit.Framework;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 
-namespace BrickShooter.Tests
+namespace BrickShooter.Tests.Drawing
 {
     [TestFixture]
     public class DrawingSystemTests

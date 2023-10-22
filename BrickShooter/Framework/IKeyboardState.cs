@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Input;
 
-namespace BrickShooter.Input
+namespace BrickShooter.Framework
 {
     public interface IKeyboardState
     {

@@ -6,7 +6,7 @@ using FluentAssertions;
 using Microsoft.Xna.Framework;
 using NUnit.Framework;
 
-namespace BrickShooter.Tests
+namespace BrickShooter.Tests.GameObjects
 {
     [TestFixture]
     public class BulletTests

@@ -4,6 +4,7 @@ using BrickShooter.Models;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,6 @@ namespace BrickShooter.GameObjects
         private readonly IPhysicsSystem physicsSystem;
         private readonly IDrawingSystem drawingSystem;
 
-        private Rectangle levelBounds;
         private LevelData levelData;
         private Background background;
         private Player player;
@@ -34,32 +34,33 @@ namespace BrickShooter.GameObjects
             this.drawingSystem = drawingSystem;
         }
 
-        public void Load(string name)
+        public void Load(string name, Rectangle viewportBounds)
         {
             levelData = GlobalObjects.Content.Load<LevelData>($"Levels/{name}");
 
             //make sure level is rendered in the center of the screen
-            levelBounds = new Rectangle(
-                (GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Width - levelData.Width) / 2,
-                Math.Abs(levelData.Height - GlobalObjects.Graphics.GraphicsDevice.Viewport.Bounds.Height) / 2,
+            var levelBounds = new Rectangle(
+                Math.Abs(viewportBounds.Width - levelData.Width) / 2,
+                Math.Abs(viewportBounds.Height - levelData.Height) / 2,
                 levelData.Width,
                 levelData.Height);
 
-            background = new Background(levelData.BackgroundTexture, levelBounds);
+            var backgroundTexture = GlobalObjects.Content.Load<Texture2D>($"Backgrounds/{levelData.BackgroundTextureName}");
+            background = new Background(backgroundTexture, levelBounds);
             drawingSystem.Register(background);
 
-            //LevelData.InitialPlayerPosition is of type System.Drawing.Point, so we have to convert it here
             player = new Player(new Vector2(levelBounds.X + levelData.InitialPlayerPosition.X, levelBounds.Y + levelData.InitialPlayerPosition.Y));
             physicsSystem.RegisterMobileObject(player);
             drawingSystem.Register(player);
 
+            var wallsTexture = GlobalObjects.Content.Load<Texture2D>($"Walls/{levelData.Walls.TextureName}");
             walls.Clear();
             walls.AddRange(levelData.Walls.Placements.Select(placement =>
                 new Wall(
-                    levelData.Walls.Texture,
+                    wallsTexture,
                     new Rectangle(
-                        levelBounds.X + placement.X * levelData.Walls.TileWidth + levelData.Walls.OffsetX,
-                        levelBounds.Y + placement.Y * levelData.Walls.TileHeight + levelData.Walls.OffsetY,
+                        levelBounds.X + (int)placement.X * levelData.Walls.TileWidth + levelData.Walls.OffsetX,
+                        levelBounds.Y + (int)placement.Y * levelData.Walls.TileHeight + levelData.Walls.OffsetY,
                         levelData.Walls.TileWidth,
                         levelData.Walls.TileHeight)
                     )
@@ -73,6 +74,11 @@ namespace BrickShooter.GameObjects
 
         public void Unload()
         {
+            levelData = null;
+            background = null;
+            player = null;
+            walls.Clear();
+            lastBulletShot = 0;
             physicsSystem.Reset();
             drawingSystem.Reset();
         }

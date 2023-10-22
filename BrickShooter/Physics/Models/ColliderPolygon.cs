@@ -6,7 +6,8 @@ namespace BrickShooter.Physics.Models
 {
     public class ColliderPolygon
     {
-        public List<Vector2> Points { get; private set; } = new List<Vector2>();
+        public List<Vector2> Points { get; set; }
+
         public float MaxX => Points.Max(x => x.X);
         public float MinX => Points.Min(x => x.X);
         public float MaxY => Points.Max(x => x.Y);
@@ -16,15 +17,7 @@ namespace BrickShooter.Physics.Models
         {
             get
             {
-                float totalX = 0;
-                float totalY = 0;
-                for (int i = 0; i < Points.Count; i++)
-                {
-                    totalX += Points[i].X;
-                    totalY += Points[i].Y;
-                }
-
-                return new Vector2(totalX / Points.Count, totalY / Points.Count);
+                return new Vector2(Points.Average(p => p.X), Points.Average(p => p.Y));
             }
         }
 
