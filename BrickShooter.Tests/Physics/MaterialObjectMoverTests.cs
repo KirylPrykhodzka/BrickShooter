@@ -1,11 +1,8 @@
 ﻿using AutoFixture;
 using BrickShooter.Physics;
-using BrickShooter.Physics.Interfaces;
-using BrickShooter.Physics.Models;
 using BrickShooter.Tests.Mocks;
 using FluentAssertions;
 using Microsoft.Xna.Framework;
-using Moq;
 using NUnit.Framework;
 
 namespace BrickShooter.Tests
