@@ -4,7 +4,6 @@ using BrickShooter.Tests.Mocks;
 using FluentAssertions;
 using Microsoft.Xna.Framework;
 using NUnit.Framework;
-using System.Collections.Generic;
 
 namespace BrickShooter.Tests.Physics
 {

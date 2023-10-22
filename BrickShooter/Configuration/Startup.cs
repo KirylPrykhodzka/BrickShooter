@@ -19,6 +19,7 @@ namespace BrickShooter.Configuration
             services.AddSingleton<IPotentialCollisionsDetector, PotentialCollisionsDetector>();
             services.AddSingleton<IExistingCollisionsCalculator, ExistingCollisionsCalculator>();
             services.AddSingleton<IFutureCollisionsCalculator, FutureCollisionsCalculator>();
+            services.AddSingleton<ICollisionProcessor, CollisionProcessor>();
             services.AddSingleton<IMaterialObjectMover, MaterialObjectMover>();
 
             //object pools

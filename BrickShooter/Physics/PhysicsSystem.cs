@@ -17,18 +17,21 @@ namespace BrickShooter.Physics
         private readonly IPotentialCollisionsDetector potentialCollisionsDetector;
         private readonly IExistingCollisionsCalculator existingCollisionsCalculator;
         private readonly IFutureCollisionsCalculator futureCollisionsCalculator;
+        private readonly ICollisionProcessor collisionProcessor;
         private readonly IMaterialObjectMover materialObjectMover;
 
         public PhysicsSystem(
             IPotentialCollisionsDetector potentialCollisionsDetector,
             IExistingCollisionsCalculator existingCollisionsCalculator,
             IFutureCollisionsCalculator futureCollisionsCalculator,
+            ICollisionProcessor collisionProcessor,
             IMaterialObjectMover materialObjectMover)
         {
             this.potentialCollisionsDetector = potentialCollisionsDetector;
             this.existingCollisionsCalculator = existingCollisionsCalculator;
             this.futureCollisionsCalculator = futureCollisionsCalculator;
             this.materialObjectMover = materialObjectMover;
+            this.collisionProcessor = collisionProcessor;
         }
 
         //all objects that can be repositioned in space based on their velocity and initiate collisions
@@ -81,13 +84,13 @@ namespace BrickShooter.Physics
                     var existingCollisions = existingCollisionsCalculator.GetExistingCollisions(currentObject, potentialCollisions);
                     if (existingCollisions.Count > 0)
                     {
-                        materialObjectMover.ProcessExistingCollisions(currentObject, existingCollisions);
+                        collisionProcessor.ProcessExistingCollisions(currentObject, existingCollisions);
                     }
                 }
                 if (currentObject.Velocity != Vector2.Zero)
                 {
                     var nextCollisions = futureCollisionsCalculator.FindNextCollisions(currentObject, potentialCollisions);
-                    materialObjectMover.ProcessNextCollisions(currentObject, nextCollisions);
+                    collisionProcessor.ProcessNextCollisions(currentObject, nextCollisions);
                 }
             }
         }

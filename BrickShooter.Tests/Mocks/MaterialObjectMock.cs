@@ -5,7 +5,10 @@ namespace BrickShooter.Tests.Mocks
 {
     public class MaterialObjectMock : MaterialObject
     {
-        public MaterialObjectMock() { }
+        public MaterialObjectMock()
+        {
+            initialColliderPoints = Array.Empty<Vector2>();
+        }
 
         public MaterialObjectMock(Vector2[] initialColliderPoints)
         {
