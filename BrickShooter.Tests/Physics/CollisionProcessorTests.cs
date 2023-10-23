@@ -89,15 +89,15 @@ namespace BrickShooter.Tests.Physics
         public void ProcessNextCollisions_Should_HandleCollisionProperly()
         {
             // Arrange
-            var position = fixture.Create<Vector2>();
-            var velocity = fixture.Create<Vector2>();
+            var position = new Vector2(3, 5);
+            var velocity = new Vector2(5, 5);
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
             var collisions = new List<FutureCollisionInfo>
             {
                 new FutureCollisionInfo
                 {
-                    DistanceToCollision = fixture.Create<float>(),
-                    CollisionEdge = (fixture.Create<Vector2>(), fixture.Create<Vector2>()),
+                    DistanceToCollision = 1.5f,
+                    CollisionEdge = (new Vector2(2, 7), new Vector2(6, 1)),
                     CollisionObject = new MaterialObjectMock()
                 }
             };
