@@ -24,8 +24,8 @@ namespace BrickShooter.Physics
                 IsColliding = true
             };
 
-            var subjectEdges = BuildEdges(first.Points).ToList();
-            var objectEdges = BuildEdges(second.Points).ToList();
+            var subjectEdges = BuildEdges(first.Points);
+            var objectEdges = BuildEdges(second.Points);
             float minIntervalDistance = float.PositiveInfinity;
             Vector2 translationAxis = Vector2.Zero;
             Vector2 edge;
