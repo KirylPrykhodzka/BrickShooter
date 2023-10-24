@@ -6,24 +6,24 @@ namespace BrickShooter.Physics.Models
 {
     public class ColliderPolygon
     {
-        public List<Vector2> Points { get; private set; }
+        public List<Vector2> Points => points.ToList();
 
-        public float MaxX => Points.Max(x => x.X);
-        public float MinX => Points.Min(x => x.X);
-        public float MaxY => Points.Max(x => x.Y);
-        public float MinY => Points.Min(x => x.Y);
+        private List<Vector2> points;
 
-        public Vector2 Center
-        {
-            get
-            {
-                return new Vector2(Points.Average(p => p.X), Points.Average(p => p.Y));
-            }
-        }
+        public float MaxX { get; private set; }
+        public float MinX { get; private set; }
+        public float MaxY { get; private set; }
+        public float MinY { get; private set; }
+        public Vector2 Center { get; private set; }
 
         public void SetPoints(IEnumerable<Vector2> points)
         {
-            Points = points.ToList();
+            this.points = points.ToList();
+            MaxX = points.Max(x => x.X);
+            MinX = points.Min(x => x.X);
+            MaxY = points.Max(x => x.Y);
+            MinY = points.Min(x => x.Y);
+            Center = new Vector2(points.Average(x => x.X), points.Average(x => x.Y));
         }
 
         public void Offset(Vector2 v)
@@ -33,10 +33,10 @@ namespace BrickShooter.Physics.Models
 
         public void Offset(float x, float y)
         {
-            for (int i = 0; i < Points.Count; i++)
+            for (int i = 0; i < points.Count; i++)
             {
-                Vector2 p = Points[i];
-                Points[i] = new Vector2(p.X + x, p.Y + y);
+                Vector2 p = points[i];
+                points[i] = new Vector2(p.X + x, p.Y + y);
             }
         }
     }
