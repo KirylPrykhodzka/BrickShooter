@@ -6,9 +6,9 @@ namespace BrickShooter.Physics.Models
 {
     public class ColliderPolygon
     {
-        public List<Vector2> Points => points.ToList();
+        public IList<Vector2> Points => points;
 
-        private List<Vector2> points;
+        private IList<Vector2> points;
 
         public float MaxX { get; private set; }
         public float MinX { get; private set; }
