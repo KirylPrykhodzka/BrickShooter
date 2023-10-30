@@ -3,6 +3,7 @@ using System.Linq;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 
 namespace BrickShooter.Physics
 {
@@ -17,41 +18,34 @@ namespace BrickShooter.Physics
             { "Bullet", new() { "Bullet" } }
         };
 
-        public IList<MaterialObject> DetectPotentialCollisions(MaterialObject currentObject, IEnumerable<MaterialObject> otherObjects)
+        public (IList<MaterialObject> existing, IList<MaterialObject> future) GetPotentialCollisions(MaterialObject currentObject, IEnumerable<MaterialObject> allObjects)
         {
-            return otherObjects
-                .Where(x =>
-                    (!IgnoredCollisions.TryGetValue(currentObject.CollisionLayer, out var ignoredCollisions) || !ignoredCollisions.Contains(x.CollisionLayer)) &&
-                    IsCollisionPossible(currentObject, x))
-                .ToList();
+            var existing = new List<MaterialObject>();
+            var future = new List<MaterialObject>();
+
+            foreach(var otherObject in allObjects.Where(x => x != currentObject && !(IgnoredCollisions.TryGetValue(currentObject.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(x.CollisionLayer))))
+            {
+                var currentObjectBounds = currentObject.ColliderPolygon.Bounds;
+                var otherObjectBounds = otherObject.ColliderPolygon.Bounds;
+                if (currentObjectBounds.Intersects(otherObjectBounds))
+                {
+                    existing.Add(otherObject);
+                }
+                if (DoProjectedBoundsOverlap(currentObjectBounds, currentObject.Velocity, otherObjectBounds, otherObject.Velocity))
+                {
+                    future.Add(otherObject);
+                }
+            }
+            return (existing, future);
         }
 
-        private static bool IsCollisionPossible(MaterialObject first, MaterialObject second)
-        {
-            var firstPolygon = first.ColliderPolygon;
-            var secondPolygon = second.ColliderPolygon;
-            return DoBoundsOverlap(firstPolygon, secondPolygon) || DoProjectedBoundsOverlap(firstPolygon, first.Velocity, secondPolygon, second.Velocity);
-        }
-
-        private static bool DoBoundsOverlap(ColliderPolygon first, ColliderPolygon second)
-        {
-            return
-                first.MaxX > second.MinX &&
-                first.MaxY > second.MinY &&
-                first.MinX < second.MaxX &&
-                first.MinY < second.MaxY;
-        }
-
-        private static bool DoProjectedBoundsOverlap(ColliderPolygon first, Vector2 firstVelocity, ColliderPolygon second, Vector2 secondVelocity)
+        private static bool DoProjectedBoundsOverlap(RectangleF first, Vector2 firstVelocity, RectangleF second, Vector2 secondVelocity)
         {
             var firstFixedVelocity = firstVelocity * GlobalObjects.DeltaTime;
             var secondFixedVelocity = secondVelocity * GlobalObjects.DeltaTime;
-
-            return
-                first.MaxX + firstFixedVelocity.X > second.MinX + secondFixedVelocity.X &&
-                first.MinX + firstFixedVelocity.X < second.MaxX + secondFixedVelocity.X &&
-                first.MaxY + firstFixedVelocity.Y > second.MinY + secondFixedVelocity.Y &&
-                first.MinY + firstFixedVelocity.Y < second.MaxY + secondFixedVelocity.Y;
+            first.Offset(firstFixedVelocity);
+            second.Offset(secondFixedVelocity);
+            return first.Intersects(second);
         }
     }
 }

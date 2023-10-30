@@ -12,14 +12,11 @@ namespace BrickShooter.Physics
     public class CollisionProcessor : ICollisionProcessor
     {
         private readonly IFutureCollisionsCalculator futureCollisionCalculator;
-        private readonly IMaterialObjectMover materialObjectMover;
 
         public CollisionProcessor(
-            IFutureCollisionsCalculator futureCollisionCalculator,
-            IMaterialObjectMover materialObjectMover)
+            IFutureCollisionsCalculator futureCollisionCalculator)
         {
             this.futureCollisionCalculator = futureCollisionCalculator;
-            this.materialObjectMover = materialObjectMover;
         }
 
         public void ProcessExistingCollisions(MaterialObject materialObject, IList<CollisionInfo> existingCollisions)
@@ -39,7 +36,7 @@ namespace BrickShooter.Physics
             {
                 if (nextCollisions.Count == 0)
                 {
-                    materialObjectMover.MoveWithoutObstruction(currentObject);
+                    currentObject.Position += currentObject.Velocity * GlobalObjects.DeltaTime;
                     break;
                 }
                 var fixedVelocity = currentObject.Velocity * GlobalObjects.DeltaTime;

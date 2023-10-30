@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,19 +11,17 @@ namespace BrickShooter.Physics.Models
 
         private IList<Vector2> points;
 
-        public float MaxX { get; private set; }
-        public float MinX { get; private set; }
-        public float MaxY { get; private set; }
-        public float MinY { get; private set; }
+        public RectangleF Bounds { get; private set; }
         public Vector2 Center { get; private set; }
 
         public void SetPoints(IEnumerable<Vector2> points)
         {
             this.points = points.ToList();
-            MaxX = points.Max(x => x.X);
-            MinX = points.Min(x => x.X);
-            MaxY = points.Max(x => x.Y);
-            MinY = points.Min(x => x.Y);
+            var maxX = points.Max(x => x.X);
+            var minX = points.Min(x => x.X);
+            var maxY = points.Max(x => x.Y);
+            var minY = points.Min(x => x.Y);
+            Bounds = new RectangleF(minX, minY, maxX - minX, maxY - minY);
             Center = new Vector2(points.Average(x => x.X), points.Average(x => x.Y));
         }
 

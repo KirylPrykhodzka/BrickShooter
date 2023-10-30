@@ -18,19 +18,16 @@ namespace BrickShooter.Physics
         private readonly IExistingCollisionsCalculator existingCollisionsCalculator;
         private readonly IFutureCollisionsCalculator futureCollisionsCalculator;
         private readonly ICollisionProcessor collisionProcessor;
-        private readonly IMaterialObjectMover materialObjectMover;
 
         public PhysicsSystem(
             IPotentialCollisionsDetector potentialCollisionsDetector,
             IExistingCollisionsCalculator existingCollisionsCalculator,
             IFutureCollisionsCalculator futureCollisionsCalculator,
-            ICollisionProcessor collisionProcessor,
-            IMaterialObjectMover materialObjectMover)
+            ICollisionProcessor collisionProcessor)
         {
             this.potentialCollisionsDetector = potentialCollisionsDetector;
             this.existingCollisionsCalculator = existingCollisionsCalculator;
             this.futureCollisionsCalculator = futureCollisionsCalculator;
-            this.materialObjectMover = materialObjectMover;
             this.collisionProcessor = collisionProcessor;
         }
 
@@ -73,23 +70,18 @@ namespace BrickShooter.Physics
         {
             foreach (var currentObject in mobileObjects.Where(x => x.Velocity != Vector2.Zero || x.DidRotate))
             {
-                var potentialCollisions = potentialCollisionsDetector.DetectPotentialCollisions(currentObject, mobileObjects.Where(x => x != currentObject).Concat(immobileObjects));
-                if (potentialCollisions.Count == 0)
+                var (potentialExistingCollisions, potentialFutureCollisions) = potentialCollisionsDetector.GetPotentialCollisions(currentObject, mobileObjects.Concat(immobileObjects));
+                if (currentObject.DidRotate && potentialExistingCollisions.Count > 0)
                 {
-                    materialObjectMover.MoveWithoutObstruction(currentObject);
-                    continue;
-                }
-                if(currentObject.DidRotate)
-                {
-                    var existingCollisions = existingCollisionsCalculator.GetExistingCollisions(currentObject, potentialCollisions);
+                    var existingCollisions = existingCollisionsCalculator.GetExistingCollisions(currentObject, potentialExistingCollisions);
                     if (existingCollisions.Count > 0)
                     {
                         collisionProcessor.ProcessExistingCollisions(currentObject, existingCollisions);
                     }
                 }
-                if (currentObject.Velocity != Vector2.Zero)
+                if(currentObject.Velocity != Vector2.Zero)
                 {
-                    var nextCollisions = futureCollisionsCalculator.FindNextCollisions(currentObject, potentialCollisions);
+                    var nextCollisions = futureCollisionsCalculator.FindNextCollisions(currentObject, potentialFutureCollisions);
                     collisionProcessor.ProcessNextCollisions(currentObject, nextCollisions);
                 }
             }

@@ -14,7 +14,6 @@ namespace BrickShooter.Tests.Physics
     {
         private IFixture fixture;
         private Mock<IFutureCollisionsCalculator> futureCollisionsCalculatorMock;
-        private Mock<IMaterialObjectMover> materialObjectMoverMock;
         private CollisionProcessor collisionProcessor;
 
         [SetUp]
@@ -23,8 +22,7 @@ namespace BrickShooter.Tests.Physics
             fixture = new Fixture();
             GlobalObjects.DeltaTime = 2f;
             futureCollisionsCalculatorMock = new Mock<IFutureCollisionsCalculator>();
-            materialObjectMoverMock = new Mock<IMaterialObjectMover>();
-            collisionProcessor = new CollisionProcessor(futureCollisionsCalculatorMock.Object, materialObjectMoverMock.Object);
+            collisionProcessor = new CollisionProcessor(futureCollisionsCalculatorMock.Object);
         }
 
         [Test]
@@ -76,13 +74,14 @@ namespace BrickShooter.Tests.Physics
             // Arrange
             var position = fixture.Create<Vector2>();
             var velocity = fixture.Create<Vector2>();
+            GlobalObjects.DeltaTime = 0.5f;
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
 
             // Act
             collisionProcessor.ProcessNextCollisions(materialObject, new List<FutureCollisionInfo>());
 
             //Assert
-            materialObjectMoverMock.Verify(x => x.MoveWithoutObstruction(materialObject), Times.Once);
+            materialObject.Position.Should().Be(position + velocity * GlobalObjects.DeltaTime);
         }
 
         [Test]
@@ -110,7 +109,6 @@ namespace BrickShooter.Tests.Physics
 
             // Assert
             futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject, It.Is<IEnumerable<MaterialObject>>(x => !x.Any())), Times.Once);
-            materialObjectMoverMock.Verify(x => x.MoveWithoutObstruction(materialObject), Times.Once);
         }
 
         [Test]
@@ -149,7 +147,6 @@ namespace BrickShooter.Tests.Physics
             // Assert
             futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject, It.Is<IEnumerable<MaterialObject>>(x => x.Count() == 1)), Times.Once);
             futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject, It.Is<IEnumerable<MaterialObject>>(x => !x.Any())), Times.Once);
-            materialObjectMoverMock.Verify(x => x.MoveWithoutObstruction(materialObject), Times.Once);
         }
     }
 }

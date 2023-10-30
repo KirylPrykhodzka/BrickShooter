@@ -58,13 +58,21 @@ namespace BrickShooter.Tests.Physics
             // Arrange
             List<Vector2> points = fixture.Create<List<Vector2>>();
             var collider = new ColliderPolygon();
+
+            // Act
             collider.SetPoints(points);
 
-            // Act and Assert
-            collider.MaxX.Should().Be(points.Max(p => p.X));
-            collider.MinX.Should().Be(points.Min(p => p.X));
-            collider.MaxY.Should().Be(points.Max(p => p.Y));
-            collider.MinY.Should().Be(points.Min(p => p.Y));
+            // Assert
+            var bounds = collider.Bounds;
+            var minX = points.Min(p => p.X);
+            var minY = points.Min(p => p.Y);
+            var maxX = points.Max(p => p.X);
+            var maxY = points.Max(p => p.Y);
+
+            bounds.X.Should().Be(minX);
+            bounds.Y.Should().Be(minY);
+            bounds.Width.Should().Be(maxX - minX);
+            bounds.Height.Should().Be(maxY - minY);
         }
     }
 }

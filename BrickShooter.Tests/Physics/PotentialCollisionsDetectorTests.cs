@@ -31,10 +31,10 @@ namespace BrickShooter.Tests
             otherObject.CollisionLayer = "Bullet";
 
             // Act
-            var potentialCollisions = _potentialCollisionsDetector.DetectPotentialCollisions(currentObject, new List<MaterialObjectMock> { otherObject });
+            var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject, new List<MaterialObjectMock> { otherObject });
 
             // Assert
-            potentialCollisions.Should().BeEmpty();
+            potentialCollisions.existing.Should().BeEmpty();
         }
 
         [Test]
@@ -81,11 +81,11 @@ namespace BrickShooter.Tests
             };
 
             // Act
-            var potentialCollisions = _potentialCollisionsDetector.DetectPotentialCollisions(currentObject, new List<MaterialObjectMock> { potentialCollision1, potentialCollision2 });
+            var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject, new List<MaterialObjectMock> { potentialCollision1, potentialCollision2 });
 
             // Assert
-            potentialCollisions.Should().HaveCount(1);
-            potentialCollisions.Should().Contain(potentialCollision1);
+            potentialCollisions.existing.Should().HaveCount(1);
+            potentialCollisions.existing.Should().Contain(potentialCollision1);
         }
 
         [Test]
@@ -120,14 +120,14 @@ namespace BrickShooter.Tests
             };
 
             // Act
-            var potentialCollisionsWhileStill = _potentialCollisionsDetector.DetectPotentialCollisions(currentObject, new List<MaterialObjectMock> { potentialCollision });
+            var potentialCollisionsWhileStill = _potentialCollisionsDetector.GetPotentialCollisions(currentObject, new List<MaterialObjectMock> { potentialCollision });
             currentObject.Velocity = new Vector2(4, 4);
-            var potentialCollisionsWhileMoving = _potentialCollisionsDetector.DetectPotentialCollisions(currentObject, new List<MaterialObjectMock> { potentialCollision });
+            var potentialCollisionsWhileMoving = _potentialCollisionsDetector.GetPotentialCollisions(currentObject, new List<MaterialObjectMock> { potentialCollision });
 
             // Assert
-            potentialCollisionsWhileStill.Should().BeEmpty();
-            potentialCollisionsWhileMoving.Should().HaveCount(1);
-            potentialCollisionsWhileMoving.Should().Contain(potentialCollision);
+            potentialCollisionsWhileStill.future.Should().BeEmpty();
+            potentialCollisionsWhileMoving.future.Should().HaveCount(1);
+            potentialCollisionsWhileMoving.future.Should().Contain(potentialCollision);
         }
     }
 }
