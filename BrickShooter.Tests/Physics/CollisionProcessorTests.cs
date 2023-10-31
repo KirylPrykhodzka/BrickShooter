@@ -14,6 +14,7 @@ namespace BrickShooter.Tests.Physics
     {
         private IFixture fixture;
         private Mock<IFutureCollisionsCalculator> futureCollisionsCalculatorMock;
+        private Mock<IMaterialObjectMover> materialObjectMoverMock;
         private CollisionProcessor collisionProcessor;
 
         [SetUp]
@@ -22,11 +23,12 @@ namespace BrickShooter.Tests.Physics
             fixture = new Fixture();
             GlobalObjects.DeltaTime = 2f;
             futureCollisionsCalculatorMock = new Mock<IFutureCollisionsCalculator>();
-            collisionProcessor = new CollisionProcessor(futureCollisionsCalculatorMock.Object);
+            materialObjectMoverMock = new Mock<IMaterialObjectMover>();
+            collisionProcessor = new CollisionProcessor(futureCollisionsCalculatorMock.Object, materialObjectMoverMock.Object);
         }
 
         [Test]
-        public void ProcessExistingCollisions_Should_ApplyLongestTranslationVector()
+        public void ProcessExistingCollisions_Should_SheduleMovement_AlongLongestTranslationVector()
         {
             // Arrange
             var position = fixture.Create<Vector2>();
@@ -39,7 +41,8 @@ namespace BrickShooter.Tests.Physics
             collisionProcessor.ProcessExistingCollisions(materialObject, collisions);
 
             // Assert
-            materialObject.Position.Should().Be(position + collisions.MaxBy(x => x.MinimalTranslationVector.Length()).MinimalTranslationVector);
+            var longestTranslationVector = collisions.MaxBy(x => x.MinimalTranslationVector.Length()).MinimalTranslationVector;
+            materialObjectMoverMock.Verify(x => x.ScheduleMovement(materialObject, longestTranslationVector), Times.Once);
         }
 
         [Test]
@@ -81,7 +84,7 @@ namespace BrickShooter.Tests.Physics
             collisionProcessor.ProcessNextCollisions(materialObject, new List<FutureCollisionInfo>());
 
             //Assert
-            materialObject.Position.Should().Be(position + velocity * GlobalObjects.DeltaTime);
+            materialObjectMoverMock.Verify(x => x.ScheduleMovement(materialObject, velocity * GlobalObjects.DeltaTime), Times.Once);
         }
 
         [Test]

@@ -18,17 +18,20 @@ namespace BrickShooter.Physics
         private readonly IExistingCollisionsCalculator existingCollisionsCalculator;
         private readonly IFutureCollisionsCalculator futureCollisionsCalculator;
         private readonly ICollisionProcessor collisionProcessor;
+        private readonly IMaterialObjectMover materialObjectMover;
 
         public PhysicsSystem(
             IPotentialCollisionsDetector potentialCollisionsDetector,
             IExistingCollisionsCalculator existingCollisionsCalculator,
             IFutureCollisionsCalculator futureCollisionsCalculator,
-            ICollisionProcessor collisionProcessor)
+            ICollisionProcessor collisionProcessor,
+            IMaterialObjectMover materialObjectMover)
         {
             this.potentialCollisionsDetector = potentialCollisionsDetector;
             this.existingCollisionsCalculator = existingCollisionsCalculator;
             this.futureCollisionsCalculator = futureCollisionsCalculator;
             this.collisionProcessor = collisionProcessor;
+            this.materialObjectMover = materialObjectMover;
         }
 
         //all objects that can be repositioned in space based on their velocity and initiate collisions
@@ -85,6 +88,7 @@ namespace BrickShooter.Physics
                     collisionProcessor.ProcessNextCollisions(currentObject, nextCollisions);
                 }
             }
+            materialObjectMover.Move();
         }
 
         public void Visualize()

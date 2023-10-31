@@ -1,17 +1,14 @@
 ﻿using BrickShooter.Physics;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using BrickShooter.Tests.Mocks;
 
-namespace BrickShooter.Tests
+namespace BrickShooter.Tests.Physics
 {
     [TestFixture]
     public class PhysicsSystemTests
@@ -21,6 +18,7 @@ namespace BrickShooter.Tests
         private Mock<IExistingCollisionsCalculator> existingCollisionsCalculatorMock;
         private Mock<IFutureCollisionsCalculator> futureCollisionsCalculatorMock;
         private Mock<ICollisionProcessor> collisionProcessorMock;
+        private Mock<IMaterialObjectMover> materialObjectMoverMock;
         private Fixture fixture;
 
         [SetUp]
@@ -33,12 +31,14 @@ namespace BrickShooter.Tests
             existingCollisionsCalculatorMock = fixture.Create<Mock<IExistingCollisionsCalculator>>();
             futureCollisionsCalculatorMock = fixture.Create<Mock<IFutureCollisionsCalculator>>();
             collisionProcessorMock = fixture.Create<Mock<ICollisionProcessor>>();
+            materialObjectMoverMock = fixture.Create<Mock<IMaterialObjectMover>>();
 
             physicsSystem = new PhysicsSystem(
                 potentialCollisionsDetectorMock.Object,
                 existingCollisionsCalculatorMock.Object,
                 futureCollisionsCalculatorMock.Object,
-                collisionProcessorMock.Object);
+                collisionProcessorMock.Object,
+                materialObjectMoverMock.Object);
         }
 
         [Test]
@@ -255,6 +255,16 @@ namespace BrickShooter.Tests
 
             // Assert
             collisionProcessorMock.Verify(c => c.ProcessNextCollisions(mobileObject, It.IsAny<IList<FutureCollisionInfo>>()), Times.Once);
+        }
+
+        [Test]
+        public void Run_ShouldCallMaterialObjectMover_Move()
+        {
+            // Act
+            physicsSystem.Run();
+
+            // Assert
+            materialObjectMoverMock.Verify(x => x.Move(), Times.Once);
         }
     }
 }
