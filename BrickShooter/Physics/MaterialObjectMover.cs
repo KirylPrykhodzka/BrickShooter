@@ -14,7 +14,7 @@ namespace BrickShooter.Physics
             scheduledMovements.Add((materialObject, movement));
         }
 
-        public void Move()
+        public void MoveObjects()
         {
             foreach (var scheduledMovement in scheduledMovements)
             {

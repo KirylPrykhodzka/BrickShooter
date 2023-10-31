@@ -14,6 +14,6 @@ namespace BrickShooter.Physics.Interfaces
         /// <summary>
         /// applies all previously scheduled movements
         /// </summary>
-        void Move();
+        void MoveObjects();
     }
 }

@@ -4,6 +4,7 @@ using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BrickShooter.Physics
@@ -11,11 +12,14 @@ namespace BrickShooter.Physics
     public class CollisionProcessor : ICollisionProcessor
     {
         private readonly IFutureCollisionsCalculator futureCollisionCalculator;
+        private readonly IExistingCollisionsCalculator existingCollisionsCalculator;
         private readonly IMaterialObjectMover materialObjectMover;
 
         public CollisionProcessor(
+            IExistingCollisionsCalculator existingCollisionsCalculator,
             IFutureCollisionsCalculator futureCollisionCalculator, IMaterialObjectMover materialObjectMover)
         {
+            this.existingCollisionsCalculator = existingCollisionsCalculator;
             this.futureCollisionCalculator = futureCollisionCalculator;
             this.materialObjectMover = materialObjectMover;
         }
@@ -37,6 +41,7 @@ namespace BrickShooter.Physics
             {
                 if (nextCollisions.Count == 0)
                 {
+                    Debug.WriteLine(currentObject.Velocity);
                     materialObjectMover.ScheduleMovement(currentObject, currentObject.Velocity * GlobalObjects.DeltaTime);
                     break;
                 }
@@ -45,8 +50,6 @@ namespace BrickShooter.Physics
                 var nextCollision = nextCollisions.MinBy(x => x.DistanceToCollision);
                 var regularMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance;
                 var regularMovement = fixedVelocity * regularMovementPortion;
-                //the fractions are cut because it causes clipping sometimes.
-                //in worst case scenario the object stops 1 unit from collision which does not matter
                 currentObject.Position += new Vector2((int)regularMovement.X, (int)regularMovement.Y);
                 currentObject.Velocity = currentObject.Velocity.Project(nextCollision.CollisionEdge.point2 - nextCollision.CollisionEdge.point1) * (1 - regularMovementPortion);
                 nextCollisions = futureCollisionCalculator.FindNextCollisions(currentObject, nextCollisions.Where(x => x != nextCollision).Select(x => x.CollisionObject));

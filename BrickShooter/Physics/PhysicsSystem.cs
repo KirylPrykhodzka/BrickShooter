@@ -88,7 +88,7 @@ namespace BrickShooter.Physics
                     collisionProcessor.ProcessNextCollisions(currentObject, nextCollisions);
                 }
             }
-            materialObjectMover.Move();
+            materialObjectMover.MoveObjects();
         }
 
         public void Visualize()
