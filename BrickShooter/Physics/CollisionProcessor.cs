@@ -3,6 +3,7 @@ using BrickShooter.Extensions;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -12,14 +13,12 @@ namespace BrickShooter.Physics
     public class CollisionProcessor : ICollisionProcessor
     {
         private readonly IFutureCollisionsCalculator futureCollisionCalculator;
-        private readonly IExistingCollisionsCalculator existingCollisionsCalculator;
         private readonly IMaterialObjectMover materialObjectMover;
 
         public CollisionProcessor(
-            IExistingCollisionsCalculator existingCollisionsCalculator,
-            IFutureCollisionsCalculator futureCollisionCalculator, IMaterialObjectMover materialObjectMover)
+            IFutureCollisionsCalculator futureCollisionCalculator,
+            IMaterialObjectMover materialObjectMover)
         {
-            this.existingCollisionsCalculator = existingCollisionsCalculator;
             this.futureCollisionCalculator = futureCollisionCalculator;
             this.materialObjectMover = materialObjectMover;
         }
@@ -34,14 +33,19 @@ namespace BrickShooter.Physics
         }
 
         //recursively moves close to the collision point, then starts moving along its collision edge until velocity is expired
-        public void ProcessNextCollisions(MaterialObject currentObject, IList<FutureCollisionInfo> nextCollisions)
+        public void FindAndProcessNextCollisions(MaterialObject currentObject, IList<MaterialObject> potentialFutureCollisions)
         {
             var originalVelocity = currentObject.Velocity;
             while (currentObject.Velocity.Length() >= PhysicsConstants.MIN_VELOCITY)
             {
-                if (nextCollisions.Count == 0)
+                if (potentialFutureCollisions.Count == 0)
                 {
-                    Debug.WriteLine(currentObject.Velocity);
+                    materialObjectMover.ScheduleMovement(currentObject, currentObject.Velocity * GlobalObjects.DeltaTime);
+                    break;
+                }
+                var nextCollisions = futureCollisionCalculator.FindNextCollisions(currentObject, potentialFutureCollisions);
+                if(nextCollisions.Count == 0)
+                {
                     materialObjectMover.ScheduleMovement(currentObject, currentObject.Velocity * GlobalObjects.DeltaTime);
                     break;
                 }
@@ -52,7 +56,7 @@ namespace BrickShooter.Physics
                 var regularMovement = fixedVelocity * regularMovementPortion;
                 currentObject.Position += new Vector2((int)regularMovement.X, (int)regularMovement.Y);
                 currentObject.Velocity = currentObject.Velocity.Project(nextCollision.CollisionEdge.point2 - nextCollision.CollisionEdge.point1) * (1 - regularMovementPortion);
-                nextCollisions = futureCollisionCalculator.FindNextCollisions(currentObject, nextCollisions.Where(x => x != nextCollision).Select(x => x.CollisionObject));
+                potentialFutureCollisions.Remove(nextCollision.CollisionObject);
             }
             currentObject.Velocity = originalVelocity;
         }

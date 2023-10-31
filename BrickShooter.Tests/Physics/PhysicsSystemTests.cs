@@ -183,7 +183,7 @@ namespace BrickShooter.Tests.Physics
 
             // Assert
             collisionProcessorMock.Verify(x => x.ProcessExistingCollisions(mobileObject, It.IsAny<List<CollisionInfo>>()), Times.Never);
-            collisionProcessorMock.Verify(x => x.ProcessNextCollisions(mobileObject, It.Is<List<FutureCollisionInfo>>(x => x.Count == 0)), Times.Once);
+            collisionProcessorMock.Verify(x => x.FindAndProcessNextCollisions(mobileObject, It.Is<List<MaterialObject>>(x => x.Count == 0)), Times.Once);
         }
 
         [Test]
@@ -254,7 +254,7 @@ namespace BrickShooter.Tests.Physics
             physicsSystem.Run();
 
             // Assert
-            collisionProcessorMock.Verify(c => c.ProcessNextCollisions(mobileObject, It.IsAny<IList<FutureCollisionInfo>>()), Times.Once);
+            collisionProcessorMock.Verify(c => c.FindAndProcessNextCollisions(mobileObject, It.IsAny<IList<MaterialObject>>()), Times.Once);
         }
 
         [Test]
@@ -264,7 +264,7 @@ namespace BrickShooter.Tests.Physics
             physicsSystem.Run();
 
             // Assert
-            materialObjectMoverMock.Verify(x => x.Move(), Times.Once);
+            materialObjectMoverMock.Verify(x => x.MoveObjects(), Times.Once);
         }
     }
 }

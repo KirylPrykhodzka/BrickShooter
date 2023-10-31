@@ -1,4 +1,5 @@
-﻿using BrickShooter.Helpers;
+﻿using BrickShooter.Constants;
+using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using System.Collections.Generic;
@@ -71,7 +72,7 @@ namespace BrickShooter.Physics
         /// </summary>
         public void Run()
         {
-            foreach (var currentObject in mobileObjects.Where(x => x.Velocity != Vector2.Zero || x.DidRotate))
+            foreach (var currentObject in mobileObjects.Where(x => x.Velocity.Length() >= PhysicsConstants.MIN_VELOCITY || x.DidRotate))
             {
                 var (potentialExistingCollisions, potentialFutureCollisions) = potentialCollisionsDetector.GetPotentialCollisions(currentObject, mobileObjects.Concat(immobileObjects));
                 if (currentObject.DidRotate && potentialExistingCollisions.Count > 0)
@@ -82,10 +83,9 @@ namespace BrickShooter.Physics
                         collisionProcessor.ProcessExistingCollisions(currentObject, existingCollisions);
                     }
                 }
-                if(currentObject.Velocity != Vector2.Zero)
+                if(currentObject.Velocity.Length() >= PhysicsConstants.MIN_VELOCITY)
                 {
-                    var nextCollisions = futureCollisionsCalculator.FindNextCollisions(currentObject, potentialFutureCollisions);
-                    collisionProcessor.ProcessNextCollisions(currentObject, nextCollisions);
+                    collisionProcessor.FindAndProcessNextCollisions(currentObject, potentialFutureCollisions);
                 }
             }
             materialObjectMover.MoveObjects();
