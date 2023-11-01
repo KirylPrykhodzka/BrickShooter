@@ -1,10 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BrickShooter.Physics.Interfaces;
+using Microsoft.Xna.Framework;
 
 namespace BrickShooter.Physics.Models
 {
     public record struct FutureCollisionInfo
     {
-        public MaterialObject CollisionObject { get; set; }
+        public IMaterialObject CollisionObject { get; set; }
         public Vector2 RelativeVelocity { get; set; }
         public bool WillCollide { get; set; }
         public Vector2 ClosestCollisionPoint { get; set; }
@@ -12,7 +13,7 @@ namespace BrickShooter.Physics.Models
         public float DistanceToCollision { get; set; }
 
         public FutureCollisionInfo(
-            MaterialObject collisionObject,
+            IMaterialObject collisionObject,
             Vector2 relativeVelocity,
             bool willCollide,
             Vector2 closestCollisionPoint,

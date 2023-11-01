@@ -18,10 +18,10 @@ namespace BrickShooter.Physics
             { "Bullet", new() { "Bullet" } }
         };
 
-        public (IList<MaterialObject> existing, IList<MaterialObject> future) GetPotentialCollisions(MaterialObject currentObject, IEnumerable<MaterialObject> allObjects)
+        public (IList<IMaterialObject> existing, IList<IMaterialObject> future) GetPotentialCollisions(IMaterialObject currentObject, IEnumerable<IMaterialObject> allObjects)
         {
-            var existing = new List<MaterialObject>();
-            var future = new List<MaterialObject>();
+            var existing = new List<IMaterialObject>();
+            var future = new List<IMaterialObject>();
 
             foreach(var otherObject in allObjects.Where(x => x != currentObject && !(IgnoredCollisions.TryGetValue(currentObject.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(x.CollisionLayer))))
             {

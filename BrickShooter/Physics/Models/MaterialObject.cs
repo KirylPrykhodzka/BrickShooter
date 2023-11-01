@@ -1,10 +1,11 @@
 ﻿using BrickShooter.Extensions;
+using BrickShooter.Physics.Interfaces;
 using Microsoft.Xna.Framework;
 using System.Linq;
 
 namespace BrickShooter.Physics.Models
 {
-    public abstract class MaterialObject
+    public abstract class MaterialObject : IMaterialObject
     {
         public string CollisionLayer { get; set; }
         public Vector2 Position { get; set; }

@@ -13,7 +13,7 @@ namespace BrickShooter.Physics
     {
         private readonly MemoryCache<(IList<Vector2> colliderPoints, Vector2 relativeVelocity), IList<Vector2>> frontFacingPointsCache = new(1000);
 
-        public IList<FutureCollisionInfo> FindNextCollisions(MaterialObject collisionSubject, IEnumerable<MaterialObject> potentialCollisions)
+        public IList<FutureCollisionInfo> FindNextCollisions(IMaterialObject collisionSubject, IEnumerable<IMaterialObject> potentialCollisions)
         {
             return potentialCollisions.Select(x => CalculateFutureCollisionResult(collisionSubject, x))
                 .Where(x => x.WillCollide)
@@ -28,7 +28,7 @@ namespace BrickShooter.Physics
         /// <param name="collisionSubject"></param>
         /// <param name="collisionObject"></param>
         /// <returns></returns>
-        public FutureCollisionInfo CalculateFutureCollisionResult(MaterialObject collisionSubject, MaterialObject collisionObject)
+        public FutureCollisionInfo CalculateFutureCollisionResult(IMaterialObject collisionSubject, IMaterialObject collisionObject)
         {
             var result = new FutureCollisionInfo
             {

@@ -5,7 +5,7 @@ namespace BrickShooter.Physics.Interfaces
 {
     public interface ICollisionProcessor
     {
-        void ProcessExistingCollisions(MaterialObject materialObject, IList<CollisionInfo> existingCollisions);
-        void FindAndProcessNextCollisions(MaterialObject currentObject, IList<MaterialObject> potentialFutureCollisions);
+        void ProcessExistingCollisions(IMaterialObject materialObject, IList<CollisionInfo> existingCollisions);
+        void FindAndProcessNextCollisions(IMaterialObject currentObject, IList<IMaterialObject> potentialFutureCollisions);
     }
 }

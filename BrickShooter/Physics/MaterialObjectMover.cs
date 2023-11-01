@@ -7,20 +7,25 @@ namespace BrickShooter.Physics
 {
     public class MaterialObjectMover : IMaterialObjectMover
     {
-        private readonly List<(MaterialObject materialObject, Vector2 movement)> scheduledMovements = new();
+        private readonly List<(IMaterialObject materialObject, Vector2 movement)> scheduledMovements = new();
 
-        public void ScheduleMovement(MaterialObject materialObject, Vector2 movement)
+        public void ScheduleMovement(IMaterialObject materialObject, Vector2 movement)
         {
             scheduledMovements.Add((materialObject, movement));
         }
 
-        public void MoveObjects()
+        public void ApplyScheduledMovements()
         {
-            foreach (var scheduledMovement in scheduledMovements)
+            foreach (var (materialObject, movement) in scheduledMovements)
             {
-                scheduledMovement.materialObject.Position += scheduledMovement.movement;
+                MoveObject(materialObject, movement);
             }
             scheduledMovements.Clear();
+        }
+
+        public void MoveObject(IMaterialObject materialObject, Vector2 movement)
+        {
+            materialObject.Position += movement;
         }
     }
 }

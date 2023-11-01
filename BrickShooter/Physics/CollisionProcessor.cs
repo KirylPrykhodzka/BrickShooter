@@ -23,17 +23,17 @@ namespace BrickShooter.Physics
             this.materialObjectMover = materialObjectMover;
         }
 
-        public void ProcessExistingCollisions(MaterialObject materialObject, IList<CollisionInfo> existingCollisions)
+        public void ProcessExistingCollisions(IMaterialObject materialObject, IList<CollisionInfo> existingCollisions)
         {
             //apply the biggest minimal translation vector, hoping that it will fix the rest of the collisions too
             var longestTranslationVector = existingCollisions
                 .Select(x => x.MinimalTranslationVector)
                 .MaxBy(x => x.Length());
-            materialObjectMover.ScheduleMovement(materialObject, longestTranslationVector);
+            materialObjectMover.MoveObject(materialObject, longestTranslationVector);
         }
 
         //recursively moves close to the collision point, then starts moving along its collision edge until velocity is expired
-        public void FindAndProcessNextCollisions(MaterialObject currentObject, IList<MaterialObject> potentialFutureCollisions)
+        public void FindAndProcessNextCollisions(IMaterialObject currentObject, IList<IMaterialObject> potentialFutureCollisions)
         {
             var originalVelocity = currentObject.Velocity;
             while (currentObject.Velocity.Length() >= PhysicsConstants.MIN_VELOCITY)
@@ -54,7 +54,7 @@ namespace BrickShooter.Physics
                 var nextCollision = nextCollisions.MinBy(x => x.DistanceToCollision);
                 var regularMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance;
                 var regularMovement = fixedVelocity * regularMovementPortion;
-                currentObject.Position += new Vector2((int)regularMovement.X, (int)regularMovement.Y);
+                materialObjectMover.MoveObject(currentObject, new Vector2((int)regularMovement.X, (int)regularMovement.Y));
                 currentObject.Velocity = currentObject.Velocity.Project(nextCollision.CollisionEdge.point2 - nextCollision.CollisionEdge.point1) * (1 - regularMovementPortion);
                 potentialFutureCollisions.Remove(nextCollision.CollisionObject);
             }

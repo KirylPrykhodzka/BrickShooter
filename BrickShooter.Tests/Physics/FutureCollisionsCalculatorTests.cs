@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using BrickShooter.Physics;
+using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using BrickShooter.Tests.Mocks;
 using FluentAssertions;
@@ -36,7 +37,7 @@ namespace BrickShooter.Tests.Physics
             collisionObject.ColliderPolygon.SetPoints(new List<Vector2> { new Vector2(4, 0), new Vector2(5, 0), new Vector2(5, 1), new Vector2(4, 1) });
 
             // Act
-            var result = collisionsCalculator.FindNextCollisions(subject, new List<MaterialObject> { collisionObject });
+            var result = collisionsCalculator.FindNextCollisions(subject, new List<IMaterialObject> { collisionObject });
 
             // Assert
             result.Should().BeEmpty();
@@ -54,7 +55,7 @@ namespace BrickShooter.Tests.Physics
             collisionObject.ColliderPolygon.SetPoints(new List<Vector2> { new Vector2(3, 0), new Vector2(5, 0), new Vector2(5, 2), new Vector2(3, 2) });
 
             // Act
-            var result = collisionsCalculator.FindNextCollisions(subject, new List<MaterialObject> { collisionObject });
+            var result = collisionsCalculator.FindNextCollisions(subject, new List<IMaterialObject> { collisionObject });
 
             // Assert
             result.Count.Should().Be(1);

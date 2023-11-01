@@ -5,6 +5,6 @@ namespace BrickShooter.Physics.Interfaces
 {
     public interface IPotentialCollisionsDetector
     {
-        (IList<MaterialObject> existing, IList<MaterialObject> future) GetPotentialCollisions(MaterialObject currentObject, IEnumerable<MaterialObject> otherObjects);
+        (IList<IMaterialObject> existing, IList<IMaterialObject> future) GetPotentialCollisions(IMaterialObject currentObject, IEnumerable<IMaterialObject> otherObjects);
     }
 }

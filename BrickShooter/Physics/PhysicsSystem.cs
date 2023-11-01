@@ -36,9 +36,9 @@ namespace BrickShooter.Physics
         }
 
         //all objects that can be repositioned in space based on their velocity and initiate collisions
-        private readonly HashSet<MaterialObject> mobileObjects = new();
+        private readonly HashSet<IMaterialObject> mobileObjects = new();
         //objects that mobile objects can collide with
-        private readonly HashSet<MaterialObject> immobileObjects = new();
+        private readonly HashSet<IMaterialObject> immobileObjects = new();
 
         public void RegisterMobileObject(MaterialObject mobileObject)
         {
@@ -88,7 +88,7 @@ namespace BrickShooter.Physics
                     collisionProcessor.FindAndProcessNextCollisions(currentObject, potentialFutureCollisions);
                 }
             }
-            materialObjectMover.MoveObjects();
+            materialObjectMover.ApplyScheduledMovements();
         }
 
         public void Visualize()

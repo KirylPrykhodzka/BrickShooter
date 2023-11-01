@@ -28,7 +28,7 @@ namespace BrickShooter.Tests.Physics
         }
 
         [Test]
-        public void ProcessExistingCollisions_Should_SheduleMovement_AlongLongestTranslationVector()
+        public void ProcessExistingCollisions_Should_MoveObject_AlongLongestTranslationVector()
         {
             // Arrange
             var position = fixture.Create<Vector2>();
@@ -42,7 +42,7 @@ namespace BrickShooter.Tests.Physics
 
             // Assert
             var longestTranslationVector = collisions.MaxBy(x => x.MinimalTranslationVector.Length()).MinimalTranslationVector;
-            materialObjectMoverMock.Verify(x => x.ScheduleMovement(materialObject, longestTranslationVector), Times.Once);
+            materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, longestTranslationVector), Times.Once);
         }
 
         [Test]
@@ -51,12 +51,12 @@ namespace BrickShooter.Tests.Physics
             // Arrange
             var originalVelocity = fixture.Create<Vector2>();
             var materialObject = new MaterialObjectMock { Position = new Vector2(1, 1), Velocity = originalVelocity };
-            var collisions = new List<MaterialObject>
+            var collisions = new List<IMaterialObject>
             {
                 fixture.Create<MaterialObjectMock>()
             };
 
-            futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(It.IsAny<MaterialObject>(), It.IsAny<IEnumerable<MaterialObject>>()))
+            futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(It.IsAny<IMaterialObject>(), It.IsAny<IEnumerable<IMaterialObject>>()))
                 .Returns(new List<FutureCollisionInfo>());
 
             // Act
@@ -76,7 +76,7 @@ namespace BrickShooter.Tests.Physics
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
 
             // Act
-            collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<MaterialObject>());
+            collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<IMaterialObject>());
 
             //Assert
             materialObjectMoverMock.Verify(x => x.ScheduleMovement(materialObject, velocity * GlobalObjects.DeltaTime), Times.Once);
@@ -89,20 +89,20 @@ namespace BrickShooter.Tests.Physics
             var position = new Vector2(3, 5);
             var velocity = new Vector2(5, 5);
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
-            var collisions = new List<MaterialObject>
+            var collisions = new List<IMaterialObject>
             {
                 fixture.Create<MaterialObjectMock>()
             };
 
-            futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(It.IsAny<MaterialObject>(), It.IsAny<IEnumerable<MaterialObject>>()))
+            futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(It.IsAny<IMaterialObject>(), It.IsAny<IEnumerable<IMaterialObject>>()))
                 .Returns(new List<FutureCollisionInfo>());
 
             // Act
             collisionProcessor.FindAndProcessNextCollisions(materialObject, collisions);
 
             // Assert
-            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject, It.Is<IEnumerable<MaterialObject>>(x => x.Count() == 1)), Times.Once);
-            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject, It.Is<IEnumerable<MaterialObject>>(x => !x.Any())), Times.Never);
+            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject, It.Is<IEnumerable<IMaterialObject>>(x => x.Count() == 1)), Times.Once);
+            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject, It.Is<IEnumerable<IMaterialObject>>(x => !x.Any())), Times.Never);
         }
     }
 }
