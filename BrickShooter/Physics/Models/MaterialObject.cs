@@ -39,6 +39,6 @@ namespace BrickShooter.Physics.Models
             }
         }
 
-        public virtual void OnCollision(MaterialObject otherCollider) { }
+        public virtual void OnCollision(IMaterialObject otherCollider) { }
     }
 }

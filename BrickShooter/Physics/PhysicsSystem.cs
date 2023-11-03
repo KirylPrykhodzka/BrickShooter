@@ -40,22 +40,22 @@ namespace BrickShooter.Physics
         //objects that mobile objects can collide with
         private readonly HashSet<IMaterialObject> immobileObjects = new();
 
-        public void RegisterMobileObject(MaterialObject mobileObject)
+        public void RegisterMobileObject(IMaterialObject mobileObject)
         {
             mobileObjects.Add(mobileObject);
         }
 
-        public void UnregisterMobileObject(MaterialObject mobileObject)
+        public void UnregisterMobileObject(IMaterialObject mobileObject)
         {
             mobileObjects.Remove(mobileObject);
         }
 
-        public void RegisterImmobileObject(MaterialObject immobileObject)
+        public void RegisterImmobileObject(IMaterialObject immobileObject)
         {
             immobileObjects.Add(immobileObject);
         }
 
-        public void UnregisterImmobileObject(MaterialObject immobileObject)
+        public void UnregisterImmobileObject(IMaterialObject immobileObject)
         {
             immobileObjects.Remove(immobileObject);
         }

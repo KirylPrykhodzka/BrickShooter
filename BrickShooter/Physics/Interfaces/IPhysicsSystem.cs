@@ -6,10 +6,10 @@ namespace BrickShooter.Physics.Interfaces
     {
         void Run();
         void Visualize();
-        void RegisterMobileObject(MaterialObject mobileMaterialObject);
-        void UnregisterMobileObject(MaterialObject mobileMaterialObject);
-        void RegisterImmobileObject(MaterialObject immobileObject);
-        void UnregisterImmobileObject(MaterialObject immobileObject);
+        void RegisterMobileObject(IMaterialObject mobileMaterialObject);
+        void UnregisterMobileObject(IMaterialObject mobileMaterialObject);
+        void RegisterImmobileObject(IMaterialObject immobileObject);
+        void UnregisterImmobileObject(IMaterialObject immobileObject);
         void Reset();
     }
 }

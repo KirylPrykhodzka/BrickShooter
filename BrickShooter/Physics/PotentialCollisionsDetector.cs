@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BrickShooter.GameObjects;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
@@ -15,7 +16,7 @@ namespace BrickShooter.Physics
         //If an object of Key type collides with an object contained in Value, collision is ignored completely
         private static readonly Dictionary<string, HashSet<string>> IgnoredCollisions = new()
         {
-            { "Bullet", new() { "Bullet" } }
+            { nameof(Bullet), new() { nameof(Bullet) } }
         };
 
         public (IList<IMaterialObject> existing, IList<IMaterialObject> future) GetPotentialCollisions(IMaterialObject currentObject, IEnumerable<IMaterialObject> allObjects)
