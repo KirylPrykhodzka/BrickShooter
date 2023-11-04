@@ -1,12 +1,16 @@
 ﻿using BrickShooter.Extensions;
 using BrickShooter.Physics.Interfaces;
 using Microsoft.Xna.Framework;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BrickShooter.Physics.Models
 {
     public abstract class MaterialObject : IMaterialObject
     {
+        public IColliderPolygon SingleCollider => additionalColliders.Count == 0 ? Body : null;
+        public IList<IColliderPolygon> Colliders => additionalColliders.Append(Body).ToList();
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
         public float Rotation { get; set; }
@@ -14,12 +18,13 @@ namespace BrickShooter.Physics.Models
         public float Bounciness { get; set; }
 
         protected Vector2[] initialColliderPoints;
+        protected IList<IColliderPolygon> additionalColliders = new List<IColliderPolygon>();
 
         /// <summary>
         /// global collider bounds are affected by Position + Rotation and should be recalculated whenever any of these values changes
         /// </summary>
         private (Vector2 Position, float Rotation, ColliderPolygon Value) bodyColliderPolygonCache = new();
-        public IColliderPolygon Body
+        private IColliderPolygon Body
         {
             get
             {

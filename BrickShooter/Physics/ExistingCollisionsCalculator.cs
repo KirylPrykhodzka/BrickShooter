@@ -12,7 +12,7 @@ namespace BrickShooter.Physics
         public IList<CollisionInfo> GetExistingCollisions(IMaterialObject collisionSubject, IList<IColliderPolygon> potentialCollisions)
         {
             return potentialCollisions
-                .Select(x => CalculateExistingCollisionResult(collisionSubject.Body, x))
+                .Select(x => CalculateExistingCollisionResult(collisionSubject.SingleCollider, x))
                 .Where(x => x.IsColliding)
                 .ToList();
         }

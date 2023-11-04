@@ -41,7 +41,7 @@ namespace BrickShooter.Physics
                     materialObjectMover.ScheduleMovement(currentObject, currentObject.Velocity * GlobalObjects.DeltaTime);
                     break;
                 }
-                var nextCollisions = futureCollisionCalculator.FindNextCollisions(currentObject.Body, potentialFutureCollisions);
+                var nextCollisions = futureCollisionCalculator.FindNextCollisions(currentObject.SingleCollider, potentialFutureCollisions);
                 if(nextCollisions.Count == 0)
                 {
                     materialObjectMover.ScheduleMovement(currentObject, currentObject.Velocity * GlobalObjects.DeltaTime);

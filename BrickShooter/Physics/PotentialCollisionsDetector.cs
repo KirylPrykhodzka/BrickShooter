@@ -23,17 +23,19 @@ namespace BrickShooter.Physics
         {
             var result = new PotentialCollisions();
 
-            foreach (var otherObject in allObjects.Where(x => x != currentObject && !(IgnoredCollisions.TryGetValue(currentObject.Body.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(x.Body.CollisionLayer))))
+            foreach (var otherObject in allObjects.Where(x =>
+                x != currentObject &&
+                !(IgnoredCollisions.TryGetValue(currentObject.SingleCollider.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(x.SingleCollider.CollisionLayer))))
             {
-                var currentObjectBounds = currentObject.Body.Bounds;
-                var otherObjectBounds = otherObject.Body.Bounds;
+                var currentObjectBounds = currentObject.SingleCollider.Bounds;
+                var otherObjectBounds = otherObject.SingleCollider.Bounds;
                 if (currentObjectBounds.Intersects(otherObjectBounds))
                 {
-                    result.Existing.Add(otherObject.Body);
+                    result.Existing.Add(otherObject.SingleCollider);
                 }
                 if (DoProjectedBoundsOverlap(currentObjectBounds, currentObject.Velocity, otherObjectBounds, otherObject.Velocity))
                 {
-                    result.Future.Add(otherObject.Body);
+                    result.Future.Add(otherObject.SingleCollider);
                 }
             }
             return result;

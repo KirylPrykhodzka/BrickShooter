@@ -102,8 +102,8 @@ namespace BrickShooter.Tests.Physics
             collisionProcessor.FindAndProcessNextCollisions(materialObject, collisions);
 
             // Assert
-            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject.Body, It.Is<IList<IColliderPolygon>>(x => x.Count() == 1)), Times.Once);
-            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject.Body, It.Is<IList<IColliderPolygon>>(x => !x.Any())), Times.Never);
+            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject.SingleCollider, It.Is<IList<IColliderPolygon>>(x => x.Count() == 1)), Times.Once);
+            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject.SingleCollider, It.Is<IList<IColliderPolygon>>(x => !x.Any())), Times.Never);
             materialObjectMoverMock.Verify(x => x.ScheduleMovement(materialObject, velocity * GlobalObjects.DeltaTime), Times.Once);
         }
 
@@ -130,13 +130,13 @@ namespace BrickShooter.Tests.Physics
 
             //translation: there are two potential future collisions, and upon calling FindNextCollisions collision processor finds out that both of they will in fact occur
             futureCollisionsCalculatorMock.Setup(x =>
-                x.FindNextCollisions(materialObject.Body, It.Is<IList<IColliderPolygon>>(x =>
+                x.FindNextCollisions(materialObject.SingleCollider, It.Is<IList<IColliderPolygon>>(x =>
                     x.Contains(futureCollision1.CollisionObject) && x.Contains(futureCollision2.CollisionObject))))
                 .Returns(new List<FutureCollisionInfo> { futureCollision1, futureCollision2 });
 
             //translation: after processing closest collision, collision processor checks whether second collision is still possible and finds out that it is
             futureCollisionsCalculatorMock.Setup(x =>
-                x.FindNextCollisions(materialObject.Body, It.Is<IList<IColliderPolygon>>(x =>
+                x.FindNextCollisions(materialObject.SingleCollider, It.Is<IList<IColliderPolygon>>(x =>
                     x.Count() == 1 && x.First() == futureCollision2.CollisionObject)))
                 .Returns(new List<FutureCollisionInfo> { futureCollision2 });
 

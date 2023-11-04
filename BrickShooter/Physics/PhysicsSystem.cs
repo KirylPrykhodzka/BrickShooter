@@ -94,7 +94,7 @@ namespace BrickShooter.Physics
 #if DEBUG
             foreach (var collisionActor in immobileObjects.Concat(mobileObjects))
             {
-                VisualizationHelper.VisualizeCollider(collisionActor.Body);
+                VisualizationHelper.VisualizeCollider(collisionActor.SingleCollider);
             }
 #endif
         }

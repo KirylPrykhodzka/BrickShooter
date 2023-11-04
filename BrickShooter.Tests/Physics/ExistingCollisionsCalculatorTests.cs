@@ -30,7 +30,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.Body).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
 
             // Assert
             result.Should().BeEmpty();
@@ -48,7 +48,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.Body).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
 
             // Assert
             result.Should().NotBeEmpty();
@@ -67,7 +67,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.Body).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
 
             // Assert
             result.Should().NotBeEmpty();
@@ -86,7 +86,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.Body).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
 
             // Assert
             result.Should().NotBeEmpty();
@@ -105,7 +105,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.Body).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
 
             // Assert
             result.Should().NotBeEmpty();
@@ -124,7 +124,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.Body).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
 
             // Assert
             result.Should().NotBeEmpty();
@@ -143,7 +143,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.Body).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
 
             // Assert
             result.Should().BeEmpty();

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace BrickShooter.Physics.Interfaces
 {
@@ -6,7 +7,8 @@ namespace BrickShooter.Physics.Interfaces
     {
         Vector2 Position { get; set; }
         Vector2 Velocity { get; set; }
-        IColliderPolygon Body { get; }
+        IColliderPolygon SingleCollider { get; }
+        IList<IColliderPolygon> Colliders { get; }
         bool DidRotate { get; }
     }
 }
