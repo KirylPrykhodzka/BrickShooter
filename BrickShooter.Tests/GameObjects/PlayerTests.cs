@@ -33,7 +33,7 @@ namespace BrickShooter.Tests.GameObjects
 
             // Assert
             player.Position.Should().Be(initialPosition);
-            player.InitialBulletPosition.Should().Be(player.Position + PlayerConstants.BARREL_TIP_OFFSET);
+            player.BulletSpawnPoint.Should().Be(player.Position + PlayerConstants.PLAYER_GUN_POSITION);
         }
 
         [Test]

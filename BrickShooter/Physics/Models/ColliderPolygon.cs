@@ -1,18 +1,25 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BrickShooter.Physics.Interfaces;
+using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace BrickShooter.Physics.Models
 {
-    public class ColliderPolygon
+    public class ColliderPolygon : IColliderPolygon
     {
+        public string CollisionLayer { get; private set; }
         public IList<Vector2> Points => points;
 
         private IList<Vector2> points;
-
         public RectangleF Bounds { get; private set; }
         public Vector2 Center { get; private set; }
+
+        public ColliderPolygon(string collisionLayer)
+        {
+            CollisionLayer = collisionLayer;
+        }
+
 
         public void SetPoints(IEnumerable<Vector2> points)
         {

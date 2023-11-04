@@ -38,10 +38,10 @@ namespace BrickShooter.Tests.Physics
             var materialObject = new MaterialObjectMock(fixture.CreateMany<Vector2>(4).ToArray());
 
             //Act
-            var colliderPolygon = materialObject.ColliderPolygon;
+            var colliderPolygon = materialObject.Body;
             materialObject.Position = materialObject.Position;
             materialObject.Rotation = materialObject.Rotation;
-            var sameColliderPolygon = materialObject.ColliderPolygon;
+            var sameColliderPolygon = materialObject.Body;
 
             //Assert
             colliderPolygon.Points.Should().BeEquivalentTo(sameColliderPolygon.Points);
@@ -58,7 +58,7 @@ namespace BrickShooter.Tests.Physics
             var expectedColliderPoints = initialColliderPoints.Select(x => x.Rotate(Vector2.Zero, materialObject.Rotation) + materialObject.Position).ToArray();
 
             //Act
-            var colliderPolygon = materialObject.ColliderPolygon;
+            var colliderPolygon = materialObject.Body;
 
             //Assert
             colliderPolygon.Points.Should().BeEquivalentTo(expectedColliderPoints);
@@ -74,9 +74,9 @@ namespace BrickShooter.Tests.Physics
             materialObject.Position = fixture.Create<Vector2>();
 
             //Act
-            var colliderPointsBefore = materialObject.ColliderPolygon.Points;
+            var colliderPointsBefore = materialObject.Body.Points;
             materialObject.Position = fixture.Create<Vector2>();
-            var colliderPointsAfter = materialObject.ColliderPolygon.Points;
+            var colliderPointsAfter = materialObject.Body.Points;
 
             //Assert
             colliderPointsAfter.Should().NotBeEquivalentTo(colliderPointsBefore);

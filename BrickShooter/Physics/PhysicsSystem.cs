@@ -1,10 +1,8 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
-using BrickShooter.Physics.Models;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 
 namespace BrickShooter.Physics
 {
@@ -96,7 +94,7 @@ namespace BrickShooter.Physics
 #if DEBUG
             foreach (var collisionActor in immobileObjects.Concat(mobileObjects))
             {
-                VisualizationHelper.VisualizeCollider(collisionActor.ColliderPolygon);
+                VisualizationHelper.VisualizeCollider(collisionActor.Body);
             }
 #endif
         }

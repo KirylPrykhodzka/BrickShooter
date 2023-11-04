@@ -29,10 +29,9 @@ namespace BrickShooter.GameObjects
                 new(-BulletConstants.WIDTH / 2, BulletConstants.HEIGHT /2),
             };
             Bounciness = BulletConstants.BOUNCINESS;
-            CollisionLayer = nameof(Bullet);
         }
 
-        public override void OnCollision(IMaterialObject otherCollider)
+        public override void OnCollision(IColliderPolygon otherCollider)
         {
             switch (otherCollider.CollisionLayer)
             {

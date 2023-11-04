@@ -1,9 +1,10 @@
 ﻿using AutoFixture;
 using BrickShooter.Constants;
 using BrickShooter.GameObjects;
-using BrickShooter.Tests.Mocks;
+using BrickShooter.Physics.Interfaces;
 using FluentAssertions;
 using Microsoft.Xna.Framework;
+using Moq;
 using NUnit.Framework;
 
 namespace BrickShooter.Tests.GameObjects
@@ -79,9 +80,11 @@ namespace BrickShooter.Tests.GameObjects
             {
                 onPlayerHitInvoked = true;
             };
+            var colliderPolygonMock = new Mock<IColliderPolygon>();
+            colliderPolygonMock.SetupGet(x => x.CollisionLayer).Returns(nameof(Player));
 
             // Act
-            bullet.OnCollision(new PlayerMock());
+            bullet.OnCollision(colliderPolygonMock.Object);
 
             // Assert
             onPlayerHitInvoked.Should().BeTrue();
@@ -97,9 +100,11 @@ namespace BrickShooter.Tests.GameObjects
             {
                 onPlayerHitInvoked = true;
             };
+            var colliderPolygonMock = new Mock<IColliderPolygon>();
+            colliderPolygonMock.SetupGet(x => x.CollisionLayer).Returns(fixture.Create("CollisionLayer"));
 
             // Act
-            bullet.OnCollision(new MaterialObjectMock());
+            bullet.OnCollision(colliderPolygonMock.Object);
 
             // Assert
             onPlayerHitInvoked.Should().BeFalse();

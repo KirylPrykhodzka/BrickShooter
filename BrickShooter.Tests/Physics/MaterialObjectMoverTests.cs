@@ -1,16 +1,11 @@
 ﻿using AutoFixture;
 using BrickShooter.Physics;
 using BrickShooter.Physics.Interfaces;
-using BrickShooter.Physics.Models;
-using BrickShooter.Tests.Mocks;
-using FluentAssertions;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Moq;
 using NUnit.Framework;
-using System.Collections.Generic;
 
-namespace BrickShooter.Tests
+namespace BrickShooter.Tests.Physics
 {
     [TestFixture]
     public class MaterialObjectMoverTests

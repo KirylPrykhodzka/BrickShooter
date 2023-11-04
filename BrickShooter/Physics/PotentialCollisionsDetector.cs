@@ -2,7 +2,6 @@
 using System.Linq;
 using BrickShooter.GameObjects;
 using BrickShooter.Physics.Interfaces;
-using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 
@@ -24,10 +23,10 @@ namespace BrickShooter.Physics
             var existing = new List<IMaterialObject>();
             var future = new List<IMaterialObject>();
 
-            foreach(var otherObject in allObjects.Where(x => x != currentObject && !(IgnoredCollisions.TryGetValue(currentObject.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(x.CollisionLayer))))
+            foreach(var otherObject in allObjects.Where(x => x != currentObject && !(IgnoredCollisions.TryGetValue(currentObject.Body.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(x.Body.CollisionLayer))))
             {
-                var currentObjectBounds = currentObject.ColliderPolygon.Bounds;
-                var otherObjectBounds = otherObject.ColliderPolygon.Bounds;
+                var currentObjectBounds = currentObject.Body.Bounds;
+                var otherObjectBounds = otherObject.Body.Bounds;
                 if (currentObjectBounds.Intersects(otherObjectBounds))
                 {
                     existing.Add(otherObject);

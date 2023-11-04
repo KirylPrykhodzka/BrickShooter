@@ -1,6 +1,4 @@
-﻿using BrickShooter.Physics.Models;
-
-namespace BrickShooter.Physics.Interfaces
+﻿namespace BrickShooter.Physics.Interfaces
 {
     public interface IPhysicsSystem
     {

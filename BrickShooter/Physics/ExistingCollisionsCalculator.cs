@@ -12,12 +12,12 @@ namespace BrickShooter.Physics
         public IList<CollisionInfo> GetExistingCollisions(IMaterialObject collisionSubject, IEnumerable<IMaterialObject> potentialCollisions)
         {
             return potentialCollisions
-                .Select(x => CalculateExistingCollisionResult(collisionSubject.ColliderPolygon, x.ColliderPolygon))
+                .Select(x => CalculateExistingCollisionResult(collisionSubject.Body, x.Body))
                 .Where(x => x.IsColliding)
                 .ToList();
         }
 
-        private static CollisionInfo CalculateExistingCollisionResult(ColliderPolygon first, ColliderPolygon second)
+        private static CollisionInfo CalculateExistingCollisionResult(IColliderPolygon first, IColliderPolygon second)
         {
             var result = new CollisionInfo
             {
@@ -81,7 +81,7 @@ namespace BrickShooter.Physics
             return result;
         }
 
-        private static void ProjectPolygon(Vector2 axis, ColliderPolygon polygon, ref float min, ref float max)
+        private static void ProjectPolygon(Vector2 axis, IColliderPolygon polygon, ref float min, ref float max)
         {
             // To project a point on an axis use the dot product
             float dotProduct = Vector2.Dot(axis, polygon.Points[0]);

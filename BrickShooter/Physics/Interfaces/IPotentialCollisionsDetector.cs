@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using BrickShooter.Physics.Models;
 
 namespace BrickShooter.Physics.Interfaces
 {

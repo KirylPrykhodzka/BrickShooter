@@ -19,10 +19,9 @@ namespace BrickShooter.GameObjects
         {
             Position = initialPosition;
             initialColliderPoints = PlayerConstants.INITIAL_COLLIDER_POINTS;
-            CollisionLayer = nameof(Player);
         }
 
-        public Vector2 InitialBulletPosition => (Position + PlayerConstants.BARREL_TIP_OFFSET).Rotate(Position, Rotation);
+        public Vector2 BulletSpawnPoint => (Position + PlayerConstants.PLAYER_GUN_POSITION).Rotate(Position, Rotation);
 
         public void Update()
         {

@@ -23,7 +23,6 @@ namespace BrickShooter.GameObjects
                 new(RectBounds.X + RectBounds.Width, RectBounds.Y + RectBounds.Height),
                 new(RectBounds.X, RectBounds.Y + RectBounds.Height),
             };
-            CollisionLayer = nameof(Wall);
         }
 
         public void Draw()

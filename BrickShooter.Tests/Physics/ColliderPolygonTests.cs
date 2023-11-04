@@ -22,7 +22,7 @@ namespace BrickShooter.Tests.Physics
         {
             // Arrange
             List<Vector2> points = fixture.Create<List<Vector2>>();
-            var collider = new ColliderPolygon();
+            var collider = new ColliderPolygon(fixture.Create("CollisionLayer"));
             collider.SetPoints(points);
 
             // Act
@@ -38,7 +38,7 @@ namespace BrickShooter.Tests.Physics
         {
             // Arrange
             List<Vector2> points = fixture.Create<List<Vector2>>();
-            var collider = new ColliderPolygon();
+            var collider = new ColliderPolygon(fixture.Create("CollisionLayer"));
             collider.SetPoints(points);
 
             float offsetX = fixture.Create<float>();
@@ -57,7 +57,7 @@ namespace BrickShooter.Tests.Physics
         {
             // Arrange
             List<Vector2> points = fixture.Create<List<Vector2>>();
-            var collider = new ColliderPolygon();
+            var collider = new ColliderPolygon(fixture.Create("CollisionLayer"));
 
             // Act
             collider.SetPoints(points);

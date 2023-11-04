@@ -36,10 +36,10 @@ namespace BrickShooter.Physics
                 RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * GlobalObjects.DeltaTime
             };
 
-            var subjectFrontFacingPoints = GetFrontFacingPoints(collisionSubject.ColliderPolygon, result.RelativeVelocity);
-            var objectFrontFacingPoints = GetFrontFacingPoints(collisionObject.ColliderPolygon, -result.RelativeVelocity);
-            var subjectFrontFacingEdges = GetFrontFacingEdges(collisionSubject.ColliderPolygon.Points, subjectFrontFacingPoints);
-            var objectFrontFacingEdges = GetFrontFacingEdges(collisionObject.ColliderPolygon.Points, objectFrontFacingPoints);
+            var subjectFrontFacingPoints = GetFrontFacingPoints(collisionSubject.Body, result.RelativeVelocity);
+            var objectFrontFacingPoints = GetFrontFacingPoints(collisionObject.Body, -result.RelativeVelocity);
+            var subjectFrontFacingEdges = GetFrontFacingEdges(collisionSubject.Body.Points, subjectFrontFacingPoints);
+            var objectFrontFacingEdges = GetFrontFacingEdges(collisionObject.Body.Points, objectFrontFacingPoints);
 
             (Vector2 point, (Vector2 point1, Vector2 point2) edge, float projectionLength) closestCollision = (default, default, float.PositiveInfinity);
             foreach (var frontFacingPoint in subjectFrontFacingPoints)
@@ -87,7 +87,7 @@ namespace BrickShooter.Physics
         }
 
         //selects points of a material object's collider that can cause collision based on provided velocity
-        private IList<Vector2> GetFrontFacingPoints(ColliderPolygon polygon, Vector2 velocity)
+        private IList<Vector2> GetFrontFacingPoints(IColliderPolygon polygon, Vector2 velocity)
         {
             var points = polygon.Points;
             if (velocity == Vector2.Zero || points.Count <= 2)

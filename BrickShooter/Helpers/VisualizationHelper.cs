@@ -1,6 +1,6 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Extensions;
-using BrickShooter.Physics.Models;
+using BrickShooter.Physics.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,7 +15,7 @@ namespace BrickShooter.Helpers
             texture = new Texture2D(GlobalObjects.Graphics.GraphicsDevice, 1, 1);
         }
 
-        public static void VisualizeCollider(ColliderPolygon collider)
+        public static void VisualizeCollider(IColliderPolygon collider)
         {
             texture.SetData(new Color[] { Color.GreenYellow });
             var points = collider.Points;

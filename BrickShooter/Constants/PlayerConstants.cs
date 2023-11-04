@@ -11,7 +11,11 @@ namespace BrickShooter.Constants
         public const float DECELERATION_FACTOR = ACCELERATION_FACTOR * 2;
 
         public const int SHOOTING_COOLDOWN_MS = 100;
-        public static readonly Vector2 BARREL_TIP_OFFSET = new(20, 12);
+
+        /// <summary>
+        /// position of player's gun relative to player's position
+        /// </summary>
+        public static readonly Vector2 PLAYER_GUN_POSITION = new(15, 12);
         public static readonly Vector2[] INITIAL_COLLIDER_POINTS = new Vector2[]
             {
                 new(-24, -21),

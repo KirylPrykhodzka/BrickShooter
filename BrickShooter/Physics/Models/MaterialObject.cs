@@ -7,7 +7,6 @@ namespace BrickShooter.Physics.Models
 {
     public abstract class MaterialObject : IMaterialObject
     {
-        public string CollisionLayer { get; set; }
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
         public float Rotation { get; set; }
@@ -19,26 +18,26 @@ namespace BrickShooter.Physics.Models
         /// <summary>
         /// global collider bounds are affected by Position + Rotation and should be recalculated whenever any of these values changes
         /// </summary>
-        private (Vector2 Position, float Rotation, ColliderPolygon Value) colliderPolygonCache = new();
-        public ColliderPolygon ColliderPolygon
+        private (Vector2 Position, float Rotation, ColliderPolygon Value) bodyColliderPolygonCache = new();
+        public IColliderPolygon Body
         {
             get
             {
-                if(colliderPolygonCache.Value == null)
+                if(bodyColliderPolygonCache.Value == null)
                 {
-                    var globalPolygon = new ColliderPolygon();
+                    var globalPolygon = new ColliderPolygon(GetType().Name);
                     globalPolygon.SetPoints(initialColliderPoints.Select(x => x.Rotate(Vector2.Zero, Rotation) + Position));
-                    colliderPolygonCache = (Position, Rotation, globalPolygon);
+                    bodyColliderPolygonCache = (Position, Rotation, globalPolygon);
                 }
-                if (Position != colliderPolygonCache.Position || Rotation != colliderPolygonCache.Rotation)
+                if (Position != bodyColliderPolygonCache.Position || Rotation != bodyColliderPolygonCache.Rotation)
                 {
-                    colliderPolygonCache.Value.SetPoints(initialColliderPoints.Select(x => x.Rotate(Vector2.Zero, Rotation) + Position));
-                    colliderPolygonCache.Position = Position;
+                    bodyColliderPolygonCache.Value.SetPoints(initialColliderPoints.Select(x => x.Rotate(Vector2.Zero, Rotation) + Position));
+                    bodyColliderPolygonCache.Position = Position;
                 }
-                return colliderPolygonCache.Value;
+                return bodyColliderPolygonCache.Value;
             }
         }
 
-        public virtual void OnCollision(IMaterialObject otherCollider) { }
+        public virtual void OnCollision(IColliderPolygon otherCollider) { }
     }
 }

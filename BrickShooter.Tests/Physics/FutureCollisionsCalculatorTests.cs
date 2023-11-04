@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using BrickShooter.Physics;
 using BrickShooter.Physics.Interfaces;
-using BrickShooter.Physics.Models;
 using BrickShooter.Tests.Mocks;
 using FluentAssertions;
 using Microsoft.Xna.Framework;
@@ -33,8 +32,8 @@ namespace BrickShooter.Tests.Physics
             var collisionObject = new MaterialObjectMock();
             subject.Velocity = new Vector2(1, 0);
             collisionObject.Velocity = new Vector2(-1, 0);
-            subject.ColliderPolygon.SetPoints(new List<Vector2> { new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1) });
-            collisionObject.ColliderPolygon.SetPoints(new List<Vector2> { new Vector2(4, 0), new Vector2(5, 0), new Vector2(5, 1), new Vector2(4, 1) });
+            subject.Body.SetPoints(new List<Vector2> { new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1) });
+            collisionObject.Body.SetPoints(new List<Vector2> { new Vector2(4, 0), new Vector2(5, 0), new Vector2(5, 1), new Vector2(4, 1) });
 
             // Act
             var result = collisionsCalculator.FindNextCollisions(subject, new List<IMaterialObject> { collisionObject });
@@ -51,8 +50,8 @@ namespace BrickShooter.Tests.Physics
             var collisionObject = new MaterialObjectMock();
             subject.Velocity = new Vector2(2, 0);
             collisionObject.Velocity = new Vector2(-1, 0);
-            subject.ColliderPolygon.SetPoints(new List<Vector2> { new Vector2(0, 0), new Vector2(2, 0), new Vector2(2, 2), new Vector2(0, 2) });
-            collisionObject.ColliderPolygon.SetPoints(new List<Vector2> { new Vector2(3, 0), new Vector2(5, 0), new Vector2(5, 2), new Vector2(3, 2) });
+            subject.Body.SetPoints(new List<Vector2> { new Vector2(0, 0), new Vector2(2, 0), new Vector2(2, 2), new Vector2(0, 2) });
+            collisionObject.Body.SetPoints(new List<Vector2> { new Vector2(3, 0), new Vector2(5, 0), new Vector2(5, 2), new Vector2(3, 2) });
 
             // Act
             var result = collisionsCalculator.FindNextCollisions(subject, new List<IMaterialObject> { collisionObject });
@@ -70,8 +69,8 @@ namespace BrickShooter.Tests.Physics
             var collisionObject = new MaterialObjectMock();
             subject.Velocity = fixture.Create<Vector2>();
             collisionObject.Velocity = fixture.Create<Vector2>();
-            subject.ColliderPolygon.SetPoints(new List<Vector2> { new Vector2(0, 0), new Vector2(2, 0), new Vector2(2, 2), new Vector2(0, 2) });
-            collisionObject.ColliderPolygon.SetPoints(new List<Vector2> { new Vector2(3, 0), new Vector2(5, 0), new Vector2(5, 2), new Vector2(3, 2) });
+            subject.Body.SetPoints(new List<Vector2> { new Vector2(0, 0), new Vector2(2, 0), new Vector2(2, 2), new Vector2(0, 2) });
+            collisionObject.Body.SetPoints(new List<Vector2> { new Vector2(3, 0), new Vector2(5, 0), new Vector2(5, 2), new Vector2(3, 2) });
 
             // Act
             var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
@@ -88,8 +87,8 @@ namespace BrickShooter.Tests.Physics
             var collisionObject = new MaterialObjectMock();
             subject.Velocity = fixture.Create<Vector2>();
             collisionObject.Velocity = fixture.Create<Vector2>();
-            subject.ColliderPolygon.SetPoints(new List<Vector2> { new Vector2(0, 0), new Vector2(2, 0), new Vector2(2, 2), new Vector2(0, 2) });
-            collisionObject.ColliderPolygon.SetPoints(new List<Vector2> { new Vector2(3, 0), new Vector2(5, 0), new Vector2(5, 2), new Vector2(3, 2) });
+            subject.Body.SetPoints(new List<Vector2> { new Vector2(0, 0), new Vector2(2, 0), new Vector2(2, 2), new Vector2(0, 2) });
+            collisionObject.Body.SetPoints(new List<Vector2> { new Vector2(3, 0), new Vector2(5, 0), new Vector2(5, 2), new Vector2(3, 2) });
 
             // Act
             var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
@@ -106,13 +105,13 @@ namespace BrickShooter.Tests.Physics
             {
                 Velocity = subjectVelocity
             };
-            subject.ColliderPolygon.SetPoints(new List<Vector2>(subjectPoints));
+            subject.Body.SetPoints(new List<Vector2>(subjectPoints));
 
             var collisionObject = new MaterialObjectMock
             {
                 Velocity = objectVelocity
             };
-            collisionObject.ColliderPolygon.SetPoints(new List<Vector2>(objectPoints));
+            collisionObject.Body.SetPoints(new List<Vector2>(objectPoints));
 
             // Act
             var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
@@ -170,13 +169,13 @@ namespace BrickShooter.Tests.Physics
             {
                 Velocity = subjectVelocity
             };
-            subject.ColliderPolygon.SetPoints(new List<Vector2>(subjectPoints));
+            subject.Body.SetPoints(new List<Vector2>(subjectPoints));
 
             var collisionObject = new MaterialObjectMock
             {
                 Velocity = objectVelocity
             };
-            collisionObject.ColliderPolygon.SetPoints(new List<Vector2>(objectPoints));
+            collisionObject.Body.SetPoints(new List<Vector2>(objectPoints));
 
             // Act
             var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
@@ -234,13 +233,13 @@ namespace BrickShooter.Tests.Physics
             {
                 Velocity = subjectVelocity
             };
-            subject.ColliderPolygon.SetPoints(new List<Vector2>(subjectPoints));
+            subject.Body.SetPoints(new List<Vector2>(subjectPoints));
 
             var collisionObject = new MaterialObjectMock
             {
                 Velocity = objectVelocity
             };
-            collisionObject.ColliderPolygon.SetPoints(new List<Vector2>(objectPoints));
+            collisionObject.Body.SetPoints(new List<Vector2>(objectPoints));
 
             // Act
             var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
@@ -278,13 +277,13 @@ namespace BrickShooter.Tests.Physics
             {
                 Velocity = subjectVelocity
             };
-            subject.ColliderPolygon.SetPoints(new List<Vector2>(subjectPoints));
+            subject.Body.SetPoints(new List<Vector2>(subjectPoints));
 
             var collisionObject = new MaterialObjectMock
             {
                 Velocity = objectVelocity
             };
-            collisionObject.ColliderPolygon.SetPoints(new List<Vector2>(objectPoints));
+            collisionObject.Body.SetPoints(new List<Vector2>(objectPoints));
 
             // Act
             var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
@@ -322,13 +321,13 @@ namespace BrickShooter.Tests.Physics
             {
                 Velocity = subjectVelocity
             };
-            subject.ColliderPolygon.SetPoints(new List<Vector2>(subjectPoints));
+            subject.Body.SetPoints(new List<Vector2>(subjectPoints));
 
             var collisionObject = new MaterialObjectMock
             {
                 Velocity = objectVelocity
             };
-            collisionObject.ColliderPolygon.SetPoints(new List<Vector2>(objectPoints));
+            collisionObject.Body.SetPoints(new List<Vector2>(objectPoints));
 
             // Act
             var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);

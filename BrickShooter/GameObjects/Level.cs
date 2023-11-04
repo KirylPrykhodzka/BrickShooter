@@ -104,7 +104,7 @@ namespace BrickShooter.GameObjects
             physicsSystem.RegisterMobileObject(bullet);
             drawingSystem.Register(bullet);
             bullet.OnPlayerHit = OnBulletHitPlayer;
-            var initialPosition = player.InitialBulletPosition;
+            var initialPosition = player.BulletSpawnPoint;
             bullet.Move(initialPosition, player.Rotation);
         }
 
