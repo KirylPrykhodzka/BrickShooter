@@ -51,12 +51,12 @@ namespace BrickShooter.Tests.Physics
             // Arrange
             var originalVelocity = fixture.Create<Vector2>();
             var materialObject = new MaterialObjectMock { Position = new Vector2(1, 1), Velocity = originalVelocity };
-            var collisions = new List<IMaterialObject>
+            var collisions = new List<IColliderPolygon>
             {
-                fixture.Create<MaterialObjectMock>()
+                new Mock<IColliderPolygon>().Object,
             };
 
-            futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(It.IsAny<IMaterialObject>(), It.IsAny<IEnumerable<IMaterialObject>>()))
+            futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(It.IsAny<IColliderPolygon>(), It.IsAny<IList<IColliderPolygon>>()))
                 .Returns(new List<FutureCollisionInfo>());
 
             // Act
@@ -76,7 +76,7 @@ namespace BrickShooter.Tests.Physics
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
 
             // Act
-            collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<IMaterialObject>());
+            collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<IColliderPolygon>());
 
             //Assert
             materialObjectMoverMock.Verify(x => x.ScheduleMovement(materialObject, velocity * GlobalObjects.DeltaTime), Times.Once);
@@ -90,20 +90,20 @@ namespace BrickShooter.Tests.Physics
             var position = new Vector2(3, 5);
             var velocity = new Vector2(5, 5);
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
-            var collisions = new List<IMaterialObject>
+            var collisions = new List<IColliderPolygon>
             {
-                fixture.Create<MaterialObjectMock>()
+                new Mock<IColliderPolygon>().Object,
             };
 
-            futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(It.IsAny<IMaterialObject>(), It.IsAny<IEnumerable<IMaterialObject>>()))
+            futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(It.IsAny<IColliderPolygon>(), It.IsAny<IList<IColliderPolygon>>()))
                 .Returns(new List<FutureCollisionInfo>());
 
             // Act
             collisionProcessor.FindAndProcessNextCollisions(materialObject, collisions);
 
             // Assert
-            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject, It.Is<IEnumerable<IMaterialObject>>(x => x.Count() == 1)), Times.Once);
-            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject, It.Is<IEnumerable<IMaterialObject>>(x => !x.Any())), Times.Never);
+            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject.Body, It.Is<IList<IColliderPolygon>>(x => x.Count() == 1)), Times.Once);
+            futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(materialObject.Body, It.Is<IList<IColliderPolygon>>(x => !x.Any())), Times.Never);
             materialObjectMoverMock.Verify(x => x.ScheduleMovement(materialObject, velocity * GlobalObjects.DeltaTime), Times.Once);
         }
 
@@ -117,31 +117,31 @@ namespace BrickShooter.Tests.Physics
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
             var futureCollision1 = new FutureCollisionInfo
             {
-                CollisionObject = fixture.Create<MaterialObjectMock>(),
+                CollisionObject = new Mock<IColliderPolygon>().Object,
                 DistanceToCollision = 1f,
                 CollisionEdge = (new Vector2(1, 1), new Vector2(2, 2))
             };
             var futureCollision2 = new FutureCollisionInfo
             {
-                CollisionObject = fixture.Create<MaterialObjectMock>(),
+                CollisionObject = new Mock<IColliderPolygon>().Object,
                 DistanceToCollision = 2f,
                 CollisionEdge = (new Vector2(2, 2), new Vector2(3, 3))
             };
 
             //translation: there are two potential future collisions, and upon calling FindNextCollisions collision processor finds out that both of they will in fact occur
             futureCollisionsCalculatorMock.Setup(x =>
-                x.FindNextCollisions(materialObject, It.Is<IEnumerable<IMaterialObject>>(x =>
+                x.FindNextCollisions(materialObject.Body, It.Is<IList<IColliderPolygon>>(x =>
                     x.Contains(futureCollision1.CollisionObject) && x.Contains(futureCollision2.CollisionObject))))
                 .Returns(new List<FutureCollisionInfo> { futureCollision1, futureCollision2 });
 
             //translation: after processing closest collision, collision processor checks whether second collision is still possible and finds out that it is
             futureCollisionsCalculatorMock.Setup(x =>
-                x.FindNextCollisions(materialObject, It.Is<IEnumerable<IMaterialObject>>(x =>
+                x.FindNextCollisions(materialObject.Body, It.Is<IList<IColliderPolygon>>(x =>
                     x.Count() == 1 && x.First() == futureCollision2.CollisionObject)))
                 .Returns(new List<FutureCollisionInfo> { futureCollision2 });
 
             // Act
-            collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<IMaterialObject> { futureCollision1.CollisionObject, futureCollision2.CollisionObject });
+            collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<IColliderPolygon> { futureCollision1.CollisionObject, futureCollision2.CollisionObject });
 
             // Assert
             materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, It.IsAny<Vector2>()), Times.Exactly(2));

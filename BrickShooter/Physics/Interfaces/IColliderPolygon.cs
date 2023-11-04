@@ -6,6 +6,7 @@ namespace BrickShooter.Physics.Interfaces
 {
     public interface IColliderPolygon
     {
+        IMaterialObject Owner { get; }
         string CollisionLayer { get; }
         IList<Vector2> Points { get; }
         Vector2 Center { get; }

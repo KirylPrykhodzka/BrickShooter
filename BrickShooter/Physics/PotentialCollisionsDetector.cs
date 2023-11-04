@@ -2,6 +2,7 @@
 using System.Linq;
 using BrickShooter.GameObjects;
 using BrickShooter.Physics.Interfaces;
+using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 
@@ -18,25 +19,24 @@ namespace BrickShooter.Physics
             { nameof(Bullet), new() { nameof(Bullet) } }
         };
 
-        public (IList<IMaterialObject> existing, IList<IMaterialObject> future) GetPotentialCollisions(IMaterialObject currentObject, IEnumerable<IMaterialObject> allObjects)
+        public PotentialCollisions GetPotentialCollisions(IMaterialObject currentObject, IEnumerable<IMaterialObject> allObjects)
         {
-            var existing = new List<IMaterialObject>();
-            var future = new List<IMaterialObject>();
+            var result = new PotentialCollisions();
 
-            foreach(var otherObject in allObjects.Where(x => x != currentObject && !(IgnoredCollisions.TryGetValue(currentObject.Body.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(x.Body.CollisionLayer))))
+            foreach (var otherObject in allObjects.Where(x => x != currentObject && !(IgnoredCollisions.TryGetValue(currentObject.Body.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(x.Body.CollisionLayer))))
             {
                 var currentObjectBounds = currentObject.Body.Bounds;
                 var otherObjectBounds = otherObject.Body.Bounds;
                 if (currentObjectBounds.Intersects(otherObjectBounds))
                 {
-                    existing.Add(otherObject);
+                    result.Existing.Add(otherObject.Body);
                 }
                 if (DoProjectedBoundsOverlap(currentObjectBounds, currentObject.Velocity, otherObjectBounds, otherObject.Velocity))
                 {
-                    future.Add(otherObject);
+                    result.Future.Add(otherObject.Body);
                 }
             }
-            return (existing, future);
+            return result;
         }
 
         private static bool DoProjectedBoundsOverlap(RectangleF first, Vector2 firstVelocity, RectangleF second, Vector2 secondVelocity)

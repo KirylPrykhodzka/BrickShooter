@@ -13,7 +13,7 @@ namespace BrickShooter.Physics
     {
         private readonly MemoryCache<(IList<Vector2> colliderPoints, Vector2 relativeVelocity), IList<Vector2>> frontFacingPointsCache = new(1000);
 
-        public IList<FutureCollisionInfo> FindNextCollisions(IMaterialObject collisionSubject, IEnumerable<IMaterialObject> potentialCollisions)
+        public IList<FutureCollisionInfo> FindNextCollisions(IColliderPolygon collisionSubject, IList<IColliderPolygon> potentialCollisions)
         {
             return potentialCollisions.Select(x => CalculateFutureCollisionResult(collisionSubject, x))
                 .Where(x => x.WillCollide)
@@ -28,18 +28,18 @@ namespace BrickShooter.Physics
         /// <param name="collisionSubject"></param>
         /// <param name="collisionObject"></param>
         /// <returns></returns>
-        public FutureCollisionInfo CalculateFutureCollisionResult(IMaterialObject collisionSubject, IMaterialObject collisionObject)
+        public FutureCollisionInfo CalculateFutureCollisionResult(IColliderPolygon collisionSubject, IColliderPolygon collisionObject)
         {
             var result = new FutureCollisionInfo
             {
                 CollisionObject = collisionObject,
-                RelativeVelocity = (collisionSubject.Velocity - collisionObject.Velocity) * GlobalObjects.DeltaTime
+                RelativeVelocity = (collisionSubject.Owner.Velocity - collisionObject.Owner.Velocity) * GlobalObjects.DeltaTime
             };
 
-            var subjectFrontFacingPoints = GetFrontFacingPoints(collisionSubject.Body, result.RelativeVelocity);
-            var objectFrontFacingPoints = GetFrontFacingPoints(collisionObject.Body, -result.RelativeVelocity);
-            var subjectFrontFacingEdges = GetFrontFacingEdges(collisionSubject.Body.Points, subjectFrontFacingPoints);
-            var objectFrontFacingEdges = GetFrontFacingEdges(collisionObject.Body.Points, objectFrontFacingPoints);
+            var subjectFrontFacingPoints = GetFrontFacingPoints(collisionSubject, result.RelativeVelocity);
+            var objectFrontFacingPoints = GetFrontFacingPoints(collisionObject, -result.RelativeVelocity);
+            var subjectFrontFacingEdges = GetFrontFacingEdges(collisionSubject.Points, subjectFrontFacingPoints);
+            var objectFrontFacingEdges = GetFrontFacingEdges(collisionObject.Points, objectFrontFacingPoints);
 
             (Vector2 point, (Vector2 point1, Vector2 point2) edge, float projectionLength) closestCollision = (default, default, float.PositiveInfinity);
             foreach (var frontFacingPoint in subjectFrontFacingPoints)

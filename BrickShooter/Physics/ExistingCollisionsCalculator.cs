@@ -9,10 +9,10 @@ namespace BrickShooter.Physics
 {
     public class ExistingCollisionsCalculator : IExistingCollisionsCalculator
     {
-        public IList<CollisionInfo> GetExistingCollisions(IMaterialObject collisionSubject, IEnumerable<IMaterialObject> potentialCollisions)
+        public IList<CollisionInfo> GetExistingCollisions(IMaterialObject collisionSubject, IList<IColliderPolygon> potentialCollisions)
         {
             return potentialCollisions
-                .Select(x => CalculateExistingCollisionResult(collisionSubject.Body, x.Body))
+                .Select(x => CalculateExistingCollisionResult(collisionSubject.Body, x))
                 .Where(x => x.IsColliding)
                 .ToList();
         }

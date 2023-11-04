@@ -5,7 +5,7 @@ namespace BrickShooter.Physics.Models
 {
     public record struct FutureCollisionInfo
     {
-        public IMaterialObject CollisionObject { get; set; }
+        public IColliderPolygon CollisionObject { get; set; }
         public Vector2 RelativeVelocity { get; set; }
         public bool WillCollide { get; set; }
         public Vector2 ClosestCollisionPoint { get; set; }
@@ -13,7 +13,7 @@ namespace BrickShooter.Physics.Models
         public float DistanceToCollision { get; set; }
 
         public FutureCollisionInfo(
-            IMaterialObject collisionObject,
+            IColliderPolygon collisionObject,
             Vector2 relativeVelocity,
             bool willCollide,
             Vector2 closestCollisionPoint,

@@ -31,7 +31,7 @@ namespace BrickShooter.Physics
         }
 
         //recursively moves close to the collision point, then starts moving along its collision edge until velocity is expired
-        public void FindAndProcessNextCollisions(IMaterialObject currentObject, IList<IMaterialObject> potentialFutureCollisions)
+        public void FindAndProcessNextCollisions(IMaterialObject currentObject, IList<IColliderPolygon> potentialFutureCollisions)
         {
             var originalVelocity = currentObject.Velocity;
             while (currentObject.Velocity.Length() >= PhysicsConstants.MIN_VELOCITY)
@@ -41,7 +41,7 @@ namespace BrickShooter.Physics
                     materialObjectMover.ScheduleMovement(currentObject, currentObject.Velocity * GlobalObjects.DeltaTime);
                     break;
                 }
-                var nextCollisions = futureCollisionCalculator.FindNextCollisions(currentObject, potentialFutureCollisions);
+                var nextCollisions = futureCollisionCalculator.FindNextCollisions(currentObject.Body, potentialFutureCollisions);
                 if(nextCollisions.Count == 0)
                 {
                     materialObjectMover.ScheduleMovement(currentObject, currentObject.Velocity * GlobalObjects.DeltaTime);

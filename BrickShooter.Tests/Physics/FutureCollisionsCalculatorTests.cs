@@ -36,7 +36,7 @@ namespace BrickShooter.Tests.Physics
             collisionObject.Body.SetPoints(new List<Vector2> { new Vector2(4, 0), new Vector2(5, 0), new Vector2(5, 1), new Vector2(4, 1) });
 
             // Act
-            var result = collisionsCalculator.FindNextCollisions(subject, new List<IMaterialObject> { collisionObject });
+            var result = collisionsCalculator.FindNextCollisions(subject.Body, new List<IColliderPolygon> { collisionObject.Body });
 
             // Assert
             result.Should().BeEmpty();
@@ -54,7 +54,7 @@ namespace BrickShooter.Tests.Physics
             collisionObject.Body.SetPoints(new List<Vector2> { new Vector2(3, 0), new Vector2(5, 0), new Vector2(5, 2), new Vector2(3, 2) });
 
             // Act
-            var result = collisionsCalculator.FindNextCollisions(subject, new List<IMaterialObject> { collisionObject });
+            var result = collisionsCalculator.FindNextCollisions(subject.Body, new List<IColliderPolygon> { collisionObject.Body });
 
             // Assert
             result.Count.Should().Be(1);
@@ -73,10 +73,10 @@ namespace BrickShooter.Tests.Physics
             collisionObject.Body.SetPoints(new List<Vector2> { new Vector2(3, 0), new Vector2(5, 0), new Vector2(5, 2), new Vector2(3, 2) });
 
             // Act
-            var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
+            var result = collisionsCalculator.CalculateFutureCollisionResult(subject.Body, collisionObject.Body);
 
             // Assert
-            result.CollisionObject.Should().Be(collisionObject);
+            result.CollisionObject.Should().Be(collisionObject.Body);
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace BrickShooter.Tests.Physics
             collisionObject.Body.SetPoints(new List<Vector2> { new Vector2(3, 0), new Vector2(5, 0), new Vector2(5, 2), new Vector2(3, 2) });
 
             // Act
-            var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
+            var result = collisionsCalculator.CalculateFutureCollisionResult(subject.Body, collisionObject.Body);
 
             // Assert
             result.RelativeVelocity.Should().Be((subject.Velocity - collisionObject.Velocity) * GlobalObjects.DeltaTime);
@@ -114,7 +114,7 @@ namespace BrickShooter.Tests.Physics
             collisionObject.Body.SetPoints(new List<Vector2>(objectPoints));
 
             // Act
-            var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
+            var result = collisionsCalculator.CalculateFutureCollisionResult(subject.Body, collisionObject.Body);
 
             // Assert
             result.WillCollide.Should().BeTrue();
@@ -178,7 +178,7 @@ namespace BrickShooter.Tests.Physics
             collisionObject.Body.SetPoints(new List<Vector2>(objectPoints));
 
             // Act
-            var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
+            var result = collisionsCalculator.CalculateFutureCollisionResult(subject.Body, collisionObject.Body);
 
             // Assert
             result.WillCollide.Should().BeFalse();
@@ -242,7 +242,7 @@ namespace BrickShooter.Tests.Physics
             collisionObject.Body.SetPoints(new List<Vector2>(objectPoints));
 
             // Act
-            var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
+            var result = collisionsCalculator.CalculateFutureCollisionResult(subject.Body, collisionObject.Body);
 
             // Assert
             result.ClosestCollisionPoint.Should().Be(closestCollisionPoint);
@@ -286,7 +286,7 @@ namespace BrickShooter.Tests.Physics
             collisionObject.Body.SetPoints(new List<Vector2>(objectPoints));
 
             // Act
-            var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
+            var result = collisionsCalculator.CalculateFutureCollisionResult(subject.Body, collisionObject.Body);
 
             // Assert
             result.CollisionEdge.Should().Be(collisionEdge);
@@ -330,7 +330,7 @@ namespace BrickShooter.Tests.Physics
             collisionObject.Body.SetPoints(new List<Vector2>(objectPoints));
 
             // Act
-            var result = collisionsCalculator.CalculateFutureCollisionResult(subject, collisionObject);
+            var result = collisionsCalculator.CalculateFutureCollisionResult(subject.Body, collisionObject.Body);
 
             // Assert
             result.DistanceToCollision.Should().BeApproximately(distanceToCollision, 0.01f);

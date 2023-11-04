@@ -48,7 +48,7 @@ namespace BrickShooter.Tests.Physics
             var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { otherObject.Object });
 
             // Assert
-            potentialCollisions.existing.Should().BeEmpty();
+            potentialCollisions.Existing.Should().BeEmpty();
         }
 
         [Test]
@@ -80,11 +80,11 @@ namespace BrickShooter.Tests.Physics
             potentialCollision2.SetupGet(x => x.Body).Returns(potentialCollision2BodyMock.Object);
 
             // Act
-            var (existing, future) = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision1.Object, potentialCollision2.Object });
+            var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision1.Object, potentialCollision2.Object });
 
             // Assert
-            existing.Should().HaveCount(1);
-            existing.Should().Contain(potentialCollision1.Object);
+            potentialCollisions.Existing.Should().HaveCount(1);
+            potentialCollisions.Existing.Should().Contain(potentialCollision1.Object.Body);
         }
 
         [Test]
@@ -115,9 +115,9 @@ namespace BrickShooter.Tests.Physics
             var potentialCollisionsWhileMoving = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
 
             // Assert
-            potentialCollisionsWhileStill.future.Should().BeEmpty();
-            potentialCollisionsWhileMoving.future.Should().HaveCount(1);
-            potentialCollisionsWhileMoving.future.Should().Contain(potentialCollision.Object);
+            potentialCollisionsWhileStill.Future.Should().BeEmpty();
+            potentialCollisionsWhileMoving.Future.Should().HaveCount(1);
+            potentialCollisionsWhileMoving.Future.Should().Contain(potentialCollision.Object.Body);
         }
     }
 }

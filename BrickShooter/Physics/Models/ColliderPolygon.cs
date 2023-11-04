@@ -8,6 +8,7 @@ namespace BrickShooter.Physics.Models
 {
     public class ColliderPolygon : IColliderPolygon
     {
+        public IMaterialObject Owner { get; }
         public string CollisionLayer { get; private set; }
         public IList<Vector2> Points => points;
 
@@ -15,8 +16,9 @@ namespace BrickShooter.Physics.Models
         public RectangleF Bounds { get; private set; }
         public Vector2 Center { get; private set; }
 
-        public ColliderPolygon(string collisionLayer)
+        public ColliderPolygon(IMaterialObject owner, string collisionLayer)
         {
+            Owner = owner;
             CollisionLayer = collisionLayer;
         }
 

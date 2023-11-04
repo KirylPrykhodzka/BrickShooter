@@ -3,6 +3,8 @@ using NUnit.Framework;
 using FluentAssertions;
 using AutoFixture;
 using BrickShooter.Physics.Models;
+using BrickShooter.Physics.Interfaces;
+using Moq;
 
 namespace BrickShooter.Tests.Physics
 {
@@ -22,7 +24,7 @@ namespace BrickShooter.Tests.Physics
         {
             // Arrange
             List<Vector2> points = fixture.Create<List<Vector2>>();
-            var collider = new ColliderPolygon(fixture.Create("CollisionLayer"));
+            var collider = new ColliderPolygon(new Mock<IMaterialObject>().Object, fixture.Create("CollisionLayer"));
             collider.SetPoints(points);
 
             // Act
@@ -38,7 +40,7 @@ namespace BrickShooter.Tests.Physics
         {
             // Arrange
             List<Vector2> points = fixture.Create<List<Vector2>>();
-            var collider = new ColliderPolygon(fixture.Create("CollisionLayer"));
+            var collider = new ColliderPolygon(new Mock<IMaterialObject>().Object, fixture.Create("CollisionLayer"));
             collider.SetPoints(points);
 
             float offsetX = fixture.Create<float>();
@@ -57,7 +59,7 @@ namespace BrickShooter.Tests.Physics
         {
             // Arrange
             List<Vector2> points = fixture.Create<List<Vector2>>();
-            var collider = new ColliderPolygon(fixture.Create("CollisionLayer"));
+            var collider = new ColliderPolygon(new Mock<IMaterialObject>().Object, fixture.Create("CollisionLayer"));
 
             // Act
             collider.SetPoints(points);

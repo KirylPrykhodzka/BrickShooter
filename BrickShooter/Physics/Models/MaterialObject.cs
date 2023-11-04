@@ -25,7 +25,7 @@ namespace BrickShooter.Physics.Models
             {
                 if(bodyColliderPolygonCache.Value == null)
                 {
-                    var globalPolygon = new ColliderPolygon(GetType().Name);
+                    var globalPolygon = new ColliderPolygon(this, GetType().Name);
                     globalPolygon.SetPoints(initialColliderPoints.Select(x => x.Rotate(Vector2.Zero, Rotation) + Position));
                     bodyColliderPolygonCache = (Position, Rotation, globalPolygon);
                 }

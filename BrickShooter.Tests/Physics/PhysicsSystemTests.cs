@@ -162,7 +162,7 @@ namespace BrickShooter.Tests.Physics
             physicsSystem.Run();
 
             // Assert
-            existingCollisionsCalculatorMock.Verify(p => p.GetExistingCollisions(mobileObject, It.IsAny<IEnumerable<IMaterialObject>>()), Times.Never);
+            existingCollisionsCalculatorMock.Verify(p => p.GetExistingCollisions(mobileObject, It.IsAny<IList<IColliderPolygon>>()), Times.Never);
         }
 
         [Test]
@@ -175,15 +175,15 @@ namespace BrickShooter.Tests.Physics
             var mobileObject = new MaterialObjectMock { Position = position, Velocity = velocity };
             physicsSystem.RegisterMobileObject(mobileObject);
             potentialCollisionsDetectorMock.Setup(p => p.GetPotentialCollisions(mobileObject, It.IsAny<IEnumerable<IMaterialObject>>()))
-                .Returns((new List<IMaterialObject>(), new List<IMaterialObject>()));
-            futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(mobileObject, It.IsAny<List<IMaterialObject>>())).Returns(new List<FutureCollisionInfo>());
+                .Returns(new PotentialCollisions());
+            futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(mobileObject.Body, It.IsAny<IList<IColliderPolygon>>())).Returns(new List<FutureCollisionInfo>());
 
             // Act
             physicsSystem.Run();
 
             // Assert
             collisionProcessorMock.Verify(x => x.ProcessExistingCollisions(mobileObject, It.IsAny<List<CollisionInfo>>()), Times.Never);
-            collisionProcessorMock.Verify(x => x.FindAndProcessNextCollisions(mobileObject, It.Is<List<IMaterialObject>>(x => x.Count == 0)), Times.Once);
+            collisionProcessorMock.Verify(x => x.FindAndProcessNextCollisions(mobileObject, It.Is<IList<IColliderPolygon>>(x => x.Count == 0)), Times.Once);
         }
 
         [Test]
@@ -191,10 +191,10 @@ namespace BrickShooter.Tests.Physics
         {
             // Arrange
             var mobileObject = new MaterialObjectMock { DidRotate = true };
-            var potentialExistingCollisions = new List<IMaterialObject> { new MaterialObjectMock() };
+            var potentialExistingCollisions = new List<IColliderPolygon> { fixture.Create<IColliderPolygon>() };
             physicsSystem.RegisterMobileObject(mobileObject);
             potentialCollisionsDetectorMock.Setup(p => p.GetPotentialCollisions(mobileObject, It.IsAny<IEnumerable<IMaterialObject>>()))
-                .Returns((potentialExistingCollisions, new List<IMaterialObject>()));
+                .Returns(fixture.Build<PotentialCollisions>().With(x => x.Existing, potentialExistingCollisions).Create());
             existingCollisionsCalculatorMock.Setup(e => e.GetExistingCollisions(mobileObject, potentialExistingCollisions))
                 .Returns(new List<CollisionInfo> { new CollisionInfo() });
 
@@ -210,10 +210,10 @@ namespace BrickShooter.Tests.Physics
         {
             // Arrange
             var mobileObject = new MaterialObjectMock { DidRotate = true };
-            var potentialExistingCollisions = new List<IMaterialObject> { new MaterialObjectMock() };
+            var potentialExistingCollisions = new List<IColliderPolygon> { fixture.Create<IColliderPolygon>() };
             physicsSystem.RegisterMobileObject(mobileObject);
             potentialCollisionsDetectorMock.Setup(p => p.GetPotentialCollisions(mobileObject, It.IsAny<IEnumerable<IMaterialObject>>()))
-                .Returns((potentialExistingCollisions, new List<IMaterialObject>()));
+                .Returns(fixture.Build<PotentialCollisions>().With(x => x.Existing, potentialExistingCollisions).Create());
             existingCollisionsCalculatorMock.Setup(e => e.GetExistingCollisions(mobileObject, potentialExistingCollisions))
                 .Returns(new List<CollisionInfo> { });
 
@@ -235,7 +235,7 @@ namespace BrickShooter.Tests.Physics
             physicsSystem.Run();
 
             // Assert
-            futureCollisionsCalculatorMock.Verify(p => p.FindNextCollisions(mobileObject, It.IsAny<IEnumerable<IMaterialObject>>()), Times.Never);
+            futureCollisionsCalculatorMock.Verify(p => p.FindNextCollisions(mobileObject.Body, It.IsAny<IList<IColliderPolygon>>()), Times.Never);
         }
 
         [Test]
@@ -243,18 +243,18 @@ namespace BrickShooter.Tests.Physics
         {
             // Arrange
             var mobileObject = new MaterialObjectMock { Velocity = new Vector2(1, 0) };
-            var potentialFutureCollisions = new List<IMaterialObject> { new MaterialObjectMock() };
+            var potentialFutureCollisions = new List<IColliderPolygon> { fixture.Create<IColliderPolygon>() };
             physicsSystem.RegisterMobileObject(mobileObject);
             potentialCollisionsDetectorMock.Setup(p => p.GetPotentialCollisions(mobileObject, It.IsAny<IEnumerable<IMaterialObject>>()))
-                .Returns((new List<IMaterialObject>(), potentialFutureCollisions));
-            futureCollisionsCalculatorMock.Setup(f => f.FindNextCollisions(mobileObject, potentialFutureCollisions))
+                .Returns(fixture.Build<PotentialCollisions>().With(x => x.Future, potentialFutureCollisions).Create());
+            futureCollisionsCalculatorMock.Setup(f => f.FindNextCollisions(mobileObject.Body, potentialFutureCollisions))
                 .Returns(new List<FutureCollisionInfo> { new FutureCollisionInfo() });
 
             // Act
             physicsSystem.Run();
 
             // Assert
-            collisionProcessorMock.Verify(c => c.FindAndProcessNextCollisions(mobileObject, It.IsAny<IList<IMaterialObject>>()), Times.Once);
+            collisionProcessorMock.Verify(c => c.FindAndProcessNextCollisions(mobileObject, It.IsAny<IList<IColliderPolygon>>()), Times.Once);
         }
 
         [Test]

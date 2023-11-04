@@ -72,10 +72,10 @@ namespace BrickShooter.Physics
         {
             foreach (var currentObject in mobileObjects.Where(x => x.Velocity.Length() >= PhysicsConstants.MIN_VELOCITY || x.DidRotate))
             {
-                var (potentialExistingCollisions, potentialFutureCollisions) = potentialCollisionsDetector.GetPotentialCollisions(currentObject, mobileObjects.Concat(immobileObjects));
-                if (currentObject.DidRotate && potentialExistingCollisions.Count > 0)
+                var potentialCollisions = potentialCollisionsDetector.GetPotentialCollisions(currentObject, mobileObjects.Concat(immobileObjects));
+                if (currentObject.DidRotate && potentialCollisions.Existing.Count > 0)
                 {
-                    var existingCollisions = existingCollisionsCalculator.GetExistingCollisions(currentObject, potentialExistingCollisions);
+                    var existingCollisions = existingCollisionsCalculator.GetExistingCollisions(currentObject, potentialCollisions.Existing);
                     if (existingCollisions.Count > 0)
                     {
                         collisionProcessor.ProcessExistingCollisions(currentObject, existingCollisions);
@@ -83,7 +83,7 @@ namespace BrickShooter.Physics
                 }
                 if(currentObject.Velocity.Length() >= PhysicsConstants.MIN_VELOCITY)
                 {
-                    collisionProcessor.FindAndProcessNextCollisions(currentObject, potentialFutureCollisions);
+                    collisionProcessor.FindAndProcessNextCollisions(currentObject, potentialCollisions.Future);
                 }
             }
             materialObjectMover.ApplyScheduledMovements();
