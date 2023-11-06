@@ -10,9 +10,9 @@ namespace BrickShooter.Resources
 
         public MemoryCache(int capacity)
         {
-            this.keys = new Queue<TKey>(capacity);
+            keys = new Queue<TKey>(capacity);
             this.capacity = capacity;
-            this.dictionary = new Dictionary<TKey, TValue>(capacity);
+            dictionary = new Dictionary<TKey, TValue>(capacity);
         }
 
         public void Add(TKey key, TValue value)

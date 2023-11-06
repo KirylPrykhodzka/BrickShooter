@@ -5,6 +5,6 @@ namespace BrickShooter.Physics.Interfaces
 {
     public interface IFutureCollisionsCalculator
     {
-        IList<FutureCollisionInfo> FindNextCollisions(IColliderPolygon collisionSubject, IList<IColliderPolygon> potentialCollisions);
+        IList<FutureCollisionInfo> FindNextCollisions(IList<CollisionPair> potentialCollisions);
     }
 }

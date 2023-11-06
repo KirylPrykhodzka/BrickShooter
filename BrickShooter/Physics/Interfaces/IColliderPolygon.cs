@@ -10,7 +10,6 @@ namespace BrickShooter.Physics.Interfaces
         string CollisionLayer { get; }
         IList<Vector2> Points { get; }
         Vector2 Center { get; }
-        void SetPoints(IEnumerable<Vector2> points);
         RectangleF Bounds { get; }
     }
 }

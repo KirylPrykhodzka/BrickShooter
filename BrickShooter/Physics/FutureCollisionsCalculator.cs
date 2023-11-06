@@ -13,9 +13,9 @@ namespace BrickShooter.Physics
     {
         private readonly MemoryCache<(IList<Vector2> colliderPoints, Vector2 relativeVelocity), IList<Vector2>> frontFacingPointsCache = new(1000);
 
-        public IList<FutureCollisionInfo> FindNextCollisions(IColliderPolygon collisionSubject, IList<IColliderPolygon> potentialCollisions)
+        public IList<FutureCollisionInfo> FindNextCollisions(IList<CollisionPair> potentialCollisions)
         {
-            return potentialCollisions.Select(x => CalculateFutureCollisionResult(collisionSubject, x))
+            return potentialCollisions.Select(CalculateFutureCollisionResult)
                 .Where(x => x.WillCollide)
                 .ToList();
         }
@@ -28,11 +28,13 @@ namespace BrickShooter.Physics
         /// <param name="collisionSubject"></param>
         /// <param name="collisionObject"></param>
         /// <returns></returns>
-        public FutureCollisionInfo CalculateFutureCollisionResult(IColliderPolygon collisionSubject, IColliderPolygon collisionObject)
+        public FutureCollisionInfo CalculateFutureCollisionResult(CollisionPair collisionPair)
         {
+            var collisionSubject = collisionPair.CollisionSubject;
+            var collisionObject = collisionPair.CollisionObject;
             var result = new FutureCollisionInfo
             {
-                CollisionObject = collisionObject,
+                CollisionPair = collisionPair,
                 RelativeVelocity = (collisionSubject.Owner.Velocity - collisionObject.Owner.Velocity) * GlobalObjects.DeltaTime
             };
 

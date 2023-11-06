@@ -20,14 +20,13 @@ namespace BrickShooter.GameObjects
 
         public Bullet()
         {
-            //4 points describing the sprite rectangle
-            initialColliderPoints = new Vector2[]
+            Colliders.Add(new ColliderPolygon(this, nameof(Bullet), new Vector2[]
             {
                 new(-BulletConstants.WIDTH / 2, -BulletConstants.HEIGHT /2),
                 new(BulletConstants.WIDTH / 2, -BulletConstants.HEIGHT /2),
                 new(BulletConstants.WIDTH / 2, BulletConstants.HEIGHT /2),
                 new(-BulletConstants.WIDTH / 2, BulletConstants.HEIGHT /2),
-            };
+            }));
             Bounciness = BulletConstants.BOUNCINESS;
         }
 

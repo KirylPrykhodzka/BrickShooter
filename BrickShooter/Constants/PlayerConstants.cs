@@ -16,6 +16,13 @@ namespace BrickShooter.Constants
         /// position of player's gun relative to player's position
         /// </summary>
         public static readonly Vector2 PLAYER_GUN_POSITION = new(15, 12);
+        public static readonly Vector2[] INITIAL_GUN_COLLIDER_POINTS = new Vector2[]
+            {
+                new(0, 15),
+                new(21, 15),
+                new(21, 21),
+                new(0, 21),
+            };
         public static readonly Vector2[] INITIAL_COLLIDER_POINTS = new Vector2[]
             {
                 new(-24, -21),

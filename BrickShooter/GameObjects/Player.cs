@@ -18,7 +18,8 @@ namespace BrickShooter.GameObjects
         public Player(Vector2 initialPosition)
         {
             Position = initialPosition;
-            initialColliderPoints = PlayerConstants.INITIAL_COLLIDER_POINTS;
+            Colliders.Add(new ColliderPolygon(this, nameof(Player), PlayerConstants.INITIAL_COLLIDER_POINTS));
+            Colliders.Add(new ColliderPolygon(this, "PlayerGun", PlayerConstants.INITIAL_GUN_COLLIDER_POINTS));
         }
 
         public Vector2 BulletSpawnPoint => (Position + PlayerConstants.PLAYER_GUN_POSITION).Rotate(Position, Rotation);

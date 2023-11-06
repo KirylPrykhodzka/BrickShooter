@@ -6,8 +6,8 @@ namespace BrickShooter.Physics.Interfaces
     public interface IMaterialObject
     {
         Vector2 Position { get; set; }
+        float Rotation { get; }
         Vector2 Velocity { get; set; }
-        IColliderPolygon SingleCollider { get; }
         IList<IColliderPolygon> Colliders { get; }
         bool DidRotate { get; }
     }

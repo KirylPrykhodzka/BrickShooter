@@ -15,14 +15,13 @@ namespace BrickShooter.GameObjects
         {
             Texture = texture;
             RectBounds = rectBounds;
-            //4 points describing the sprite rectangle
-            initialColliderPoints = new Vector2[]
+            Colliders.Add(new ColliderPolygon(this, nameof(Wall), new Vector2[]
             {
                 new(RectBounds.X, RectBounds.Y),
                 new(RectBounds.X + RectBounds.Width, RectBounds.Y),
                 new(RectBounds.X + RectBounds.Width, RectBounds.Y + RectBounds.Height),
                 new(RectBounds.X, RectBounds.Y + RectBounds.Height),
-            };
+            }));
         }
 
         public void Draw()

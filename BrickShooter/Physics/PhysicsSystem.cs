@@ -75,7 +75,7 @@ namespace BrickShooter.Physics
                 var potentialCollisions = potentialCollisionsDetector.GetPotentialCollisions(currentObject, mobileObjects.Concat(immobileObjects));
                 if (currentObject.DidRotate && potentialCollisions.Existing.Count > 0)
                 {
-                    var existingCollisions = existingCollisionsCalculator.GetExistingCollisions(currentObject, potentialCollisions.Existing);
+                    var existingCollisions = existingCollisionsCalculator.GetExistingCollisions(potentialCollisions.Existing);
                     if (existingCollisions.Count > 0)
                     {
                         collisionProcessor.ProcessExistingCollisions(currentObject, existingCollisions);
@@ -92,9 +92,9 @@ namespace BrickShooter.Physics
         public void Visualize()
         {
 #if DEBUG
-            foreach (var collisionActor in immobileObjects.Concat(mobileObjects))
+            foreach (var collider in immobileObjects.Concat(mobileObjects).SelectMany(x => x.Colliders))
             {
-                VisualizationHelper.VisualizeCollider(collisionActor.SingleCollider);
+                VisualizationHelper.VisualizeCollider(collider);
             }
 #endif
         }

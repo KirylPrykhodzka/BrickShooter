@@ -3,7 +3,6 @@ using FluentAssertions;
 using NUnit.Framework;
 using Microsoft.Xna.Framework;
 using AutoFixture;
-using BrickShooter.Tests.Mocks;
 using BrickShooter.Physics.Interfaces;
 using Moq;
 using BrickShooter.GameObjects;

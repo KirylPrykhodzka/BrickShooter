@@ -23,22 +23,32 @@ namespace BrickShooter.Physics
         {
             var result = new PotentialCollisions();
 
-            foreach (var otherObject in allObjects.Where(x =>
-                x != currentObject &&
-                !(IgnoredCollisions.TryGetValue(currentObject.SingleCollider.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(x.SingleCollider.CollisionLayer))))
+            //create collision pairs for each current object collider + each collider of each other object
+            //check bounds overlap
+
+            foreach (var otherObjectCollider in allObjects.Where(x => x != currentObject).SelectMany(x => x.Colliders))
             {
-                var currentObjectBounds = currentObject.SingleCollider.Bounds;
-                var otherObjectBounds = otherObject.SingleCollider.Bounds;
-                if (currentObjectBounds.Intersects(otherObjectBounds))
+                foreach(var currentObjectCollider in currentObject.Colliders)
                 {
-                    result.Existing.Add(otherObject.SingleCollider);
-                }
-                if (DoProjectedBoundsOverlap(currentObjectBounds, currentObject.Velocity, otherObjectBounds, otherObject.Velocity))
-                {
-                    result.Future.Add(otherObject.SingleCollider);
+                    if(!(IgnoredCollisions.TryGetValue(currentObjectCollider.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(otherObjectCollider.CollisionLayer)))
+                    {
+                        ProcessCollisionPair(new CollisionPair(currentObjectCollider, otherObjectCollider), result);
+                    }
                 }
             }
             return result;
+        }
+
+        private static void ProcessCollisionPair(CollisionPair collisionPair, PotentialCollisions result)
+        {
+            if (collisionPair.CollisionSubject.Bounds.Intersects(collisionPair.CollisionObject.Bounds))
+            {
+                result.Existing.Add(collisionPair);
+            }
+            if (DoProjectedBoundsOverlap(collisionPair.CollisionSubject.Bounds, collisionPair.CollisionSubject.Owner.Velocity, collisionPair.CollisionObject.Bounds, collisionPair.CollisionObject.Owner.Velocity))
+            {
+                result.Future.Add(collisionPair);
+            }
         }
 
         private static bool DoProjectedBoundsOverlap(RectangleF first, Vector2 firstVelocity, RectangleF second, Vector2 secondVelocity)
