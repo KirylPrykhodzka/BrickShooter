@@ -16,7 +16,8 @@ namespace BrickShooter.Physics
         //If an object of Key type collides with an object contained in Value, collision is ignored completely
         private static readonly Dictionary<string, HashSet<string>> IgnoredCollisions = new()
         {
-            { nameof(Bullet), new() { nameof(Bullet) } }
+            { nameof(Bullet), new() { nameof(Bullet), "PlayerGun" } },
+            { "PlayerGun", new() { nameof(Bullet) } },
         };
 
         public PotentialCollisions GetPotentialCollisions(IMaterialObject currentObject, IEnumerable<IMaterialObject> allObjects)
