@@ -1,4 +1,4 @@
-﻿using BrickShooter.Physics.Interfaces;
+using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using System;
@@ -77,8 +77,9 @@ namespace BrickShooter.Physics
             }
 
             result.MinimalTranslationVector = translationAxis * minIntervalDistance;
-            //increase translation by 1px to move the object outside of colliding object's borders
-            result.MinimalTranslationVector += new Vector2(Math.Sign(result.MinimalTranslationVector.X), Math.Sign(result.MinimalTranslationVector.Y));
+
+            ////increase translation by 1px to move the object outside of colliding object's borders
+            //result.MinimalTranslationVector += new Vector2(Math.Sign(result.MinimalTranslationVector.X), Math.Sign(result.MinimalTranslationVector.Y));
 
             return result;
         }

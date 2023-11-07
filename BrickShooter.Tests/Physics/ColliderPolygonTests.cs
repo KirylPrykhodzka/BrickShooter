@@ -5,6 +5,7 @@ using AutoFixture;
 using BrickShooter.Physics.Models;
 using BrickShooter.Physics.Interfaces;
 using Moq;
+using BrickShooter.Tests.Mocks;
 
 namespace BrickShooter.Tests.Physics
 {
@@ -24,8 +25,7 @@ namespace BrickShooter.Tests.Physics
         {
             // Arrange
             List<Vector2> points = fixture.Create<List<Vector2>>();
-            var collider = new ColliderPolygon(new Mock<IMaterialObject>().Object, fixture.Create("CollisionLayer"));
-            collider.SetPoints(points);
+            var collider = new ColliderPolygon(new Mock<IMaterialObject>().Object, fixture.Create("CollisionLayer"), points);
 
             // Act
             Vector2 center = collider.Center;
@@ -36,21 +36,23 @@ namespace BrickShooter.Tests.Physics
         }
 
         [Test]
-        public void Offset_UpdatesPointsCorrectly()
+        public void MaterialObjectPositionChanged_UpdatesPointsCorrectly()
         {
             // Arrange
             List<Vector2> points = fixture.Create<List<Vector2>>();
-            var collider = new ColliderPolygon(new Mock<IMaterialObject>().Object, fixture.Create("CollisionLayer"));
-            collider.SetPoints(points);
+            var materialObject = fixture.Build<MaterialObjectMock>()
+                .With(x => x.Position, Vector2.Zero)
+                .With(x => x.Rotation, 0f)
+                .Create();
+            var collider = new ColliderPolygon(materialObject, fixture.Create("CollisionLayer"), points);
 
-            float offsetX = fixture.Create<float>();
-            float offsetY = fixture.Create<float>();
+            var offset = fixture.Create<Vector2>();
 
             // Act
-            collider.Offset(offsetX, offsetY);
+            materialObject.Position += offset;
 
             // Assert
-            var expectedPoints = points.Select(p => new Vector2(p.X + offsetX, p.Y + offsetY));
+            var expectedPoints = points.Select(p => p + offset);
             collider.Points.Should().ContainInOrder(expectedPoints);
         }
 
@@ -59,10 +61,9 @@ namespace BrickShooter.Tests.Physics
         {
             // Arrange
             List<Vector2> points = fixture.Create<List<Vector2>>();
-            var collider = new ColliderPolygon(new Mock<IMaterialObject>().Object, fixture.Create("CollisionLayer"));
 
             // Act
-            collider.SetPoints(points);
+            var collider = new ColliderPolygon(new Mock<IMaterialObject>().Object, fixture.Create("CollisionLayer"), points);
 
             // Assert
             var bounds = collider.Bounds;

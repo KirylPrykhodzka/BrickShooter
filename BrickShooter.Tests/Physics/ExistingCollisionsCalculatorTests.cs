@@ -1,5 +1,6 @@
 ﻿using BrickShooter.Physics;
 using BrickShooter.Physics.Interfaces;
+using BrickShooter.Physics.Models;
 using BrickShooter.Tests.Mocks;
 using FluentAssertions;
 using Microsoft.Xna.Framework;
@@ -30,7 +31,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(potentialCollisions.Select(x => new CollisionPair(subject.Colliders.First(), x.Colliders.First())).ToList());
 
             // Assert
             result.Should().BeEmpty();
@@ -48,7 +49,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(potentialCollisions.Select(x => new CollisionPair(subject.Colliders.First(), x.Colliders.First())).ToList());
 
             // Assert
             result.Should().NotBeEmpty();
@@ -67,7 +68,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(potentialCollisions.Select(x => new CollisionPair(subject.Colliders.First(), x.Colliders.First())).ToList());
 
             // Assert
             result.Should().NotBeEmpty();
@@ -86,7 +87,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(potentialCollisions.Select(x => new CollisionPair(subject.Colliders.First(), x.Colliders.First())).ToList());
 
             // Assert
             result.Should().NotBeEmpty();
@@ -105,12 +106,12 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(potentialCollisions.Select(x => new CollisionPair(subject.Colliders.First(), x.Colliders.First())).ToList());
 
             // Assert
             result.Should().NotBeEmpty();
             result.First().IsColliding.Should().BeTrue();
-            result.First().MinimalTranslationVector.Should().Be(new Vector2(0, -2));
+            result.First().MinimalTranslationVector.Should().Be(new Vector2(0, -1));
         }
 
         [Test]
@@ -124,12 +125,12 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(potentialCollisions.Select(x => new CollisionPair(subject.Colliders.First(), x.Colliders.First())).ToList());
 
             // Assert
             result.Should().NotBeEmpty();
             result.First().IsColliding.Should().BeTrue();
-            result.First().MinimalTranslationVector.Should().Be(new Vector2(0, 4));
+            result.First().MinimalTranslationVector.Should().Be(new Vector2(0, 3));
         }
 
         [Test]
@@ -143,7 +144,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             // Act
-            var result = collisionsCalculator.GetExistingCollisions(subject, potentialCollisions.Select(x => x.SingleCollider).ToList());
+            var result = collisionsCalculator.GetExistingCollisions(potentialCollisions.Select(x => new CollisionPair(subject.Colliders.First(), x.Colliders.First())).ToList());
 
             // Assert
             result.Should().BeEmpty();

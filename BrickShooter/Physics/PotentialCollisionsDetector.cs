@@ -24,9 +24,6 @@ namespace BrickShooter.Physics
         {
             var result = new PotentialCollisions();
 
-            //create collision pairs for each current object collider + each collider of each other object
-            //check bounds overlap
-
             foreach (var otherObjectCollider in allObjects.Where(x => x != currentObject).SelectMany(x => x.Colliders))
             {
                 foreach(var currentObjectCollider in currentObject.Colliders)

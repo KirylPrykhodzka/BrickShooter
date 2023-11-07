@@ -7,6 +7,7 @@ using BrickShooter.Physics.Interfaces;
 using Moq;
 using BrickShooter.GameObjects;
 using MonoGame.Extended;
+using BrickShooter.Physics.Models;
 
 namespace BrickShooter.Tests.Physics
 {
@@ -33,7 +34,7 @@ namespace BrickShooter.Tests.Physics
             var currentObject = new Mock<IMaterialObject>();
             currentObject.SetupGet(x => x.Position).Returns(Vector2.Zero);
             currentObject.SetupGet(x => x.Velocity).Returns(Vector2.Zero);
-            currentObject.SetupGet(x => x.SingleCollider).Returns(currentObjectBodyMock.Object);
+            currentObject.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon> { currentObjectBodyMock.Object });
 
             var otherObjectBodyMock = new Mock<IColliderPolygon>();
             otherObjectBodyMock.SetupGet(x => x.CollisionLayer).Returns(nameof(Bullet));
@@ -41,7 +42,7 @@ namespace BrickShooter.Tests.Physics
             var otherObject = new Mock<IMaterialObject>();
             otherObject.SetupGet(x => x.Position).Returns(Vector2.Zero);
             otherObject.SetupGet(x => x.Velocity).Returns(Vector2.Zero);
-            otherObject.SetupGet(x => x.SingleCollider).Returns(otherObjectBodyMock.Object);
+            otherObject.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon> { otherObjectBodyMock.Object });
 
             // Act
             var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { otherObject.Object });
@@ -60,7 +61,8 @@ namespace BrickShooter.Tests.Physics
             var currentObject = new Mock<IMaterialObject>();
             currentObject.SetupGet(x => x.Position).Returns(Vector2.Zero);
             currentObject.SetupGet(x => x.Velocity).Returns(Vector2.Zero);
-            currentObject.SetupGet(x => x.SingleCollider).Returns(currentObjectBodyMock.Object);
+            currentObject.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon> { currentObjectBodyMock.Object });
+            currentObjectBodyMock.SetupGet(x => x.Owner).Returns(currentObject.Object);
 
             var potentialCollision1BodyMock = new Mock<IColliderPolygon>();
             potentialCollision1BodyMock.SetupGet(x => x.CollisionLayer).Returns(fixture.Create("CollisionLayer"));
@@ -68,7 +70,8 @@ namespace BrickShooter.Tests.Physics
             var potentialCollision1 = new Mock<IMaterialObject>();
             potentialCollision1.SetupGet(x => x.Position).Returns(Vector2.Zero);
             potentialCollision1.SetupGet(x => x.Velocity).Returns(Vector2.Zero);
-            potentialCollision1.SetupGet(x => x.SingleCollider).Returns(potentialCollision1BodyMock.Object);
+            potentialCollision1.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon> { potentialCollision1BodyMock.Object });
+            potentialCollision1BodyMock.SetupGet(x => x.Owner).Returns(potentialCollision1.Object);
 
             var potentialCollision2BodyMock = new Mock<IColliderPolygon>();
             potentialCollision2BodyMock.SetupGet(x => x.CollisionLayer).Returns(fixture.Create("CollisionLayer"));
@@ -76,14 +79,16 @@ namespace BrickShooter.Tests.Physics
             var potentialCollision2 = new Mock<IMaterialObject>();
             potentialCollision2.SetupGet(x => x.Position).Returns(Vector2.Zero);
             potentialCollision2.SetupGet(x => x.Velocity).Returns(Vector2.Zero);
-            potentialCollision2.SetupGet(x => x.SingleCollider).Returns(potentialCollision2BodyMock.Object);
+            potentialCollision2.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon> { potentialCollision2BodyMock.Object });
+            potentialCollision2BodyMock.SetupGet(x => x.Owner).Returns(potentialCollision2.Object);
 
             // Act
             var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision1.Object, potentialCollision2.Object });
 
             // Assert
             potentialCollisions.Existing.Should().HaveCount(1);
-            potentialCollisions.Existing.Should().Contain(potentialCollision1.Object.SingleCollider);
+            potentialCollisions.Existing.First().CollisionSubject.Should().Be(currentObjectBodyMock.Object);
+            potentialCollisions.Existing.First().CollisionObject.Should().Be(potentialCollision1BodyMock.Object);
         }
 
         [Test]
@@ -98,7 +103,8 @@ namespace BrickShooter.Tests.Physics
             var currentObject = new Mock<IMaterialObject>();
             currentObject.SetupGet(x => x.Position).Returns(Vector2.Zero);
             currentObject.SetupGet(x => x.Velocity).Returns(Vector2.Zero);
-            currentObject.SetupGet(x => x.SingleCollider).Returns(currentObjectBodyMock.Object);
+            currentObject.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon> { currentObjectBodyMock.Object });
+            currentObjectBodyMock.SetupGet(x => x.Owner).Returns(currentObject.Object);
 
             var potentialCollisionBodyMock = new Mock<IColliderPolygon>();
             potentialCollisionBodyMock.SetupGet(x => x.CollisionLayer).Returns(fixture.Create("CollisionLayer"));
@@ -106,7 +112,8 @@ namespace BrickShooter.Tests.Physics
             var potentialCollision = new Mock<IMaterialObject>();
             potentialCollision.SetupGet(x => x.Position).Returns(new Vector2(5,5));
             potentialCollision.SetupGet(x => x.Velocity).Returns(Vector2.Zero);
-            potentialCollision.SetupGet(x => x.SingleCollider).Returns(potentialCollisionBodyMock.Object);
+            potentialCollision.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon> { potentialCollisionBodyMock.Object });
+            potentialCollisionBodyMock.SetupGet(x => x.Owner).Returns(potentialCollision.Object);
 
             // Act
             var potentialCollisionsWhileStill = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
@@ -116,7 +123,8 @@ namespace BrickShooter.Tests.Physics
             // Assert
             potentialCollisionsWhileStill.Future.Should().BeEmpty();
             potentialCollisionsWhileMoving.Future.Should().HaveCount(1);
-            potentialCollisionsWhileMoving.Future.Should().Contain(potentialCollision.Object.SingleCollider);
+            potentialCollisionsWhileMoving.Future.First().CollisionSubject.Should().Be(currentObjectBodyMock.Object);
+            potentialCollisionsWhileMoving.Future.First().CollisionObject.Should().Be(potentialCollisionBodyMock.Object);
         }
     }
 }

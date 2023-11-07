@@ -8,14 +8,13 @@ namespace BrickShooter.Tests.Mocks
     {
         private static readonly IFixture fixture = new Fixture();
 
-        public MaterialObjectMock()
+        public MaterialObjectMock() : this(fixture.CreateMany<Vector2>(4).ToArray())
         {
-            initialColliderPoints = fixture.CreateMany<Vector2>(4).ToArray();
         }
 
-        public MaterialObjectMock(Vector2[] initialColliderPoints)
+        public MaterialObjectMock(IList<Vector2> initialColliderPoints)
         {
-            this.initialColliderPoints = initialColliderPoints;
+            Colliders.Add(new ColliderPolygon(this, fixture.Create("CollisionLayer"), initialColliderPoints));
         }
     }
 }

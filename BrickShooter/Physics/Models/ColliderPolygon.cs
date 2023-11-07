@@ -48,7 +48,7 @@ namespace BrickShooter.Physics.Models
 
         private void RecalculatePoints()
         {
-            points = localPoints.Select(x => (x + position).Rotate(position, rotation)).ToList();
+            points = localPoints.Select(x => x.Rotate(Vector2.Zero, rotation) + position).ToList();
             var maxX = points.Max(x => x.X);
             var minX = points.Min(x => x.X);
             var maxY = points.Max(x => x.Y);
