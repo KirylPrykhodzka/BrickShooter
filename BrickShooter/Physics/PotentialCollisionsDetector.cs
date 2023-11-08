@@ -24,21 +24,60 @@ namespace BrickShooter.Physics
         {
             var result = new PotentialCollisions();
 
-            foreach (var otherObjectCollider in allObjects.Where(x => x != currentObject).SelectMany(x => x.Colliders))
+            var currentObjectSingleCollider = currentObject.SingleCollider;
+
+            foreach(var otherObject in allObjects.Where(x => x != currentObject))
             {
-                foreach(var currentObjectCollider in currentObject.Colliders)
+                var otherObjectSingleCollider = otherObject.SingleCollider;
+
+                //if current object only has one collider...
+                if (currentObjectSingleCollider != null)
                 {
-                    if(!(IgnoredCollisions.TryGetValue(currentObjectCollider.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(otherObjectCollider.CollisionLayer)))
+                    //...and other object also has only one collider
+                    if(otherObjectSingleCollider != null)
                     {
-                        ProcessCollisionPair(new CollisionPair(currentObjectCollider, otherObjectCollider), result);
+                        ProcessCollisionPair(new CollisionPair(currentObjectSingleCollider, otherObjectSingleCollider), result);
+                    }
+                    //...and other object has >1 collider
+                    else
+                    {
+                        foreach(var otherObjectCollider in otherObject.Colliders)
+                        {
+                            ProcessCollisionPair(new CollisionPair(currentObjectSingleCollider, otherObjectCollider), result);
+                        }
+                    }
+                }
+                //if current object has >1 collider and other object has 1 collider
+                else if (otherObjectSingleCollider != null)
+                {
+                    foreach (var curentObjectCollider in currentObject.Colliders)
+                    {
+                        ProcessCollisionPair(new CollisionPair(curentObjectCollider, otherObjectSingleCollider), result);
+                    }
+                }
+                //if current object has >1 collider and other object has >1 collider
+                else
+                {
+                    foreach(var currentObjectCollider in currentObject.Colliders)
+                    {
+                        foreach(var otherObjectCollider in otherObject.Colliders)
+                        {
+                            ProcessCollisionPair(new CollisionPair(currentObjectCollider, otherObjectCollider), result);
+                        }
                     }
                 }
             }
+
             return result;
         }
 
         private static void ProcessCollisionPair(CollisionPair collisionPair, PotentialCollisions result)
         {
+            if (IgnoredCollisions.TryGetValue(collisionPair.CollisionSubject.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(collisionPair.CollisionObject.CollisionLayer))
+            {
+                return;
+            }
+            
             if (collisionPair.CollisionSubject.Bounds.Intersects(collisionPair.CollisionObject.Bounds))
             {
                 result.Existing.Add(collisionPair);

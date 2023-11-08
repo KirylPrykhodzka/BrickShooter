@@ -188,5 +188,28 @@ namespace BrickShooter.Tests.Physics
             bounds.Width.Should().Be(maxX - minX);
             bounds.Height.Should().Be(maxY - minY);
         }
+
+        [Test]
+        public void SingleCollider_ReturnsSingleCollider()
+        {
+            // Arrange
+            var materialObject = new MaterialObjectMock();
+
+            // Act && Assert
+            materialObject.Colliders.Count.Should().Be(1);
+            materialObject.SingleCollider.Should().NotBeNull();
+            materialObject.SingleCollider.Should().Be(materialObject.Colliders[0]);
+        }
+
+        [Test]
+        public void SingleCollider_ReturnsNull_IfObjectHasMultipleColliders()
+        {
+            // Arrange
+            var materialObject = new MaterialObjectMock();
+            materialObject.Colliders.Add(new Mock<IColliderPolygon>().Object);
+
+            // Act && Assert
+            materialObject.SingleCollider.Should().BeNull();
+        }
     }
 }

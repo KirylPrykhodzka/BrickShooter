@@ -6,6 +6,7 @@ namespace BrickShooter.Physics.Models
 {
     public abstract class MaterialObject : IMaterialObject
     {
+        public IColliderPolygon SingleCollider => Colliders.Count == 1 ? Colliders[0] : null;
         public IList<IColliderPolygon> Colliders { get; } = new List<IColliderPolygon>();
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }

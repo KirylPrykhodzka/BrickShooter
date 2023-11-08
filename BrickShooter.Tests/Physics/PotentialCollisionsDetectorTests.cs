@@ -230,5 +230,24 @@ namespace BrickShooter.Tests.Physics
             potentialCollisions.Future.First().CollisionSubject.Should().Be(currentObjectBodyMock.Object);
             potentialCollisions.Future.First().CollisionObject.Should().Be(potentialCollisionBodyMock.Object);
         }
+
+        [Test]
+        public void DetectPotentialCollisions_ShouldNotReadAllColliders_IfObjectHasSingleCollider()
+        {
+            // Arrange
+            var currentObjectMock = new Mock<IMaterialObject>();
+            currentObjectMock.SetupGet(x => x.SingleCollider).Returns(new ColliderPolygon(currentObjectMock.Object, fixture.Create("CollisionLayer"), fixture.Create<IList<Vector2>>()));
+            var otherObjectMock = new Mock<IMaterialObject>();
+            otherObjectMock.SetupGet(x => x.SingleCollider).Returns(new ColliderPolygon(currentObjectMock.Object, fixture.Create("CollisionLayer"), fixture.Create<IList<Vector2>>()));
+
+            // Act
+            _potentialCollisionsDetector.GetPotentialCollisions(currentObjectMock.Object, new List<IMaterialObject> { otherObjectMock.Object });
+
+            // Assert
+            currentObjectMock.Verify(x => x.SingleCollider, Times.Once);
+            otherObjectMock.Verify(x => x.SingleCollider, Times.Once);
+            currentObjectMock.Verify(x => x.Colliders, Times.Never);
+            otherObjectMock.Verify(x => x.Colliders, Times.Never);
+        }
     }
 }
