@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using BrickShooter.Physics;
-using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using BrickShooter.Tests.Mocks;
 using FluentAssertions;

@@ -22,7 +22,7 @@ namespace BrickShooter.GameObjects
             Colliders.Add(new ColliderPolygon(this, "PlayerGun", PlayerConstants.INITIAL_GUN_COLLIDER_POINTS));
         }
 
-        public Vector2 BulletSpawnPoint => (Position + PlayerConstants.PLAYER_GUN_POSITION).Rotate(Position, Rotation);
+        public Vector2 BulletSpawnPoint => PlayerConstants.PLAYER_GUN_POSITION.Rotate(Vector2.Zero, Rotation) + Position;
 
         public void Update()
         {
