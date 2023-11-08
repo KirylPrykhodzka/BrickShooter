@@ -10,51 +10,80 @@ namespace BrickShooter.Physics.Models
     public class ColliderPolygon : IColliderPolygon
     {
         public IMaterialObject Owner { get; }
-        public string CollisionLayer { get; private set; }
-        public IList<Vector2> Points => GetPoints();
-        public RectangleF Bounds { get; private set; }
-        public Vector2 Center { get; private set; }
+        public string CollisionLayer { get; }
 
         //points of this polygon in world space
+        public IList<Vector2> Points
+        {
+            get
+            {
+                RecalculateIfNeeded();
+                return points;
+            }
+        }
         private IList<Vector2> points;
+
+        //bounds of this polygon in world space
+        public RectangleF Bounds
+        {
+            get
+            {
+                RecalculateIfNeeded();
+                return bounds;
+            }
+        }
+        private RectangleF bounds;
+
+        //center of this polygon in world space
+        public Vector2 Center
+        {
+            get
+            {
+                RecalculateIfNeeded();
+                return center;
+            }
+        }
+        private Vector2 center;
+
         //polygon position and rotation should be always equal to owner's position and rotation
         //whenever discrepancy is found, points are recalculated
         private Vector2 position;
         private float rotation;
+
         //points of the polygon relative to its position
-        private IList<Vector2> localPoints;
+        private readonly IList<Vector2> localPoints;
 
         public ColliderPolygon(IMaterialObject owner, string collisionLayer, IList<Vector2> localPoints)
         {
             Owner = owner;
             CollisionLayer = collisionLayer;
-            this.localPoints = localPoints;
+            this.localPoints = localPoints.ToList();
             position = owner.Position;
             rotation = owner.Rotation;
-            RecalculatePoints();
+            Recalculate();
         }
 
-        private IList<Vector2> GetPoints()
+        private void RecalculateIfNeeded()
         {
-            if(position != Owner.Position || rotation != Owner.Rotation)
+            if (position != Owner.Position || rotation != Owner.Rotation)
             {
                 position = Owner.Position;
                 rotation = Owner.Rotation;
-                RecalculatePoints();
+                Recalculate();
             }
-
-            return points;
         }
 
-        private void RecalculatePoints()
+        private void Recalculate()
         {
             points = localPoints.Select(x => x.Rotate(Vector2.Zero, rotation) + position).ToList();
+
+            center = new Vector2(points.Average(x => x.X), points.Average(x => x.Y));
+
             var maxX = points.Max(x => x.X);
             var minX = points.Min(x => x.X);
             var maxY = points.Max(x => x.Y);
             var minY = points.Min(x => x.Y);
-            Bounds = new RectangleF(minX, minY, maxX - minX, maxY - minY);
-            Center = new Vector2(points.Average(x => x.X), points.Average(x => x.Y));
+            bounds = new RectangleF(minX, minY, maxX - minX, maxY - minY);
         }
     }
 }

@@ -6,6 +6,13 @@ namespace BrickShooter.Extensions
 {
     public static class Vector2Extensions
     {
+        /// <summary>
+        /// rotates a point around a specified origin by a provided value
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="origin"></param>
+        /// <param name="angleInRadians"></param>
+        /// <returns></returns>
         public static Vector2 Rotate(this Vector2 point, Vector2 origin, double angleInRadians)
         {
             // Translate the point to the origin

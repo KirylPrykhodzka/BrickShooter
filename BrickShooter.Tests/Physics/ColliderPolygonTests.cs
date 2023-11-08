@@ -6,6 +6,8 @@ using BrickShooter.Physics.Models;
 using BrickShooter.Physics.Interfaces;
 using Moq;
 using BrickShooter.Tests.Mocks;
+using BrickShooter.Extensions;
+using MonoGame.Extended;
 
 namespace BrickShooter.Tests.Physics
 {
@@ -54,6 +56,115 @@ namespace BrickShooter.Tests.Physics
             // Assert
             var expectedPoints = points.Select(p => p + offset);
             collider.Points.Should().ContainInOrder(expectedPoints);
+        }
+
+        [Test]
+        public void MaterialObjectRotationChanged_UpdatesPointsCorrectly()
+        {
+            // Arrange
+            List<Vector2> points = fixture.Create<List<Vector2>>();
+            var materialObject = fixture.Build<MaterialObjectMock>()
+                .With(x => x.Position, Vector2.Zero)
+                .With(x => x.Rotation, 0f)
+                .Create();
+            var collider = new ColliderPolygon(materialObject, fixture.Create("CollisionLayer"), points);
+
+            var newRotation = fixture.Create<float>();
+
+            // Act
+            materialObject.Rotation = newRotation;
+
+            // Assert
+            var expectedPoints = points.Select(p => p.Rotate(materialObject.Position, newRotation));
+            collider.Points.Should().ContainInOrder(expectedPoints);
+        }
+
+        [Test]
+        public void MaterialObjectPositionChanged_UpdatesBoundsCorrectly()
+        {
+            // Arrange
+            List<Vector2> points = fixture.Create<List<Vector2>>();
+            var materialObject = fixture.Build<MaterialObjectMock>()
+                .With(x => x.Position, Vector2.Zero)
+                .With(x => x.Rotation, 0f)
+                .Create();
+            var collider = new ColliderPolygon(materialObject, fixture.Create("CollisionLayer"), points);
+            var offset = fixture.Create<Vector2>();
+            var expectedBounds = collider.Bounds;
+            expectedBounds.Offset(offset);
+
+            // Act
+            materialObject.Position += offset;
+
+            // Assert
+            collider.Bounds.Should().Be(expectedBounds);
+        }
+
+        [Test]
+        public void MaterialObjectRotationChanged_UpdatesBoundsCorrectly()
+        {
+            // Arrange
+            List<Vector2> points = fixture.Create<List<Vector2>>();
+            var materialObject = fixture.Build<MaterialObjectMock>()
+                .With(x => x.Position, Vector2.Zero)
+                .With(x => x.Rotation, 0f)
+                .Create();
+            var collider = new ColliderPolygon(materialObject, fixture.Create("CollisionLayer"), points);
+            var newRotation = fixture.Create<float>();
+
+            // Act
+            materialObject.Rotation = newRotation;
+
+            // Assert
+            var expectedPoints = points.Select(p => p.Rotate(materialObject.Position, newRotation));
+            var maxX = expectedPoints.Max(x => x.X);
+            var minX = expectedPoints.Min(x => x.X);
+            var maxY = expectedPoints.Max(x => x.Y);
+            var minY = expectedPoints.Min(x => x.Y);
+            var expectedBounds = new RectangleF(minX, minY, maxX - minX, maxY - minY);
+            collider.Bounds.Should().Be(expectedBounds);
+        }
+
+        [Test]
+        public void MaterialObjectPositionChanged_UpdatesCenterCorrectly()
+        {
+            // Arrange
+            List<Vector2> points = fixture.Create<List<Vector2>>();
+            var materialObject = fixture.Build<MaterialObjectMock>()
+                .With(x => x.Position, Vector2.Zero)
+                .With(x => x.Rotation, 0f)
+                .Create();
+            var collider = new ColliderPolygon(materialObject, fixture.Create("CollisionLayer"), points);
+            var offset = fixture.Create<Vector2>();
+            var expectedCenter = collider.Center + offset;
+
+            // Act
+            materialObject.Position += offset;
+
+            // Assert
+            collider.Center.X.Should().BeApproximately(expectedCenter.X, 0.01f);
+            collider.Center.Y.Should().BeApproximately(expectedCenter.Y, 0.01f);
+        }
+
+        [Test]
+        public void MaterialObjectRotationChanged_UpdatesCenterCorrectly()
+        {
+            // Arrange
+            List<Vector2> points = fixture.Create<List<Vector2>>();
+            var materialObject = fixture.Build<MaterialObjectMock>()
+                .With(x => x.Position, Vector2.Zero)
+                .With(x => x.Rotation, 0f)
+                .Create();
+            var collider = new ColliderPolygon(materialObject, fixture.Create("CollisionLayer"), points);
+            var newRotation = fixture.Create<float>();
+            var expectedCenter = collider.Center.Rotate(materialObject.Position, newRotation);
+
+            // Act
+            materialObject.Rotation = newRotation;
+
+            // Assert
+            collider.Center.X.Should().BeApproximately(expectedCenter.X, 0.01f);
+            collider.Center.Y.Should().BeApproximately(expectedCenter.Y, 0.01f);
         }
 
         [Test]
