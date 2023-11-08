@@ -126,5 +126,109 @@ namespace BrickShooter.Tests.Physics
             potentialCollisionsWhileMoving.Future.First().CollisionSubject.Should().Be(currentObjectBodyMock.Object);
             potentialCollisionsWhileMoving.Future.First().CollisionObject.Should().Be(potentialCollisionBodyMock.Object);
         }
+
+        [Test]
+        public void DetectPotentialCollisions_SubjectAndObjectHaveMultipleColliders_ShouldDetectExistingCollisionsCorrectly()
+        {
+            // Arrange
+            var currentObjectBodyMock = new Mock<IColliderPolygon>();
+            currentObjectBodyMock.SetupGet(x => x.CollisionLayer).Returns(nameof(Player));
+            currentObjectBodyMock.SetupGet(x => x.Bounds).Returns(new RectangleF(-1, -1, 2, 2));
+
+            var currentObjectSecondColliderMock = new Mock<IColliderPolygon>();
+            currentObjectSecondColliderMock.SetupGet(x => x.CollisionLayer).Returns(nameof(Player));
+            currentObjectSecondColliderMock.SetupGet(x => x.Bounds).Returns(new RectangleF(5, 5, 1, 1));
+
+            var currentObject = new Mock<IMaterialObject>();
+            currentObject.SetupGet(x => x.Position).Returns(Vector2.Zero);
+            currentObject.SetupGet(x => x.Velocity).Returns(Vector2.Zero);
+            currentObject.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon>
+            {
+                currentObjectSecondColliderMock.Object,
+                currentObjectBodyMock.Object,
+            });
+
+            currentObjectBodyMock.SetupGet(x => x.Owner).Returns(currentObject.Object);
+            currentObjectSecondColliderMock.SetupGet(x => x.Owner).Returns(currentObject.Object);
+
+            var potentialCollisionBodyMock = new Mock<IColliderPolygon>();
+            potentialCollisionBodyMock.SetupGet(x => x.CollisionLayer).Returns(fixture.Create("CollisionLayer"));
+            potentialCollisionBodyMock.SetupGet(x => x.Bounds).Returns(new RectangleF(0, 0, 2, 2));
+
+            var potentialCollisionSecondColliderMock = new Mock<IColliderPolygon>();
+            potentialCollisionSecondColliderMock.SetupGet(x => x.CollisionLayer).Returns(nameof(Player));
+            potentialCollisionSecondColliderMock.SetupGet(x => x.Bounds).Returns(new RectangleF(7, 7, 1, 1));
+
+            var potentialCollision = new Mock<IMaterialObject>();
+            potentialCollision.SetupGet(x => x.Position).Returns(Vector2.Zero);
+            potentialCollision.SetupGet(x => x.Velocity).Returns(Vector2.Zero);
+            potentialCollision.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon>
+            {
+                potentialCollisionBodyMock.Object,
+                potentialCollisionSecondColliderMock.Object
+            });
+            potentialCollisionBodyMock.SetupGet(x => x.Owner).Returns(potentialCollision.Object);
+            potentialCollisionSecondColliderMock.SetupGet(x => x.Owner).Returns(potentialCollision.Object);
+
+            // Act
+            var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
+
+            // Assert
+            potentialCollisions.Existing.Should().HaveCount(1);
+            potentialCollisions.Existing.First().CollisionSubject.Should().Be(currentObjectBodyMock.Object);
+            potentialCollisions.Existing.First().CollisionObject.Should().Be(potentialCollisionBodyMock.Object);
+        }
+
+        [Test]
+        public void DetectPotentialCollisions_SubjectAndObjectHaveMultipleColliders_ShouldDetectFutureCollisionsCorrectly()
+        {
+            // Arrange
+            var currentObjectBodyMock = new Mock<IColliderPolygon>();
+            currentObjectBodyMock.SetupGet(x => x.CollisionLayer).Returns(nameof(Player));
+            currentObjectBodyMock.SetupGet(x => x.Bounds).Returns(new RectangleF(-1, -1, 2, 2));
+
+            var currentObjectSecondColliderMock = new Mock<IColliderPolygon>();
+            currentObjectSecondColliderMock.SetupGet(x => x.CollisionLayer).Returns(nameof(Player));
+            currentObjectSecondColliderMock.SetupGet(x => x.Bounds).Returns(new RectangleF(1, -3, 2, 2));
+
+            var currentObject = new Mock<IMaterialObject>();
+            currentObject.SetupGet(x => x.Position).Returns(Vector2.Zero);
+            currentObject.SetupGet(x => x.Velocity).Returns(new Vector2(2, 2));
+            currentObject.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon>
+            {
+                currentObjectSecondColliderMock.Object,
+                currentObjectBodyMock.Object,
+            });
+
+            currentObjectBodyMock.SetupGet(x => x.Owner).Returns(currentObject.Object);
+            currentObjectSecondColliderMock.SetupGet(x => x.Owner).Returns(currentObject.Object);
+
+            var potentialCollisionBodyMock = new Mock<IColliderPolygon>();
+            potentialCollisionBodyMock.SetupGet(x => x.CollisionLayer).Returns(fixture.Create("CollisionLayer"));
+            potentialCollisionBodyMock.SetupGet(x => x.Bounds).Returns(new RectangleF(1, 2, 2, 2));
+
+            var potentialCollisionSecondColliderMock = new Mock<IColliderPolygon>();
+            potentialCollisionSecondColliderMock.SetupGet(x => x.CollisionLayer).Returns(nameof(Player));
+            potentialCollisionSecondColliderMock.SetupGet(x => x.Bounds).Returns(new RectangleF(1, 4, 1, 2));
+
+            var potentialCollision = new Mock<IMaterialObject>();
+            potentialCollision.SetupGet(x => x.Position).Returns(Vector2.Zero);
+            potentialCollision.SetupGet(x => x.Velocity).Returns(new Vector2(-1, -1));
+            potentialCollision.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon>
+            {
+                potentialCollisionBodyMock.Object,
+                potentialCollisionSecondColliderMock.Object
+            });
+            potentialCollisionBodyMock.SetupGet(x => x.Owner).Returns(potentialCollision.Object);
+            potentialCollisionSecondColliderMock.SetupGet(x => x.Owner).Returns(potentialCollision.Object);
+
+            // Act
+            var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
+
+            // Assert
+            potentialCollisions.Future.Should().HaveCount(1);
+            potentialCollisions.Future.First().CollisionSubject.Should().Be(currentObjectBodyMock.Object);
+            potentialCollisions.Future.First().CollisionObject.Should().Be(potentialCollisionBodyMock.Object);
+        }
     }
 }
