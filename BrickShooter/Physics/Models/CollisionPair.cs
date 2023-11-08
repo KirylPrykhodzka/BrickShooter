@@ -1,8 +1,9 @@
 ﻿using BrickShooter.Physics.Interfaces;
+using BrickShooter.Resources;
 
 namespace BrickShooter.Physics.Models
 {
-    public class CollisionPair
+    public class CollisionPair : IResetable
     {
         public IColliderPolygon CollisionSubject { get; set; }
         public IColliderPolygon CollisionObject { get; set; }
@@ -14,6 +15,12 @@ namespace BrickShooter.Physics.Models
         {
             CollisionSubject = collisionSubject;
             CollisionObject = collisionObject;
+        }
+
+        public void Reset()
+        {
+            CollisionSubject = null;
+            CollisionObject = null;
         }
     }
 }

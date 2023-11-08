@@ -3,6 +3,7 @@ using System.Linq;
 using BrickShooter.GameObjects;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
+using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 
@@ -10,7 +11,6 @@ namespace BrickShooter.Physics
 {
     public class PotentialCollisionsDetector : IPotentialCollisionsDetector
     {
-
         //each Key is a name of a type that inherits from MaterialObject class.
         //Values are names of types that implement MaterialObject interface
         //If an object of Key type collides with an object contained in Value, collision is ignored completely
@@ -19,6 +19,13 @@ namespace BrickShooter.Physics
             { nameof(Bullet), new() { nameof(Bullet), "PlayerGun" } },
             { "PlayerGun", new() { nameof(Bullet) } },
         };
+
+        private readonly IPool<CollisionPair> collisionPairPool;
+
+        public PotentialCollisionsDetector(IPool<CollisionPair> collisionPairPool)
+        {
+            this.collisionPairPool = collisionPairPool;
+        }
 
         public PotentialCollisions GetPotentialCollisions(IMaterialObject currentObject, IEnumerable<IMaterialObject> allObjects)
         {
@@ -36,14 +43,14 @@ namespace BrickShooter.Physics
                     //...and other object also has only one collider
                     if(otherObjectSingleCollider != null)
                     {
-                        ProcessCollisionPair(new CollisionPair(currentObjectSingleCollider, otherObjectSingleCollider), result);
+                        CheckCollidersIntersection(currentObjectSingleCollider, otherObjectSingleCollider, result);
                     }
                     //...and other object has >1 collider
                     else
                     {
                         foreach(var otherObjectCollider in otherObject.Colliders)
                         {
-                            ProcessCollisionPair(new CollisionPair(currentObjectSingleCollider, otherObjectCollider), result);
+                            CheckCollidersIntersection(currentObjectSingleCollider, otherObjectCollider, result);
                         }
                     }
                 }
@@ -52,7 +59,7 @@ namespace BrickShooter.Physics
                 {
                     foreach (var curentObjectCollider in currentObject.Colliders)
                     {
-                        ProcessCollisionPair(new CollisionPair(curentObjectCollider, otherObjectSingleCollider), result);
+                        CheckCollidersIntersection(curentObjectCollider, otherObjectSingleCollider, result);
                     }
                 }
                 //if current object has >1 collider and other object has >1 collider
@@ -62,7 +69,7 @@ namespace BrickShooter.Physics
                     {
                         foreach(var otherObjectCollider in otherObject.Colliders)
                         {
-                            ProcessCollisionPair(new CollisionPair(currentObjectCollider, otherObjectCollider), result);
+                            CheckCollidersIntersection(currentObjectCollider, otherObjectCollider, result);
                         }
                     }
                 }
@@ -71,19 +78,25 @@ namespace BrickShooter.Physics
             return result;
         }
 
-        private static void ProcessCollisionPair(CollisionPair collisionPair, PotentialCollisions result)
+        private void CheckCollidersIntersection(IColliderPolygon first, IColliderPolygon second, PotentialCollisions result)
         {
-            if (IgnoredCollisions.TryGetValue(collisionPair.CollisionSubject.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(collisionPair.CollisionObject.CollisionLayer))
+            if (IgnoredCollisions.TryGetValue(first.CollisionLayer, out var ignoredCollisions) && ignoredCollisions.Contains(second.CollisionLayer))
             {
                 return;
             }
             
-            if (collisionPair.CollisionSubject.Bounds.Intersects(collisionPair.CollisionObject.Bounds))
+            if (first.Bounds.Intersects(second.Bounds))
             {
+                var collisionPair = collisionPairPool.GetItem();
+                collisionPair.CollisionSubject = first;
+                collisionPair.CollisionObject = second;
                 result.Existing.Add(collisionPair);
             }
-            if (DoProjectedBoundsOverlap(collisionPair.CollisionSubject.Bounds, collisionPair.CollisionSubject.Owner.Velocity, collisionPair.CollisionObject.Bounds, collisionPair.CollisionObject.Owner.Velocity))
+            if (DoProjectedBoundsOverlap(first.Bounds, first.Owner.Velocity, second.Bounds, second.Owner.Velocity))
             {
+                var collisionPair = collisionPairPool.GetItem();
+                collisionPair.CollisionSubject = first;
+                collisionPair.CollisionObject = second;
                 result.Future.Add(collisionPair);
             }
         }

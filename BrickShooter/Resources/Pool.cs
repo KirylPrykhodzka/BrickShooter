@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace BrickShooter.Resources
 {
@@ -19,6 +20,14 @@ namespace BrickShooter.Resources
         {
             item.Reset();
             items.Enqueue(item);
+        }
+
+        public void Return(IEnumerable<T> items)
+        {
+            foreach(T item in items)
+            {
+                Return(item);
+            }
         }
     }
 }

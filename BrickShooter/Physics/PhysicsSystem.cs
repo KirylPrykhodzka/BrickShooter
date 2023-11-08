@@ -1,6 +1,8 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Helpers;
 using BrickShooter.Physics.Interfaces;
+using BrickShooter.Physics.Models;
+using BrickShooter.Resources;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -16,22 +18,22 @@ namespace BrickShooter.Physics
     {
         private readonly IPotentialCollisionsDetector potentialCollisionsDetector;
         private readonly IExistingCollisionsCalculator existingCollisionsCalculator;
-        private readonly IFutureCollisionsCalculator futureCollisionsCalculator;
         private readonly ICollisionProcessor collisionProcessor;
         private readonly IMaterialObjectMover materialObjectMover;
+        private readonly IPool<CollisionPair> collisionPairPool;
 
         public PhysicsSystem(
             IPotentialCollisionsDetector potentialCollisionsDetector,
             IExistingCollisionsCalculator existingCollisionsCalculator,
-            IFutureCollisionsCalculator futureCollisionsCalculator,
             ICollisionProcessor collisionProcessor,
-            IMaterialObjectMover materialObjectMover)
+            IMaterialObjectMover materialObjectMover,
+            IPool<CollisionPair> collisionPairPool)
         {
             this.potentialCollisionsDetector = potentialCollisionsDetector;
             this.existingCollisionsCalculator = existingCollisionsCalculator;
-            this.futureCollisionsCalculator = futureCollisionsCalculator;
             this.collisionProcessor = collisionProcessor;
             this.materialObjectMover = materialObjectMover;
+            this.collisionPairPool = collisionPairPool;
         }
 
         //all objects that can be repositioned in space based on their velocity and initiate collisions
@@ -86,6 +88,7 @@ namespace BrickShooter.Physics
                 {
                     collisionProcessor.FindAndProcessNextCollisions(currentObject, potentialCollisions.Future);
                 }
+                collisionPairPool.Return(potentialCollisions.Existing.Concat(potentialCollisions.Future));
             }
             materialObjectMover.ApplyScheduledMovements();
         }

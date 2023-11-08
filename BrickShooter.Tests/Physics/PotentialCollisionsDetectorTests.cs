@@ -8,19 +8,24 @@ using Moq;
 using BrickShooter.GameObjects;
 using MonoGame.Extended;
 using BrickShooter.Physics.Models;
+using BrickShooter.Resources;
 
 namespace BrickShooter.Tests.Physics
 {
     [TestFixture]
     public class PotentialCollisionsDetectorTests
     {
-        private PotentialCollisionsDetector _potentialCollisionsDetector;
+        private MockRepository mockRepository;
+        private Mock<IPool<CollisionPair>> collisionPairPoolMock;
+        private PotentialCollisionsDetector potentialCollisionsDetector;
         private Fixture fixture;
 
         [SetUp]
         public void SetUp()
         {
-            _potentialCollisionsDetector = new PotentialCollisionsDetector();
+            mockRepository = new MockRepository(MockBehavior.Strict);
+            collisionPairPoolMock = mockRepository.Create<IPool<CollisionPair>>();
+            potentialCollisionsDetector = new PotentialCollisionsDetector(collisionPairPoolMock.Object);
             fixture = new Fixture();
         }
 
@@ -45,7 +50,7 @@ namespace BrickShooter.Tests.Physics
             otherObject.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon> { otherObjectBodyMock.Object });
 
             // Act
-            var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { otherObject.Object });
+            var potentialCollisions = potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { otherObject.Object });
 
             // Assert
             potentialCollisions.Existing.Should().BeEmpty();
@@ -82,8 +87,10 @@ namespace BrickShooter.Tests.Physics
             potentialCollision2.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon> { potentialCollision2BodyMock.Object });
             potentialCollision2BodyMock.SetupGet(x => x.Owner).Returns(potentialCollision2.Object);
 
+            collisionPairPoolMock.Setup(x => x.GetItem()).Returns(new CollisionPair());
+
             // Act
-            var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision1.Object, potentialCollision2.Object });
+            var potentialCollisions = potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision1.Object, potentialCollision2.Object });
 
             // Assert
             potentialCollisions.Existing.Should().HaveCount(1);
@@ -115,10 +122,12 @@ namespace BrickShooter.Tests.Physics
             potentialCollision.SetupGet(x => x.Colliders).Returns(new List<IColliderPolygon> { potentialCollisionBodyMock.Object });
             potentialCollisionBodyMock.SetupGet(x => x.Owner).Returns(potentialCollision.Object);
 
+            collisionPairPoolMock.Setup(x => x.GetItem()).Returns(new CollisionPair());
+
             // Act
-            var potentialCollisionsWhileStill = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
+            var potentialCollisionsWhileStill = potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
             currentObject.SetupGet(x => x.Velocity).Returns(new Vector2(4, 4));
-            var potentialCollisionsWhileMoving = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
+            var potentialCollisionsWhileMoving = potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
 
             // Assert
             potentialCollisionsWhileStill.Future.Should().BeEmpty();
@@ -170,8 +179,10 @@ namespace BrickShooter.Tests.Physics
             potentialCollisionBodyMock.SetupGet(x => x.Owner).Returns(potentialCollision.Object);
             potentialCollisionSecondColliderMock.SetupGet(x => x.Owner).Returns(potentialCollision.Object);
 
+            collisionPairPoolMock.Setup(x => x.GetItem()).Returns(new CollisionPair());
+
             // Act
-            var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
+            var potentialCollisions = potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
 
             // Assert
             potentialCollisions.Existing.Should().HaveCount(1);
@@ -222,8 +233,10 @@ namespace BrickShooter.Tests.Physics
             potentialCollisionBodyMock.SetupGet(x => x.Owner).Returns(potentialCollision.Object);
             potentialCollisionSecondColliderMock.SetupGet(x => x.Owner).Returns(potentialCollision.Object);
 
+            collisionPairPoolMock.Setup(x => x.GetItem()).Returns(new CollisionPair());
+
             // Act
-            var potentialCollisions = _potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
+            var potentialCollisions = potentialCollisionsDetector.GetPotentialCollisions(currentObject.Object, new List<IMaterialObject> { potentialCollision.Object });
 
             // Assert
             potentialCollisions.Future.Should().HaveCount(1);
@@ -240,8 +253,10 @@ namespace BrickShooter.Tests.Physics
             var otherObjectMock = new Mock<IMaterialObject>();
             otherObjectMock.SetupGet(x => x.SingleCollider).Returns(new ColliderPolygon(currentObjectMock.Object, fixture.Create("CollisionLayer"), fixture.Create<IList<Vector2>>()));
 
+            collisionPairPoolMock.Setup(x => x.GetItem()).Returns(new CollisionPair());
+
             // Act
-            _potentialCollisionsDetector.GetPotentialCollisions(currentObjectMock.Object, new List<IMaterialObject> { otherObjectMock.Object });
+            potentialCollisionsDetector.GetPotentialCollisions(currentObjectMock.Object, new List<IMaterialObject> { otherObjectMock.Object });
 
             // Assert
             currentObjectMock.Verify(x => x.SingleCollider, Times.Once);
