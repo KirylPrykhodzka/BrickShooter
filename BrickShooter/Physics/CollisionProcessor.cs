@@ -23,11 +23,7 @@ namespace BrickShooter.Physics
 
         public void ProcessExistingCollisions(IMaterialObject materialObject, IList<CollisionInfo> existingCollisions)
         {
-            //apply the biggest minimal translation vector, hoping that it will fix the rest of the collisions too
-            var longestTranslationVector = existingCollisions
-                .Select(x => x.MinimalTranslationVector)
-                .MaxBy(x => x.Length());
-            materialObjectMover.MoveObject(materialObject, longestTranslationVector);
+            materialObjectMover.MoveObject(materialObject, existingCollisions.Aggregate(Vector2.Zero, (sum, x) => sum + x.MinimalTranslationVector));
         }
 
         //recursively moves close to the collision point, then starts moving along its collision edge until velocity is expired

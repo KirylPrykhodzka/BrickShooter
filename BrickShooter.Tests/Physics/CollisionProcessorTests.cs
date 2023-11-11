@@ -28,7 +28,7 @@ namespace BrickShooter.Tests.Physics
         }
 
         [Test]
-        public void ProcessExistingCollisions_Should_MoveObject_AlongLongestTranslationVector()
+        public void ProcessExistingCollisions_Should_TranslateObject_ByTheTranslationVectorsSum()
         {
             // Arrange
             var position = fixture.Create<Vector2>();
@@ -41,8 +41,8 @@ namespace BrickShooter.Tests.Physics
             collisionProcessor.ProcessExistingCollisions(materialObject, collisions);
 
             // Assert
-            var longestTranslationVector = collisions.MaxBy(x => x.MinimalTranslationVector.Length()).MinimalTranslationVector;
-            materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, longestTranslationVector), Times.Once);
+            var translationVectorsSum = collisions.Aggregate(Vector2.Zero, (sum, x) => sum + x.MinimalTranslationVector);
+            materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, translationVectorsSum), Times.Once);
         }
 
         [Test]
