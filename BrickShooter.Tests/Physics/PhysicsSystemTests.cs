@@ -19,7 +19,6 @@ namespace BrickShooter.Tests.Physics
         private Mock<IExistingCollisionsCalculator> existingCollisionsCalculatorMock;
         private Mock<IPool<CollisionPair>> collisionPairPoolMock;
         private Mock<ICollisionProcessor> collisionProcessorMock;
-        private Mock<IMaterialObjectMover> materialObjectMoverMock;
         private Fixture fixture;
 
         [SetUp]
@@ -32,13 +31,11 @@ namespace BrickShooter.Tests.Physics
             existingCollisionsCalculatorMock = new Mock<IExistingCollisionsCalculator>();
             collisionPairPoolMock = new Mock<IPool<CollisionPair>>();
             collisionProcessorMock = new Mock<ICollisionProcessor>();
-            materialObjectMoverMock = new Mock<IMaterialObjectMover>();
 
             physicsSystem = new PhysicsSystem(
                 potentialCollisionsDetectorMock.Object,
                 existingCollisionsCalculatorMock.Object,
                 collisionProcessorMock.Object,
-                materialObjectMoverMock.Object,
                 collisionPairPoolMock.Object);
         }
 
@@ -251,16 +248,6 @@ namespace BrickShooter.Tests.Physics
 
             // Assert
             collisionProcessorMock.Verify(c => c.FindAndProcessNextCollisions(mobileObject, It.IsAny<IList<CollisionPair>>()), Times.Once);
-        }
-
-        [Test]
-        public void Run_ShouldCallMaterialObjectMover_ApplyScheduledMovements()
-        {
-            // Act
-            physicsSystem.Run();
-
-            // Assert
-            materialObjectMoverMock.Verify(x => x.ApplyScheduledMovements(), Times.Once);
         }
     }
 }

@@ -79,7 +79,7 @@ namespace BrickShooter.Tests.Physics
             collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<CollisionPair>());
 
             //Assert
-            materialObjectMoverMock.Verify(x => x.ScheduleMovement(materialObject, velocity * GlobalObjects.DeltaTime), Times.Once);
+            materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, velocity * GlobalObjects.DeltaTime), Times.Once);
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace BrickShooter.Tests.Physics
             // Assert
             futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(It.Is<IList<CollisionPair>>(x => x.Count() == 1)), Times.Once);
             futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(It.Is<IList<CollisionPair>>(x => !x.Any())), Times.Never);
-            materialObjectMoverMock.Verify(x => x.ScheduleMovement(materialObject, velocity * GlobalObjects.DeltaTime), Times.Once);
+            materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, velocity * GlobalObjects.DeltaTime), Times.Once);
         }
 
         [Test]
@@ -119,13 +119,13 @@ namespace BrickShooter.Tests.Physics
             {
                 CollisionPair = new Mock<CollisionPair>().Object,
                 DistanceToCollision = 1f,
-                CollisionEdge = (new Vector2(1, 1), new Vector2(2, 2))
+                CollisionEdge = new Vector2(1, 1)
             };
             var futureCollision2 = new FutureCollisionInfo
             {
                 CollisionPair = new Mock<CollisionPair>().Object,
                 DistanceToCollision = 2f,
-                CollisionEdge = (new Vector2(2, 2), new Vector2(3, 3))
+                CollisionEdge = new Vector2(1, 1)
             };
 
             //translation: there are two potential future collisions, and upon calling FindNextCollisions collision processor finds out that both of they will in fact occur
@@ -144,8 +144,7 @@ namespace BrickShooter.Tests.Physics
             collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<CollisionPair> { futureCollision1.CollisionPair, futureCollision2.CollisionPair });
 
             // Assert
-            materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, It.IsAny<Vector2>()), Times.Exactly(2));
-            materialObjectMoverMock.Verify(x => x.ScheduleMovement(materialObject, It.IsAny<Vector2>()), Times.Once);
+            materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, It.IsAny<Vector2>()), Times.Exactly(3));
         }
     }
 }

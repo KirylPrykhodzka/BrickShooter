@@ -267,7 +267,7 @@ namespace BrickShooter.Tests.Physics
         }
 
         [TestCaseSource(nameof(CollisionEdgeTestCases))]
-        public void CalculateFutureCollisionResult_ShouldCorrectlyCalculateCollisionEdge(Vector2[] subjectPoints, Vector2 subjectVelocity, Vector2[] objectPoints, Vector2 objectVelocity, (Vector2, Vector2) collisionEdge)
+        public void CalculateFutureCollisionResult_ShouldCorrectlyCalculateCollisionEdge(Vector2[] subjectPoints, Vector2 subjectVelocity, Vector2[] objectPoints, Vector2 objectVelocity, Vector2 collisionEdge)
         {
             // Arrange
             var subject = new MaterialObjectMock(subjectPoints)
@@ -297,14 +297,14 @@ namespace BrickShooter.Tests.Physics
                     new Vector2(5, -5),
                     new Vector2[] { new Vector2(4, -2), new Vector2(4, -6), new Vector2(6, -4) },
                     new Vector2(-1, 2),
-                    (new Vector2(4, -6), new Vector2(4, -2))
+                    new Vector2(0, 4)
                 );
                 yield return new TestCaseData(
                     new Vector2[] { new Vector2(0, 0), new Vector2(-4, 0), new Vector2(2, -2) },
                     new Vector2(0, -5),
                     new Vector2[] { new Vector2(1, -6), new Vector2(3, 0), new Vector2(3, -7) },
                     new Vector2(0, 0),
-                    (new Vector2(3, 0), new Vector2(1, -6))
+                    new Vector2(-2, -6)
                 );
             }
         }

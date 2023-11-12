@@ -34,9 +34,14 @@ namespace BrickShooter.GameObjects
         {
             switch (otherCollider.CollisionLayer)
             {
-                case "Player":
+                case nameof(Player):
                     {
                         OnPlayerHit?.Invoke(this);
+                        break;
+                    }
+                case nameof(Wall):
+                    {
+                        Rotation = (float)(Rotation + Math.PI / 4);
                         break;
                     }
             }

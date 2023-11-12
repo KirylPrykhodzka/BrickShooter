@@ -82,7 +82,7 @@ namespace BrickShooter.Physics
             }
 
             result.ClosestCollisionPoint = closestCollision.point;
-            result.CollisionEdge = closestCollision.edge;
+            result.CollisionEdge = closestCollision.edge.point2 - closestCollision.edge.point1;
             result.DistanceToCollision = closestCollision.projectionLength;
             result.WillCollide = Math.Abs(closestCollision.projectionLength) < result.RelativeVelocity.Length();
             return result;

@@ -18,20 +18,17 @@ namespace BrickShooter.Physics
         private readonly IPotentialCollisionsDetector potentialCollisionsDetector;
         private readonly IExistingCollisionsCalculator existingCollisionsCalculator;
         private readonly ICollisionProcessor collisionProcessor;
-        private readonly IMaterialObjectMover materialObjectMover;
         private readonly IPool<CollisionPair> collisionPairPool;
 
         public PhysicsSystem(
             IPotentialCollisionsDetector potentialCollisionsDetector,
             IExistingCollisionsCalculator existingCollisionsCalculator,
             ICollisionProcessor collisionProcessor,
-            IMaterialObjectMover materialObjectMover,
             IPool<CollisionPair> collisionPairPool)
         {
             this.potentialCollisionsDetector = potentialCollisionsDetector;
             this.existingCollisionsCalculator = existingCollisionsCalculator;
             this.collisionProcessor = collisionProcessor;
-            this.materialObjectMover = materialObjectMover;
             this.collisionPairPool = collisionPairPool;
         }
 
@@ -89,7 +86,6 @@ namespace BrickShooter.Physics
                 }
                 collisionPairPool.Return(potentialCollisions.Existing.Concat(potentialCollisions.Future));
             }
-            materialObjectMover.ApplyScheduledMovements();
         }
 
         public void Visualize()
