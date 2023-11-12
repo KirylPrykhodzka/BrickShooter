@@ -2,6 +2,7 @@
 using BrickShooter.Constants;
 using BrickShooter.GameObjects;
 using BrickShooter.Physics.Interfaces;
+using BrickShooter.Physics.Models;
 using FluentAssertions;
 using Microsoft.Xna.Framework;
 using Moq;
@@ -84,7 +85,13 @@ namespace BrickShooter.Tests.GameObjects
             colliderPolygonMock.SetupGet(x => x.CollisionLayer).Returns(nameof(Player));
 
             // Act
-            bullet.OnCollision(colliderPolygonMock.Object);
+            bullet.OnVelocityCollision(new VelocityCollisionInfo
+            {
+                CollisionPair = new CollisionPair
+                {
+                    CollisionObject = colliderPolygonMock.Object,
+                }
+            });
 
             // Assert
             onPlayerHitInvoked.Should().BeTrue();
@@ -104,7 +111,13 @@ namespace BrickShooter.Tests.GameObjects
             colliderPolygonMock.SetupGet(x => x.CollisionLayer).Returns(fixture.Create("CollisionLayer"));
 
             // Act
-            bullet.OnCollision(colliderPolygonMock.Object);
+            bullet.OnVelocityCollision(new VelocityCollisionInfo
+            {
+                CollisionPair = new CollisionPair
+                {
+                    CollisionObject = colliderPolygonMock.Object,
+                }
+            });
 
             // Assert
             onPlayerHitInvoked.Should().BeFalse();

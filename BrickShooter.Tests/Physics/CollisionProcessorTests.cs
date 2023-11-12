@@ -33,9 +33,18 @@ namespace BrickShooter.Tests.Physics
             // Arrange
             var position = fixture.Create<Vector2>();
             var materialObject = new MaterialObjectMock { Position = position };
-            var collisions = fixture.Build<RotationCollisionInfo>()
-                .CreateMany()
-                .ToList();
+            fixture.Register<IColliderPolygon>(() => new Mock<ColliderPolygon>().Object);
+            var collisions = new List<RotationCollisionInfo>
+            {
+                new RotationCollisionInfo
+                {
+                    MinimalTranslationVector = fixture.Create<Vector2>(),
+                },
+                new RotationCollisionInfo
+                {
+                    MinimalTranslationVector = fixture.Create<Vector2>(),
+                },
+            };
 
             // Act
             collisionProcessor.ProcessExistingCollisions(materialObject, collisions);
