@@ -242,7 +242,7 @@ namespace BrickShooter.Tests.Physics
 
             // Assert
             result.WillCollide.Should().BeTrue();
-            result.ClosestCollisionPoint.Should().Be(closestCollisionPoint);
+            result.CollisionPoint.Should().Be(closestCollisionPoint);
         }
 
         public static IEnumerable ClosestCollisionPointCases

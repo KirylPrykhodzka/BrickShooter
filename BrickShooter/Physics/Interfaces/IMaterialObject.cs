@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BrickShooter.Physics.Models;
+using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
 namespace BrickShooter.Physics.Interfaces
@@ -11,6 +12,7 @@ namespace BrickShooter.Physics.Interfaces
         float Bounciness { get; set; }
         IColliderPolygon SingleCollider { get; }
         IList<IColliderPolygon> Colliders { get; }
+        void OnVelocityCollision(VelocityCollisionInfo collisionInfo);
         bool DidRotate { get; }
     }
 }

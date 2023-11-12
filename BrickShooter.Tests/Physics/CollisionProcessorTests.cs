@@ -33,7 +33,7 @@ namespace BrickShooter.Tests.Physics
             // Arrange
             var position = fixture.Create<Vector2>();
             var materialObject = new MaterialObjectMock { Position = position };
-            var collisions = fixture.Build<CollisionInfo>()
+            var collisions = fixture.Build<RotationCollisionInfo>()
                 .CreateMany()
                 .ToList();
 
@@ -57,7 +57,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(It.IsAny<IList<CollisionPair>>()))
-                .Returns(new List<FutureCollisionInfo>());
+                .Returns(new List<VelocityCollisionInfo>());
 
             // Act
             collisionProcessor.FindAndProcessNextCollisions(materialObject, collisions);
@@ -96,7 +96,7 @@ namespace BrickShooter.Tests.Physics
             };
 
             futureCollisionsCalculatorMock.Setup(x => x.FindNextCollisions(It.IsAny<IList<CollisionPair>>()))
-                .Returns(new List<FutureCollisionInfo>());
+                .Returns(new List<VelocityCollisionInfo>());
 
             // Act
             collisionProcessor.FindAndProcessNextCollisions(materialObject, collisions);
@@ -115,13 +115,13 @@ namespace BrickShooter.Tests.Physics
             var position = new Vector2(3, 5);
             var velocity = new Vector2(100, 100);
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
-            var futureCollision1 = new FutureCollisionInfo
+            var futureCollision1 = new VelocityCollisionInfo
             {
                 CollisionPair = new Mock<CollisionPair>().Object,
                 DistanceToCollision = 1f,
                 CollisionEdge = new Vector2(1, 1)
             };
-            var futureCollision2 = new FutureCollisionInfo
+            var futureCollision2 = new VelocityCollisionInfo
             {
                 CollisionPair = new Mock<CollisionPair>().Object,
                 DistanceToCollision = 2f,
@@ -132,13 +132,13 @@ namespace BrickShooter.Tests.Physics
             futureCollisionsCalculatorMock.Setup(x =>
                 x.FindNextCollisions(It.Is<IList<CollisionPair>>(l =>
                     l.Contains(futureCollision1.CollisionPair) && l.Contains(futureCollision2.CollisionPair))))
-                .Returns(new List<FutureCollisionInfo> { futureCollision1, futureCollision2 });
+                .Returns(new List<VelocityCollisionInfo> { futureCollision1, futureCollision2 });
 
             //translation: after processing closest collision, collision processor checks whether second collision is still possible and finds out that it is
             futureCollisionsCalculatorMock.Setup(x =>
                 x.FindNextCollisions(It.Is<IList<CollisionPair>>(x =>
                     x.Count() == 1 && x.First() == futureCollision2.CollisionPair)))
-                .Returns(new List<FutureCollisionInfo> { futureCollision2 });
+                .Returns(new List<VelocityCollisionInfo> { futureCollision2 });
 
             // Act
             collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<CollisionPair> { futureCollision1.CollisionPair, futureCollision2.CollisionPair });

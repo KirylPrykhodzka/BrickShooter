@@ -22,7 +22,7 @@ namespace BrickShooter.Physics
             this.materialObjectMover = materialObjectMover;
         }
 
-        public void ProcessExistingCollisions(IMaterialObject materialObject, IList<CollisionInfo> existingCollisions)
+        public void ProcessExistingCollisions(IMaterialObject materialObject, IList<RotationCollisionInfo> existingCollisions)
         {
             materialObjectMover.MoveObject(materialObject, existingCollisions.Aggregate(Vector2.Zero, (sum, x) => sum + x.MinimalTranslationVector));
         }
@@ -52,6 +52,7 @@ namespace BrickShooter.Physics
 
                 //without casting regularMovement to int the movement bugs, and I have no idea why
                 materialObjectMover.MoveObject(currentObject, new Vector2((int)regularMovement.X, (int)regularMovement.Y));
+                currentObject.OnVelocityCollision(nextCollision);
 
                 //if an object is not bouncy, we just move it alone the collision edge
                 //otherwise, we need to bounce it off of it and move it in the bounced direction as long as there is velocity remaining
@@ -62,8 +63,7 @@ namespace BrickShooter.Physics
                 }
                 else
                 {
-                    var normal = new Vector2(nextCollision.CollisionEdge.Y, -nextCollision.CollisionEdge.X).NormalizedCopy();
-                    originalVelocity = Vector2.Reflect(originalVelocity, normal) * currentObject.Bounciness;
+                    originalVelocity = Vector2.Reflect(originalVelocity, nextCollision.Normal) * currentObject.Bounciness;
                     materialObjectMover.MoveObject(currentObject, originalVelocity * (1 - regularMovementPortion) * GlobalObjects.DeltaTime);
                     break;
                 }

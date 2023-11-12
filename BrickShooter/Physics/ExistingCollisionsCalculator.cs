@@ -9,7 +9,7 @@ namespace BrickShooter.Physics
 {
     public class ExistingCollisionsCalculator : IExistingCollisionsCalculator
     {
-        public IList<CollisionInfo> GetExistingCollisions(IList<CollisionPair> potentialCollisions)
+        public IList<RotationCollisionInfo> GetExistingCollisions(IList<CollisionPair> potentialCollisions)
         {
             return potentialCollisions
                 .Select(CalculateExistingCollisionResult)
@@ -17,12 +17,13 @@ namespace BrickShooter.Physics
                 .ToList();
         }
 
-        private static CollisionInfo CalculateExistingCollisionResult(CollisionPair collisionPair)
+        private static RotationCollisionInfo CalculateExistingCollisionResult(CollisionPair collisionPair)
         {
             var first = collisionPair.CollisionSubject;
             var second = collisionPair.CollisionObject;
-            var result = new CollisionInfo
+            var result = new RotationCollisionInfo
             {
+                CollisionObject = collisionPair.CollisionObject,
                 IsColliding = true
             };
 

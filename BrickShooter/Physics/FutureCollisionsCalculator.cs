@@ -3,6 +3,7 @@ using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace BrickShooter.Physics
     {
         private readonly MemoryCache<(IList<Vector2> colliderPoints, Vector2 relativeVelocity), IList<Vector2>> frontFacingPointsCache = new(1000);
 
-        public IList<FutureCollisionInfo> FindNextCollisions(IList<CollisionPair> potentialCollisions)
+        public IList<VelocityCollisionInfo> FindNextCollisions(IList<CollisionPair> potentialCollisions)
         {
             return potentialCollisions.Select(CalculateFutureCollisionResult)
                 .Where(x => x.WillCollide)
@@ -28,11 +29,11 @@ namespace BrickShooter.Physics
         /// <param name="collisionSubject"></param>
         /// <param name="collisionObject"></param>
         /// <returns></returns>
-        public FutureCollisionInfo CalculateFutureCollisionResult(CollisionPair collisionPair)
+        public VelocityCollisionInfo CalculateFutureCollisionResult(CollisionPair collisionPair)
         {
             var collisionSubject = collisionPair.CollisionSubject;
             var collisionObject = collisionPair.CollisionObject;
-            var result = new FutureCollisionInfo
+            var result = new VelocityCollisionInfo
             {
                 CollisionPair = collisionPair,
                 RelativeVelocity = (collisionSubject.Owner.Velocity - collisionObject.Owner.Velocity) * GlobalObjects.DeltaTime
@@ -81,8 +82,9 @@ namespace BrickShooter.Physics
                 }
             }
 
-            result.ClosestCollisionPoint = closestCollision.point;
+            result.CollisionPoint = closestCollision.point;
             result.CollisionEdge = closestCollision.edge.point2 - closestCollision.edge.point1;
+            result.Normal = new Vector2(result.CollisionEdge.Y, -result.CollisionEdge.X).NormalizedCopy();
             result.DistanceToCollision = closestCollision.projectionLength;
             result.WillCollide = Math.Abs(closestCollision.projectionLength) < result.RelativeVelocity.Length();
             return result;

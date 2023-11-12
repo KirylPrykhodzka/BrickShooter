@@ -5,6 +5,6 @@ namespace BrickShooter.Physics.Interfaces
 {
     public interface IExistingCollisionsCalculator
     {
-        IList<CollisionInfo> GetExistingCollisions(IList<CollisionPair> potentialCollisions);
+        IList<RotationCollisionInfo> GetExistingCollisions(IList<CollisionPair> potentialCollisions);
     }
 }

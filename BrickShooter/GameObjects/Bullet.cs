@@ -5,6 +5,7 @@ using BrickShooter.Physics.Models;
 using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using System;
 
 namespace BrickShooter.GameObjects
@@ -30,9 +31,9 @@ namespace BrickShooter.GameObjects
             Bounciness = BulletConstants.BOUNCINESS;
         }
 
-        public override void OnCollision(IColliderPolygon otherCollider)
+        public override void OnVelocityCollision(VelocityCollisionInfo collisionInfo)
         {
-            switch (otherCollider.CollisionLayer)
+            switch (collisionInfo.CollisionPair.CollisionObject.CollisionLayer)
             {
                 case nameof(Player):
                     {
@@ -41,7 +42,7 @@ namespace BrickShooter.GameObjects
                     }
                 case nameof(Wall):
                     {
-                        Rotation = (float)(Rotation + Math.PI / 4);
+                        Rotation = Vector2.Reflect(Velocity, collisionInfo.Normal).ToAngle() + MathF.PI / 2;
                         break;
                     }
             }

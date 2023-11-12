@@ -191,7 +191,7 @@ namespace BrickShooter.Tests.Physics
             physicsSystem.Run();
 
             // Assert
-            collisionProcessorMock.Verify(x => x.ProcessExistingCollisions(mobileObject, It.IsAny<List<CollisionInfo>>()), Times.Never);
+            collisionProcessorMock.Verify(x => x.ProcessExistingCollisions(mobileObject, It.IsAny<List<RotationCollisionInfo>>()), Times.Never);
             collisionProcessorMock.Verify(x => x.FindAndProcessNextCollisions(mobileObject, It.Is<IList<CollisionPair>>(x => x.Count == 0)), Times.Once);
         }
 
@@ -205,13 +205,13 @@ namespace BrickShooter.Tests.Physics
             potentialCollisionsDetectorMock.Setup(p => p.GetPotentialCollisions(mobileObject, It.IsAny<IEnumerable<IMaterialObject>>()))
                 .Returns(fixture.Build<PotentialCollisions>().With(x => x.Existing, potentialExistingCollisions).Create());
             existingCollisionsCalculatorMock.Setup(e => e.GetExistingCollisions(potentialExistingCollisions))
-                .Returns(new List<CollisionInfo> { new CollisionInfo() });
+                .Returns(new List<RotationCollisionInfo> { new RotationCollisionInfo() });
 
             // Act
             physicsSystem.Run();
 
             // Assert
-            collisionProcessorMock.Verify(c => c.ProcessExistingCollisions(mobileObject, It.IsAny<IList<CollisionInfo>>()), Times.Once);
+            collisionProcessorMock.Verify(c => c.ProcessExistingCollisions(mobileObject, It.IsAny<IList<RotationCollisionInfo>>()), Times.Once);
         }
 
         [Test]
@@ -224,13 +224,13 @@ namespace BrickShooter.Tests.Physics
             potentialCollisionsDetectorMock.Setup(p => p.GetPotentialCollisions(mobileObject, It.IsAny<IEnumerable<IMaterialObject>>()))
                 .Returns(fixture.Build<PotentialCollisions>().With(x => x.Existing, potentialExistingCollisions).Create());
             existingCollisionsCalculatorMock.Setup(e => e.GetExistingCollisions(potentialExistingCollisions))
-                .Returns(new List<CollisionInfo> { });
+                .Returns(new List<RotationCollisionInfo> { });
 
             // Act
             physicsSystem.Run();
 
             // Assert
-            collisionProcessorMock.Verify(c => c.ProcessExistingCollisions(mobileObject, It.IsAny<IList<CollisionInfo>>()), Times.Never);
+            collisionProcessorMock.Verify(c => c.ProcessExistingCollisions(mobileObject, It.IsAny<IList<RotationCollisionInfo>>()), Times.Never);
         }
 
         [Test]
