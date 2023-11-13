@@ -3,8 +3,10 @@ using BrickShooter.Constants;
 using BrickShooter.GameObjects;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
+using BrickShooter.Tests.Mocks;
 using FluentAssertions;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 using Moq;
 using NUnit.Framework;
 
@@ -121,6 +123,32 @@ namespace BrickShooter.Tests.GameObjects
 
             // Assert
             onPlayerHitInvoked.Should().BeFalse();
+        }
+
+        [Test]
+        public void OnCollision_ShouldProperlyUpdateRotationUponCollisionWithWall()
+        {
+            // Arrange
+            var bullet = new Bullet
+            {
+                Velocity = fixture.Create<Vector2>()
+            };
+            var wallCollider = new ColliderPolygon(fixture.Create<MaterialObjectMock>(), nameof(Wall), fixture.Create<List<Vector2>>());
+            var velocityCollisionInfo = new VelocityCollisionInfo
+            {
+                CollisionPair = new CollisionPair
+                {
+                    CollisionObject = wallCollider,
+                },
+                Normal = fixture.Create<Vector2>()
+            };
+
+            // Act
+            bullet.OnVelocityCollision(velocityCollisionInfo);
+
+            // Assert
+            var expectedRotation = Vector2.Reflect(bullet.Velocity, velocityCollisionInfo.Normal).ToAngle() + MathF.PI / 2;
+            bullet.Rotation.Should().Be(expectedRotation);
         }
     }
 }
