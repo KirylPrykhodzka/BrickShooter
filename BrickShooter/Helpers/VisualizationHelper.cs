@@ -13,11 +13,11 @@ namespace BrickShooter.Helpers
         static VisualizationHelper()
         {
             texture = new Texture2D(GlobalObjects.Graphics.GraphicsDevice, 1, 1);
+            texture.SetData(new Color[] { Color.GreenYellow });
         }
 
         public static void VisualizeCollider(IColliderPolygon collider)
         {
-            texture.SetData(new Color[] { Color.GreenYellow });
             var points = collider.Points;
             for (int i = 0; i < points.Count; i++)
             {
