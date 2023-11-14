@@ -63,7 +63,7 @@ namespace BrickShooter
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            GlobalObjects.SpriteBatch.Begin(SpriteSortMode.FrontToBack);
+            GlobalObjects.SpriteBatch.Begin(SpriteSortMode.FrontToBack, samplerState: SamplerState.LinearWrap);
 
             drawingSystem.Run();
 #if DEBUG

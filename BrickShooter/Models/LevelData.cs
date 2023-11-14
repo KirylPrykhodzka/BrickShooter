@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace BrickShooter.Models
 {
@@ -8,6 +9,6 @@ namespace BrickShooter.Models
         public int Height { get; set; }
         public string BackgroundTextureName { get; set; }
         public Vector2 InitialPlayerPosition { get; set; }
-        public Tilemap Walls { get; set; }
+        public List<WallData> Walls { get; set; }
     }
 }

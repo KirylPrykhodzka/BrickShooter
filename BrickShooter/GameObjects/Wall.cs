@@ -1,38 +1,44 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
+using BrickShooter.Extensions;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BrickShooter.GameObjects
 {
     public class Wall : MaterialObject, IDrawableObject
     {
-        public Texture2D Texture { get; set; }
-        public Rectangle RectBounds { get; set; }
+        private readonly Texture2D texture;
+        private readonly Rectangle visibleBounds;
 
-        public Wall(Texture2D texture, Rectangle rectBounds) : base()
+        public Wall(Texture2D texture, Rectangle visibleBounds, float rotation) : base()
         {
-            Texture = texture;
-            RectBounds = rectBounds;
-            Colliders.Add(new ColliderPolygon(this, nameof(Wall), new Vector2[]
+            this.texture = texture;
+            this.visibleBounds = visibleBounds;
+            Rotation = rotation;
+            var colliderPoints = new List<Vector2>
             {
-                new(RectBounds.X, RectBounds.Y),
-                new(RectBounds.X + RectBounds.Width, RectBounds.Y),
-                new(RectBounds.X + RectBounds.Width, RectBounds.Y + RectBounds.Height),
-                new(RectBounds.X, RectBounds.Y + RectBounds.Height),
-            }));
+                new(visibleBounds.X, visibleBounds.Y),
+                new(visibleBounds.X + visibleBounds.Width, visibleBounds.Y),
+                new(visibleBounds.X + visibleBounds.Width, visibleBounds.Y + visibleBounds.Height),
+                new(visibleBounds.X, visibleBounds.Y + visibleBounds.Height),
+            };
+            Colliders.Add(new ColliderPolygon(this, nameof(Wall), colliderPoints));
         }
 
         public void Draw()
         {
             GlobalObjects.SpriteBatch.Draw(
-                Texture,
-                RectBounds,
-                null,
+                texture,
+                visibleBounds,
+                visibleBounds,
                 Color.White,
-                0f,
-                Vector2.Zero,
+                Rotation,
+                Position,
                 SpriteEffects.None,
                 Layers.WALLS);
         }

@@ -53,18 +53,23 @@ namespace BrickShooter.GameObjects
             physicsSystem.RegisterMobileObject(player);
             drawingSystem.Register(player);
 
-            var wallsTexture = GlobalObjects.Content.Load<Texture2D>($"Walls/{levelData.Walls.TextureName}");
             walls.Clear();
-            walls.AddRange(levelData.Walls.Placements.Select(placement =>
-                new Wall(
-                    wallsTexture,
-                    new Rectangle(
-                        levelBounds.X + (int)placement.X * levelData.Walls.TileWidth + levelData.Walls.OffsetX,
-                        levelBounds.Y + (int)placement.Y * levelData.Walls.TileHeight + levelData.Walls.OffsetY,
-                        levelData.Walls.TileWidth,
-                        levelData.Walls.TileHeight)
-                    )
-                ));
+            foreach (var wallGroup in levelData.Walls.GroupBy(x => x.TextureName))
+            {
+                var wallsTexture = GlobalObjects.Content.Load<Texture2D>($"Walls/{wallGroup.Key}");
+                walls.AddRange(wallGroup.Select(wallData =>
+                    new Wall(
+                        wallsTexture,
+                        new Rectangle(
+                            levelBounds.X + wallData.X,
+                            levelBounds.Y + wallData.Y,
+                            wallData.Width,
+                            wallData.Height),
+                        wallData.Rotation
+                        )
+                    ));
+            }
+
             foreach(var wall in walls)
             {
                 drawingSystem.Register(wall);

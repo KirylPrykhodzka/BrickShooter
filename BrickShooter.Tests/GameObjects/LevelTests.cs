@@ -90,38 +90,5 @@ namespace BrickShooter.Tests.GameObjects
                 Math.Abs(viewportBounds.Height - levelData.Height) / 2 + levelData.InitialPlayerPosition.Y))),
                 Times.Once);
         }
-
-        [Test]
-        public void Load_ShouldInitializeWalls()
-        {
-            // Arrange
-            var level = new Level(bulletPoolMock.Object, physicsSystemMock.Object, drawingSystemMock.Object);
-            var levelName = fixture.Create("levelName");
-            var levelData = fixture.Create<LevelData>();
-            var contentMock = new Mock<IContentManager>();
-            var viewportBounds = fixture.Create<Rectangle>();
-            contentMock.Setup(x => x.Load<LevelData>($"Levels/{levelName}")).Returns(levelData);
-            GlobalObjects.Content = contentMock.Object;
-
-            // Act
-            level.Load(levelName, viewportBounds);
-
-            //Assert
-            foreach(var wallPlacement in levelData.Walls.Placements)
-            {
-                drawingSystemMock.Verify(x => x.Register(It.Is<Wall>(x => x.RectBounds == new Rectangle(
-                    Math.Abs(viewportBounds.Width - levelData.Width) / 2 + (int)wallPlacement.X * levelData.Walls.TileWidth + levelData.Walls.OffsetX,
-                    Math.Abs(viewportBounds.Height - levelData.Height) / 2 + (int)wallPlacement.Y * levelData.Walls.TileHeight + levelData.Walls.OffsetY,
-                    levelData.Walls.TileWidth,
-                    levelData.Walls.TileHeight))),
-                    Times.Once);
-                physicsSystemMock.Verify(x => x.RegisterImmobileObject(It.Is<Wall>(x => x.RectBounds == new Rectangle(
-                    Math.Abs(viewportBounds.Width - levelData.Width) / 2 + (int)wallPlacement.X * levelData.Walls.TileWidth + levelData.Walls.OffsetX,
-                    Math.Abs(viewportBounds.Height - levelData.Height) / 2 + (int)wallPlacement.Y * levelData.Walls.TileHeight + levelData.Walls.OffsetY,
-                    levelData.Walls.TileWidth,
-                    levelData.Walls.TileHeight))),
-                    Times.Once);
-            }
-        }
     }
 }
