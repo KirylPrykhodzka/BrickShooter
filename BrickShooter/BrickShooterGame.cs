@@ -47,7 +47,6 @@ namespace BrickShooter
 
         protected override void Update(GameTime gameTime)
         {
-
             GlobalObjects.DeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             GlobalObjects.KeyboardState.Update(Keyboard.GetState());
             GlobalObjects.MouseState.Update(Mouse.GetState());

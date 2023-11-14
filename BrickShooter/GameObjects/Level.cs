@@ -87,14 +87,11 @@ namespace BrickShooter.GameObjects
         {
             player.Update();
 
-            if (GlobalObjects.MouseState.LeftButton == ButtonState.Pressed)
+            var now = DateTime.Now.Ticks / 10000;
+            if (now - lastBulletShot > PlayerConstants.SHOOTING_COOLDOWN_MS && GlobalObjects.MouseState.LeftButton == ButtonState.Pressed)
             {
-                var now = DateTime.Now.Ticks / 10000;
-                if (now - lastBulletShot > PlayerConstants.SHOOTING_COOLDOWN_MS)
-                {
-                    Shoot();
-                    lastBulletShot = now;
-                }
+                Shoot();
+                lastBulletShot = now;
             }
         }
 

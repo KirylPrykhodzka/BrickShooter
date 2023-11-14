@@ -6,6 +6,7 @@ using BrickShooter.GameObjects;
 using FluentAssertions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
 using Moq;
 using NUnit.Framework;
 
@@ -91,7 +92,7 @@ namespace BrickShooter.Tests.GameObjects
             player.Update();
 
             // Assert
-            player.Velocity.Y.Should().Be(-PlayerConstants.ACCELERATION_FACTOR * PlayerConstants.MAX_VELOCITY);
+            player.Velocity.Y.Should().Be(-PlayerConstants.ACCELERATION_FACTOR * PlayerConstants.MAX_MOVE_VELOCITY);
         }
 
         [Test]
@@ -109,7 +110,7 @@ namespace BrickShooter.Tests.GameObjects
             player.Update();
 
             // Assert
-            player.Velocity.Y.Should().Be(PlayerConstants.ACCELERATION_FACTOR * PlayerConstants.MAX_VELOCITY);
+            player.Velocity.Y.Should().Be(PlayerConstants.ACCELERATION_FACTOR * PlayerConstants.MAX_MOVE_VELOCITY);
         }
 
         [Test]
@@ -167,7 +168,7 @@ namespace BrickShooter.Tests.GameObjects
             player.Update();
 
             // Assert
-            player.Velocity.X.Should().Be(-PlayerConstants.ACCELERATION_FACTOR * PlayerConstants.MAX_VELOCITY);
+            player.Velocity.X.Should().Be(-PlayerConstants.ACCELERATION_FACTOR * PlayerConstants.MAX_MOVE_VELOCITY);
             player.Velocity.Y.Should().Be(0);
         }
 
@@ -186,7 +187,7 @@ namespace BrickShooter.Tests.GameObjects
             player.Update();
 
             // Assert
-            player.Velocity.X.Should().Be(PlayerConstants.ACCELERATION_FACTOR * PlayerConstants.MAX_VELOCITY);
+            player.Velocity.X.Should().Be(PlayerConstants.ACCELERATION_FACTOR * PlayerConstants.MAX_MOVE_VELOCITY);
             player.Velocity.Y.Should().Be(0);
         }
 
@@ -194,7 +195,7 @@ namespace BrickShooter.Tests.GameObjects
         public void Update_PlayerMovingUp_When_W_KeyIsNotPressed_ShouldDecelerate()
         {
             // Arrange
-            var velocityY = new Random().Next(-(int)PlayerConstants.MAX_VELOCITY, -(int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR));
+            var velocityY = new Random().Next(-(int)PlayerConstants.MAX_MOVE_VELOCITY, -(int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR));
             var player = fixture.Build<Player>()
                 .With(x => x.Velocity, new Vector2(fixture.Create<int>(), velocityY))
                 .Create();
@@ -213,7 +214,7 @@ namespace BrickShooter.Tests.GameObjects
         public void Update_PlayerMovingDown_When_S_KeyIsNotPressed_ShouldDecelerate()
         {
             // Arrange
-            var velocityY = new Random().Next((int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR), (int)PlayerConstants.MAX_VELOCITY);
+            var velocityY = new Random().Next((int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR), (int)PlayerConstants.MAX_MOVE_VELOCITY);
             var player = fixture.Build<Player>()
                 .With(x => x.Velocity, new Vector2(fixture.Create<int>(), velocityY))
                 .Create();
@@ -232,7 +233,7 @@ namespace BrickShooter.Tests.GameObjects
         public void Update_PlayerMovingLeft_When_A_KeyIsNotPressed_ShouldDecelerate()
         {
             // Arrange
-            var velocityX = new Random().Next(-(int)PlayerConstants.MAX_VELOCITY, -(int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR));
+            var velocityX = new Random().Next(-(int)PlayerConstants.MAX_MOVE_VELOCITY, -(int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR));
             var player = fixture.Build<Player>()
                 .With(x => x.Velocity, new Vector2(velocityX, fixture.Create<int>()))
                 .Create();
@@ -251,7 +252,7 @@ namespace BrickShooter.Tests.GameObjects
         public void Update_PlayerMovingRight_When_D_KeyIsNotPressed_ShouldDecelerate()
         {
             // Arrange
-            var velocityX = new Random().Next((int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR), (int)PlayerConstants.MAX_VELOCITY);
+            var velocityX = new Random().Next((int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR), (int)PlayerConstants.MAX_MOVE_VELOCITY);
             var player = fixture.Build<Player>()
                 .With(x => x.Velocity, new Vector2(velocityX, fixture.Create<int>()))
                 .Create();
@@ -270,7 +271,7 @@ namespace BrickShooter.Tests.GameObjects
         public void Update_PlayerMovingOnXAxis_When_A_And_D_KeysArePressed_ShouldDecelerate()
         {
             // Arrange
-            var velocityX = new Random().Next((int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR), (int)PlayerConstants.MAX_VELOCITY);
+            var velocityX = new Random().Next((int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR), (int)PlayerConstants.MAX_MOVE_VELOCITY);
             var player = fixture.Build<Player>()
                 .With(x => x.Velocity, new Vector2(velocityX, fixture.Create<int>()))
                 .Create();
@@ -289,7 +290,7 @@ namespace BrickShooter.Tests.GameObjects
         public void Update_PlayerMovingOnYAxis_When_W_And_S_KeysArePressed_ShouldDecelerate()
         {
             // Arrange
-            var velocityY = new Random().Next((int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR), (int)PlayerConstants.MAX_VELOCITY);
+            var velocityY = new Random().Next((int)(PhysicsConstants.MIN_VELOCITY / PlayerConstants.DECELERATION_FACTOR), (int)PlayerConstants.MAX_MOVE_VELOCITY);
             var player = fixture.Build<Player>()
                 .With(x => x.Velocity, new Vector2(fixture.Create<int>(), velocityY))
                 .Create();
@@ -308,7 +309,7 @@ namespace BrickShooter.Tests.GameObjects
         public void Update_PlayerMovingLeft_When_D_KeyIsPressed_ShouldStopImmediately()
         {
             // Arrange
-            var velocityX = new Random().Next(-(int)PlayerConstants.MAX_VELOCITY, -PhysicsConstants.MIN_VELOCITY);
+            var velocityX = new Random().Next(-(int)PlayerConstants.MAX_MOVE_VELOCITY, -PhysicsConstants.MIN_VELOCITY);
             var player = fixture.Build<Player>()
                 .With(x => x.Velocity, new Vector2(velocityX, fixture.Create<int>()))
                 .Create();
@@ -327,7 +328,7 @@ namespace BrickShooter.Tests.GameObjects
         public void Update_PlayerMovingRight_When_A_KeyIsPressed_ShouldStartMovingLeftImmediately()
         {
             // Arrange
-            var velocityX = new Random().Next(PhysicsConstants.MIN_VELOCITY, (int)PlayerConstants.MAX_VELOCITY);
+            var velocityX = new Random().Next(PhysicsConstants.MIN_VELOCITY, (int)PlayerConstants.MAX_MOVE_VELOCITY);
             var player = fixture.Build<Player>()
                 .With(x => x.Velocity, new Vector2(velocityX, fixture.Create<int>()))
                 .Create();
@@ -346,7 +347,7 @@ namespace BrickShooter.Tests.GameObjects
         public void Update_PlayerMovingUp_When_S_KeyIsPressed_ShouldStartMovingDownImmediately()
         {
             // Arrange
-            var velocityY = new Random().Next(-(int)PlayerConstants.MAX_VELOCITY, -PhysicsConstants.MIN_VELOCITY);
+            var velocityY = new Random().Next(-(int)PlayerConstants.MAX_MOVE_VELOCITY, -PhysicsConstants.MIN_VELOCITY);
             var player = fixture.Build<Player>()
                 .With(x => x.Velocity, new Vector2(fixture.Create<int>(), velocityY))
                 .Create();
@@ -365,7 +366,7 @@ namespace BrickShooter.Tests.GameObjects
         public void Update_PlayerMovingDown_When_W_KeyIsPressed_ShouldStartMovingUpImmediately()
         {
             // Arrange
-            var velocityY = new Random().Next(PhysicsConstants.MIN_VELOCITY, (int)PlayerConstants.MAX_VELOCITY);
+            var velocityY = new Random().Next(PhysicsConstants.MIN_VELOCITY, (int)PlayerConstants.MAX_MOVE_VELOCITY);
             var player = fixture.Build<Player>()
                 .With(x => x.Velocity, new Vector2(fixture.Create<int>(), velocityY))
                 .Create();
@@ -401,6 +402,94 @@ namespace BrickShooter.Tests.GameObjects
             //Assert
             player.Rotation.Should().Be(expectedRotation);
             player.DidRotate.Should().Be(expectedRotation != rotation);
+        }
+
+        [Test, AutoData]
+        public void Update_PlayerIsStandingStill_UponSpaceButtonClick_ShouldDodgeInLookingDirection([Range(0, Math.PI, 0.1)] double rotation)
+        {
+            // Arrange
+            var player = fixture.Build<Player>()
+                .With(x => x.Velocity, Vector2.Zero)
+                .With(x => x.Rotation, rotation)
+                .Create();
+            var keyboardState = new Mock<IKeyboardState>();
+            keyboardState.SetupGet(x => x.PressedKeys).Returns(new Keys[] { Keys.Space });
+            GlobalObjects.KeyboardState = keyboardState.Object;
+
+            // Act
+            player.Update();
+
+            // Assert
+            player.Velocity.X.Should().BeApproximately((float)Math.Cos(rotation) * PlayerConstants.DODGE_VELOCITY, 0.001f);
+            player.Velocity.Y.Should().BeApproximately((float)Math.Sin(rotation) * PlayerConstants.DODGE_VELOCITY, 0.001f);
+        }
+
+        [Test]
+        public void Update_PlayerIsMoving_UponSpaceButtonClick_ShouldDodgeInMovementDirection()
+        {
+            // Arrange
+            var player = fixture.Create<Player>();
+            var keyboardState = new Mock<IKeyboardState>();
+            keyboardState.SetupGet(x => x.PressedKeys).Returns(new Keys[] { Keys.Space });
+            GlobalObjects.KeyboardState = keyboardState.Object;
+
+            // Act
+            player.Update();
+
+            // Assert
+            player.Velocity.X.Should().BeApproximately(player.Velocity.NormalizedCopy().X * PlayerConstants.DODGE_VELOCITY, 0.001f);
+            player.Velocity.Y.Should().BeApproximately(player.Velocity.NormalizedCopy().Y * PlayerConstants.DODGE_VELOCITY, 0.001f);
+        }
+
+        [Test]
+        public void Update_ShouldNotBeAbleToMoveImmediatelyAfterDodge()
+        {
+            // Arrange
+            var player = fixture.Build<Player>()
+                .With(x => x.Velocity, new Vector2(0, 30))
+                .Create();
+            var keyboardState = new Mock<IKeyboardState>();
+            keyboardState.SetupGet(x => x.PressedKeys).Returns(new Keys[] { Keys.Space });
+            GlobalObjects.KeyboardState = keyboardState.Object;
+
+            // Act
+            player.Update();
+            keyboardState.SetupGet(x => x.PressedKeys).Returns(new Keys[] { Keys.D });
+            player.Update();
+            var velocityOneUpdateAfterDodge = player.Velocity;
+            Thread.Sleep(PlayerConstants.DODGE_RECOVERY_MS);
+            player.Update();
+            var velocityAfterCooldown = player.Velocity;
+
+            // Assert
+            velocityOneUpdateAfterDodge.X.Should().Be(0);
+            velocityAfterCooldown.X.Should().BeGreaterThan(0);
+        }
+
+        [Test]
+        public void Update_ShouldNotBeAbleToDodgeImmediatelyAfterDodge()
+        {
+            // Arrange
+            var player = fixture.Build<Player>()
+                .With(x => x.Velocity, new Vector2(0, 30))
+                .Create();
+            var keyboardState = new Mock<IKeyboardState>();
+            keyboardState.SetupGet(x => x.PressedKeys).Returns(new Keys[] { Keys.Space });
+            GlobalObjects.KeyboardState = keyboardState.Object;
+
+            // Act
+            player.Update();
+            var velocityImmediatelyAfterDodge = player.Velocity;
+            player.Update();
+            var velocityOneUpdateAfterDodge = player.Velocity;
+            Thread.Sleep(PlayerConstants.DODGE_COOLDOWN_MS);
+            player.Update();
+            var velocityAfterCooldown = player.Velocity;
+
+            // Assert
+            velocityImmediatelyAfterDodge.Y.Should().Be(PlayerConstants.DODGE_VELOCITY);
+            velocityOneUpdateAfterDodge.Y.Should().BeLessThan(PlayerConstants.DODGE_VELOCITY); //because on the next update player will start decelerating
+            velocityAfterCooldown.Y.Should().Be(PlayerConstants.DODGE_VELOCITY);
         }
     }
 }

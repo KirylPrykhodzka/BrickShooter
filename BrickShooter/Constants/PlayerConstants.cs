@@ -4,13 +4,20 @@ namespace BrickShooter.Constants
 {
     public class PlayerConstants
     {
-        public const float MAX_VELOCITY = 300f;
-        //max velocity will be reached in 10 updates
+        public const float MAX_MOVE_VELOCITY = 300f;
+        // determines how long it takes the player to reach MAX_MOVE_VELOCITY
         public const float ACCELERATION_FACTOR = 0.1f;
-        //player decelerates twice as fast as accelerates
-        public const float DECELERATION_FACTOR = ACCELERATION_FACTOR * 2;
+        // determines how long it takes the player to stop moving
+        public const float DECELERATION_FACTOR = 0.2f;
 
-        public const int SHOOTING_COOLDOWN_MS = 100;
+        public const int DODGE_COOLDOWN_MS = 2500;
+        public const float DODGE_VELOCITY = 1200f;
+        // determines how quickly player loses velocity after a dodge
+        public const float DODGE_RECOVERY_DECELERATION_FACTOR = 0.05f;
+        //the period after dodge during which the player cannot take any action
+        public const int DODGE_RECOVERY_MS = 500;
+
+        public const int SHOOTING_COOLDOWN_MS = 1000;
 
         /// <summary>
         /// position of player's gun relative to player's position

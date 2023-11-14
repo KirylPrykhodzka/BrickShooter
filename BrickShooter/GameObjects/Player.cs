@@ -6,6 +6,7 @@ using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
 using System;
 using System.Linq;
 
@@ -14,6 +15,9 @@ namespace BrickShooter.GameObjects
     public class Player : MaterialObject, IDrawableObject
     {
         private static readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>($"Player/player");
+
+        private long lastDodge = 0;
+        private long cannotMoveUntil = 0;
 
         public Player(Vector2 initialPosition)
         {
@@ -28,8 +32,8 @@ namespace BrickShooter.GameObjects
         {
             var pressedKeys = GlobalObjects.KeyboardState.PressedKeys;
             var mouseState = GlobalObjects.MouseState;
-            HandleMovementInput(pressedKeys);
-            HandleRotationInput(mouseState);
+            UpdateVelocity(pressedKeys);
+            UpdateRotation(mouseState);
         }
 
         public void Draw()
@@ -46,42 +50,65 @@ namespace BrickShooter.GameObjects
                 Layers.PLAYER);
         }
 
-        private void HandleMovementInput(Keys[] pressedKeys)
+        private void UpdateVelocity(Keys[] pressedKeys)
         {
-            //if both up and down keys are pressed, player should not move
-            if (Velocity.Y != 0 && ((pressedKeys.Contains(Keys.W) && pressedKeys.Contains(Keys.S)) || !(pressedKeys.Contains(Keys.W) || pressedKeys.Contains(Keys.S))))
+            var now = DateTime.Now.Ticks / 10000;
+
+            var isDodgeAvailable = now - lastDodge > PlayerConstants.DODGE_COOLDOWN_MS;
+            if (isDodgeAvailable && pressedKeys.Contains(Keys.Space))
             {
-                Decelerate('y');
-            }
-            //if player is trying to move in direction opposite to current movement direction, stop immediately
-            else if ((Velocity.Y > 0 && pressedKeys.Contains(Keys.W)) || (Velocity.Y < 0 && pressedKeys.Contains(Keys.S)))
-            {
-                Velocity = new(Velocity.X, 0);
-            }
-            else
-            {
-                HandleDirectionInput(pressedKeys, Keys.W, 'y', -1);
-                HandleDirectionInput(pressedKeys, Keys.S, 'y', 1);
+                lastDodge = now;
+                //dodge in the direction where the player is moving or, if player is not moving, in the direction where player is looking
+                var dodgeDirection = Velocity == Vector2.Zero ? new Vector2((float)Math.Cos(Rotation), (float)Math.Sin(Rotation)) :Velocity.NormalizedCopy();
+                Velocity = dodgeDirection * PlayerConstants.DODGE_VELOCITY;
+                cannotMoveUntil = now + PlayerConstants.DODGE_RECOVERY_MS;
+                return;
             }
 
-            if (Velocity.X != 0 && ((pressedKeys.Contains(Keys.A) && pressedKeys.Contains(Keys.D)) || !(pressedKeys.Contains(Keys.A) || pressedKeys.Contains(Keys.D))))
+            if(cannotMoveUntil <= now)
             {
-                Decelerate('x');
-            }
-            else if((Velocity.X > 0 && pressedKeys.Contains(Keys.A)) || (Velocity.X < 0 && pressedKeys.Contains(Keys.D)))
-            {
-                Velocity = new(0, Velocity.Y);
-            }
-            else
-            {
-                HandleDirectionInput(pressedKeys, Keys.A, 'x', -1);
-                HandleDirectionInput(pressedKeys, Keys.D, 'x', 1);
+                //if both up and down keys are pressed, player should not move
+                if (Velocity.Y != 0 && ((pressedKeys.Contains(Keys.W) && pressedKeys.Contains(Keys.S)) || !(pressedKeys.Contains(Keys.W) || pressedKeys.Contains(Keys.S))))
+                {
+                    Decelerate('y');
+                }
+                //if player is trying to move in direction opposite to current movement direction, stop immediately
+                else if ((Velocity.Y > 0 && pressedKeys.Contains(Keys.W)) || (Velocity.Y < 0 && pressedKeys.Contains(Keys.S)))
+                {
+                    Velocity = new(Velocity.X, 0);
+                }
+                else
+                {
+                    HandleDirectionInput(pressedKeys, Keys.W, 'y', -1);
+                    HandleDirectionInput(pressedKeys, Keys.S, 'y', 1);
+                }
+
+                if (Velocity.X != 0 && ((pressedKeys.Contains(Keys.A) && pressedKeys.Contains(Keys.D)) || !(pressedKeys.Contains(Keys.A) || pressedKeys.Contains(Keys.D))))
+                {
+                    Decelerate('x');
+                }
+                else if ((Velocity.X > 0 && pressedKeys.Contains(Keys.A)) || (Velocity.X < 0 && pressedKeys.Contains(Keys.D)))
+                {
+                    Velocity = new(0, Velocity.Y);
+                }
+                else
+                {
+                    HandleDirectionInput(pressedKeys, Keys.A, 'x', -1);
+                    HandleDirectionInput(pressedKeys, Keys.D, 'x', 1);
+                }
             }
 
-            // Normalize diagonal movement
-            if (Math.Abs(Velocity.X) == Math.Abs(Velocity.Y) && Math.Abs(Velocity.X) + Math.Abs(Velocity.Y) > PlayerConstants.MAX_VELOCITY * Math.Sqrt(2))
+            if (Math.Abs(Velocity.X) + Math.Abs(Velocity.Y) > PlayerConstants.MAX_MOVE_VELOCITY * Math.Sqrt(2))
             {
-                Velocity *= PlayerConstants.MAX_VELOCITY * (float)Math.Sqrt(2) / (Math.Abs(Velocity.X) + Math.Abs(Velocity.Y));
+                if(isDodgeAvailable)
+                {
+                    //normalize diagonal movement
+                    Velocity *= PlayerConstants.MAX_MOVE_VELOCITY * (float)Math.Sqrt(2) / (Math.Abs(Velocity.X) + Math.Abs(Velocity.Y));
+                }
+                else
+                {
+                    DecelerateAfterDodge();
+                }
             }
         }
 
@@ -96,7 +123,7 @@ namespace BrickShooter.GameObjects
         private void Accelerate(char axis, int direction)
         {
             float currentVelocity = axis == 'x' ? Math.Abs(Velocity.X) : Math.Abs(Velocity.Y);
-            float acceleration = MathHelper.Clamp(PlayerConstants.MAX_VELOCITY * PlayerConstants.ACCELERATION_FACTOR, 0, PlayerConstants.MAX_VELOCITY - currentVelocity);
+            float acceleration = MathHelper.Clamp(PlayerConstants.MAX_MOVE_VELOCITY * PlayerConstants.ACCELERATION_FACTOR, 0, PlayerConstants.MAX_MOVE_VELOCITY - currentVelocity);
 
             if (axis == 'x')
             {
@@ -115,7 +142,6 @@ namespace BrickShooter.GameObjects
 
             if (Math.Abs(currentVelocity - deceleration) > PhysicsConstants.MIN_VELOCITY)
             {
-
                 if (axis == 'x')
                 {
                     Velocity -= new Vector2(deceleration, 0);
@@ -131,7 +157,12 @@ namespace BrickShooter.GameObjects
             }
         }
 
-        private void HandleRotationInput(IMouseState mouseState)
+        private void DecelerateAfterDodge()
+        {
+            Velocity -= Velocity * PlayerConstants.DODGE_RECOVERY_DECELERATION_FACTOR;
+        }
+
+        private void UpdateRotation(IMouseState mouseState)
         {
             var diffX = mouseState.X - Position.X;
             var diffY = mouseState.Y - Position.Y;
