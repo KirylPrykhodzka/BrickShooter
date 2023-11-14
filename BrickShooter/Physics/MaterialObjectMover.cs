@@ -1,6 +1,5 @@
 ﻿using BrickShooter.Physics.Interfaces;
 using Microsoft.Xna.Framework;
-using System.Collections.Generic;
 
 namespace BrickShooter.Physics
 {

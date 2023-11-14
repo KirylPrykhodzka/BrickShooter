@@ -57,17 +57,12 @@ namespace BrickShooter.GameObjects
             foreach (var wallGroup in levelData.Walls.GroupBy(x => x.TextureName))
             {
                 var wallsTexture = GlobalObjects.Content.Load<Texture2D>($"Walls/{wallGroup.Key}");
-                walls.AddRange(wallGroup.Select(wallData =>
-                    new Wall(
+                walls.AddRange(wallGroup.Select(wallData => new Wall(
                         wallsTexture,
-                        new Rectangle(
-                            levelBounds.X + wallData.X,
-                            levelBounds.Y + wallData.Y,
-                            wallData.Width,
-                            wallData.Height),
-                        wallData.Rotation
-                        )
-                    ));
+                        new Point(wallData.X + levelBounds.X, wallData.Y + levelBounds.Y),
+                        wallData.Width,
+                        wallData.Height,
+                        wallData.Rotation)));
             }
 
             foreach(var wall in walls)

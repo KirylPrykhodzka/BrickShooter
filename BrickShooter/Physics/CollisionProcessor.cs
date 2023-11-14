@@ -3,7 +3,6 @@ using BrickShooter.Extensions;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended;
 using System.Collections.Generic;
 using System.Linq;
 

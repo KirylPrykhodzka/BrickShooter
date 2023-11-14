@@ -40,7 +40,7 @@ namespace BrickShooter.GameObjects
         {
             GlobalObjects.SpriteBatch.Draw(
                 sprite,
-                new Vector2(Position.X, Position.Y),
+                Position,
                 null,
                 Color.White,
                 Rotation,
