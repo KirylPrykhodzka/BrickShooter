@@ -28,7 +28,6 @@ namespace BrickShooter
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
             physicsSystem = ServiceProviderFactory.ServiceProvider.GetService<IPhysicsSystem>();
             drawingSystem = ServiceProviderFactory.ServiceProvider.GetService<IDrawingSystem>();
             base.Initialize();
@@ -38,6 +37,7 @@ namespace BrickShooter
         {
             GlobalObjects.SpriteBatch = new SpriteBatch(GraphicsDevice);
             GlobalObjects.Content = new ContentManagerWrapper(Content);
+            GlobalObjects.TimeScale = 1f;
 
             level = new Level(ServiceProviderFactory.ServiceProvider.GetService<IPool<Bullet>>(),
                 physicsSystem,
@@ -47,7 +47,7 @@ namespace BrickShooter
 
         protected override void Update(GameTime gameTime)
         {
-            GlobalObjects.DeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            GlobalObjects.AbsoluteDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds * GlobalObjects.TimeScale;
             GlobalObjects.KeyboardState.Update(Keyboard.GetState());
             GlobalObjects.MouseState.Update(Mouse.GetState());
 

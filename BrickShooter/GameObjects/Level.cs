@@ -107,6 +107,7 @@ namespace BrickShooter.GameObjects
 
         private void OnBulletHitPlayer(Bullet bullet)
         {
+            GlobalObjects.TimeScale = 0f;
             bullet.OnPlayerHit = null;
             physicsSystem.UnregisterMobileObject(bullet);
             drawingSystem.Unregister(bullet);

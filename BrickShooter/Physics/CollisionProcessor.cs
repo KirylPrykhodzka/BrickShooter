@@ -34,16 +34,16 @@ namespace BrickShooter.Physics
             {
                 if (potentialFutureCollisions.Count == 0)
                 {
-                    materialObjectMover.MoveObject(currentObject, currentObject.Velocity * GlobalObjects.DeltaTime);
+                    materialObjectMover.MoveObject(currentObject, currentObject.Velocity * GlobalObjects.ScaledDeltaTime);
                     break;
                 }
                 var nextCollisions = futureCollisionCalculator.FindNextCollisions(potentialFutureCollisions);
                 if(nextCollisions.Count == 0)
                 {
-                    materialObjectMover.MoveObject(currentObject, currentObject.Velocity * GlobalObjects.DeltaTime);
+                    materialObjectMover.MoveObject(currentObject, currentObject.Velocity * GlobalObjects.ScaledDeltaTime);
                     break;
                 }
-                var fixedVelocity = currentObject.Velocity * GlobalObjects.DeltaTime;
+                var fixedVelocity = currentObject.Velocity * GlobalObjects.ScaledDeltaTime;
                 var remainingTravelDistance = fixedVelocity.Length();
                 var nextCollision = nextCollisions.MinBy(x => x.DistanceToCollision);
                 var regularMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance;
@@ -63,7 +63,7 @@ namespace BrickShooter.Physics
                 else
                 {
                     originalVelocity = Vector2.Reflect(originalVelocity, nextCollision.Normal) * currentObject.Bounciness;
-                    materialObjectMover.MoveObject(currentObject, originalVelocity * (1 - regularMovementPortion) * GlobalObjects.DeltaTime);
+                    materialObjectMover.MoveObject(currentObject, originalVelocity * (1 - regularMovementPortion) * GlobalObjects.ScaledDeltaTime);
                     break;
                 }
             }

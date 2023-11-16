@@ -103,8 +103,8 @@ namespace BrickShooter.Physics
 
         private static bool DoProjectedBoundsOverlap(RectangleF first, Vector2 firstVelocity, RectangleF second, Vector2 secondVelocity)
         {
-            var firstFixedVelocity = firstVelocity * GlobalObjects.DeltaTime;
-            var secondFixedVelocity = secondVelocity * GlobalObjects.DeltaTime;
+            var firstFixedVelocity = firstVelocity * GlobalObjects.ScaledDeltaTime;
+            var secondFixedVelocity = secondVelocity * GlobalObjects.ScaledDeltaTime;
             first.Offset(firstFixedVelocity);
             second.Offset(secondFixedVelocity);
             return first.Intersects(second);

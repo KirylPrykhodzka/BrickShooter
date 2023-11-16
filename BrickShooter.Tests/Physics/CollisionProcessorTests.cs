@@ -21,7 +21,7 @@ namespace BrickShooter.Tests.Physics
         public void SetUp()
         {
             fixture = new Fixture();
-            GlobalObjects.DeltaTime = 2f;
+            GlobalObjects.AbsoluteDeltaTime = 2f;
             futureCollisionsCalculatorMock = new Mock<IFutureCollisionsCalculator>();
             materialObjectMoverMock = new Mock<IMaterialObjectMover>();
             collisionProcessor = new CollisionProcessor(futureCollisionsCalculatorMock.Object, materialObjectMoverMock.Object);
@@ -81,21 +81,21 @@ namespace BrickShooter.Tests.Physics
             // Arrange
             var position = fixture.Create<Vector2>();
             var velocity = fixture.Create<Vector2>();
-            GlobalObjects.DeltaTime = 0.5f;
+            GlobalObjects.AbsoluteDeltaTime = 0.5f;
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
 
             // Act
             collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<CollisionPair>());
 
             //Assert
-            materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, velocity * GlobalObjects.DeltaTime), Times.Once);
+            materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, velocity * GlobalObjects.ScaledDeltaTime), Times.Once);
         }
 
         [Test]
         public void FindAndProcessNextCollisions_DidNotFindCollisions_ShouldScheduleMovementWithoutObstruction()
         {
             // Arrange
-            GlobalObjects.DeltaTime = 0.5f;
+            GlobalObjects.AbsoluteDeltaTime = 0.5f;
             var position = new Vector2(3, 5);
             var velocity = new Vector2(5, 5);
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
@@ -113,14 +113,14 @@ namespace BrickShooter.Tests.Physics
             // Assert
             futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(It.Is<IList<CollisionPair>>(x => x.Count() == 1)), Times.Once);
             futureCollisionsCalculatorMock.Verify(x => x.FindNextCollisions(It.Is<IList<CollisionPair>>(x => !x.Any())), Times.Never);
-            materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, velocity * GlobalObjects.DeltaTime), Times.Once);
+            materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, velocity * GlobalObjects.ScaledDeltaTime), Times.Once);
         }
 
         [Test]
         public void FindAndProcessNextCollisions_FoundMultipleNextCollisions_ShouldProcessThemInOrder()
         {
             // Arrange
-            GlobalObjects.DeltaTime = 0.5f;
+            GlobalObjects.AbsoluteDeltaTime = 0.5f;
             var position = new Vector2(3, 5);
             var velocity = new Vector2(100, 100);
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
@@ -160,7 +160,7 @@ namespace BrickShooter.Tests.Physics
         public void FindAndProcessNextCollisions_FoundMultiplCollisions_ShouldBounceOffTheFirstCollision()
         {
             // Arrange
-            GlobalObjects.DeltaTime = 0.5f;
+            GlobalObjects.AbsoluteDeltaTime = 0.5f;
             var position = new Vector2(3, 5);
             var velocity = new Vector2(100, 100);
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity, Bounciness = 0.5f };

@@ -20,14 +20,14 @@ namespace BrickShooter.Tests.Physics
         {
             fixture = new Fixture();
             collisionsCalculator = new FutureCollisionsCalculator();
-            GlobalObjects.DeltaTime = 2f;
+            GlobalObjects.AbsoluteDeltaTime = 2f;
         }
 
         [Test]
         public void FindNextCollisions_NoCollision_ReturnsEmptyList()
         {
             // Arrange
-            GlobalObjects.DeltaTime = 1f;
+            GlobalObjects.AbsoluteDeltaTime = 1f;
             var subject = new MaterialObjectMock();
             var collisionObject = new MaterialObjectMock();
             subject.Velocity = new Vector2(1, 0);
@@ -92,7 +92,7 @@ namespace BrickShooter.Tests.Physics
             var result = collisionsCalculator.CalculateFutureCollisionResult(new CollisionPair(subject.Colliders.First(), collisionObject.Colliders.First()));
 
             // Assert
-            result.RelativeVelocity.Should().Be((subject.Velocity - collisionObject.Velocity) * GlobalObjects.DeltaTime);
+            result.RelativeVelocity.Should().Be((subject.Velocity - collisionObject.Velocity) * GlobalObjects.ScaledDeltaTime);
         }
 
         [TestCaseSource(nameof(FutureCollisionCases))]
@@ -225,7 +225,7 @@ namespace BrickShooter.Tests.Physics
         public void CalculateFutureCollisionResult_ShouldCorrectlyCalculateClosestCollisionPoint(Vector2[] subjectPoints, Vector2 subjectVelocity, Vector2[] objectPoints, Vector2 objectVelocity, Vector2 closestCollisionPoint)
         {
             // Arrange
-            GlobalObjects.DeltaTime = 1f;
+            GlobalObjects.AbsoluteDeltaTime = 1f;
             var subject = new MaterialObjectMock(subjectPoints)
             {
                 Velocity = subjectVelocity

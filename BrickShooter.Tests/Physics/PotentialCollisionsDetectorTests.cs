@@ -102,7 +102,7 @@ namespace BrickShooter.Tests.Physics
         public void DetectPotentialCollisions_Should_DetectPotentialCollisionsBasedOnProjectedBounds()
         {
             // Arrange
-            GlobalObjects.DeltaTime = 1f;
+            GlobalObjects.AbsoluteDeltaTime = 1f;
 
             var currentObjectBodyMock = new Mock<IColliderPolygon>();
             currentObjectBodyMock.SetupGet(x => x.CollisionLayer).Returns(nameof(Player));

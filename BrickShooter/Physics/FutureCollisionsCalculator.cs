@@ -36,7 +36,7 @@ namespace BrickShooter.Physics
             var result = new VelocityCollisionInfo
             {
                 CollisionPair = collisionPair,
-                RelativeVelocity = (collisionSubject.Owner.Velocity - collisionObject.Owner.Velocity) * GlobalObjects.DeltaTime
+                RelativeVelocity = (collisionSubject.Owner.Velocity - collisionObject.Owner.Velocity) * GlobalObjects.ScaledDeltaTime
             };
 
             var subjectFrontFacingPoints = GetFrontFacingPoints(collisionSubject, result.RelativeVelocity);

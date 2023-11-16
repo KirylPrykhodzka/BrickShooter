@@ -181,7 +181,7 @@ namespace BrickShooter.Tests.Physics
             // Arrange
             var position = fixture.Create<Vector2>();
             var velocity = fixture.Create<Vector2>();
-            GlobalObjects.DeltaTime = 0.5f;
+            GlobalObjects.AbsoluteDeltaTime = 0.5f;
             var mobileObject = new MaterialObjectMock { Position = position, Velocity = velocity };
             physicsSystem.RegisterMobileObject(mobileObject);
             potentialCollisionsDetectorMock.Setup(p => p.GetPotentialCollisions(mobileObject, It.IsAny<IEnumerable<IMaterialObject>>()))
