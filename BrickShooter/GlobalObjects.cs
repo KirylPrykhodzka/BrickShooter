@@ -1,12 +1,12 @@
 ﻿using BrickShooter.Framework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace BrickShooter
 {
     public static class GlobalObjects
     {
+        public static IGameManager GameManager { get; set; }
         public static GraphicsDeviceManager Graphics { get; set; }
         public static SpriteBatch SpriteBatch { get; set; }
         public static IContentManager Content { get; set; }

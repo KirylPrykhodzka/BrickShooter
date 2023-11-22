@@ -1,0 +1,13 @@
+<Project>
+  <Project.ExportOptions Namespace="BrickShooter.UI" Class="LossScreen" OutputPath="E:\MonoGame_Projects\BrickShooter\BrickShooter\UI" />
+  <Grid ColumnSpacing="1" RowSpacing="3">
+    <Panel Background="#000000C8" Grid.RowSpan="3" />
+    <Label Text="YOU DIED" HorizontalAlignment="Center" />
+    <Button Width="250" Height="100" HorizontalAlignment="Center" Id="_retryButton" Grid.Row="1">
+      <TextBox Text="Try again" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#00000000" />
+    </Button>
+    <Button Width="250" Height="100" HorizontalAlignment="Center" Id="_quitButton" Grid.Row="2">
+      <TextBox Text="Give up" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#00000000" />
+    </Button>
+  </Grid>
+</Project>
