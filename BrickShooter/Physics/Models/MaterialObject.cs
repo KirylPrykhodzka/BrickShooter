@@ -14,6 +14,6 @@ namespace BrickShooter.Physics.Models
         public bool DidRotate { get; set; }
         public float Bounciness { get; set; }
 
-        public virtual void OnVelocityCollision(VelocityCollisionInfo collisionInfo) { }
+        public virtual void OnMovementCollision(MovementCollisionInfo collisionInfo) { }
     }
 }

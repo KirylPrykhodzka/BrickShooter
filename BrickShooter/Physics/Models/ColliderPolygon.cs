@@ -53,11 +53,11 @@ namespace BrickShooter.Physics.Models
         //points of the polygon relative to its position
         private readonly IList<Vector2> localPoints;
 
-        public ColliderPolygon(IMaterialObject owner, string collisionLayer, IList<Vector2> localPoints)
+        public ColliderPolygon(IMaterialObject owner, string collisionLayer, IList<Vector2> points)
         {
             Owner = owner;
             CollisionLayer = collisionLayer;
-            this.localPoints = localPoints.ToList();
+            localPoints = points.ToList();
             position = owner.Position;
             rotation = owner.Rotation;
             Recalculate();

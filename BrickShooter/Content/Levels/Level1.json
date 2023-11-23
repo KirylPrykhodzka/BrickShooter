@@ -64,5 +64,9 @@
 			"rotation": 0.786,
 			"textureName": "wall1"
 		}
-	]
+	],
+	"enemiesData": {
+		"spawnPoints": [ "100,100" ],
+		"spawnOrder": [ "redBrick" ]
+	}
 }

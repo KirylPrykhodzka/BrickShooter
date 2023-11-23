@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BrickShooter.GameObjects;
+using BrickShooter.GameObjects.Enemies;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Physics.Models;
 using BrickShooter.Resources;
@@ -17,7 +18,8 @@ namespace BrickShooter.Physics
         private static readonly Dictionary<string, HashSet<string>> IgnoredCollisions = new()
         {
             { nameof(Bullet), new() { nameof(Bullet), "PlayerGun" } },
-            { "PlayerGun", new() { nameof(Bullet) } },
+            { "PlayerGun", new() { nameof(Bullet), nameof(RedBrick) } },
+            { nameof(RedBrick), new() { "PlayerGun" } }
         };
 
         private readonly IPool<CollisionPair> collisionPairPool;

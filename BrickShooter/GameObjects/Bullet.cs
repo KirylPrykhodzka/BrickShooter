@@ -1,5 +1,7 @@
 ﻿using BrickShooter.Constants;
+using BrickShooter.Core;
 using BrickShooter.Drawing;
+using BrickShooter.GameObjects.Enemies;
 using BrickShooter.Physics.Models;
 using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
@@ -9,14 +11,12 @@ using System;
 
 namespace BrickShooter.GameObjects
 {
-
-    public delegate void OnPlayerHit(Bullet bullet);
-
     public class Bullet : MaterialObject, IDrawableObject, IResetable
     {
         private static readonly Texture2D sprite = GlobalObjects.Content.Load<Texture2D>("Bullets/Bullet");
 
         public OnPlayerHit OnPlayerHit;
+        public OnBulletDestroy OnBulletDestroy;
 
         public Bullet()
         {
@@ -30,9 +30,9 @@ namespace BrickShooter.GameObjects
             Bounciness = BulletConstants.BOUNCINESS;
         }
 
-        public override void OnVelocityCollision(VelocityCollisionInfo collisionInfo)
+        public override void OnMovementCollision(MovementCollisionInfo collisionInfo)
         {
-            switch (collisionInfo.CollisionPair.CollisionObject.CollisionLayer)
+            switch (collisionInfo.CollisionObject.CollisionLayer)
             {
                 case nameof(Player):
                     {
@@ -41,7 +41,12 @@ namespace BrickShooter.GameObjects
                     }
                 case nameof(Wall):
                     {
-                        Rotation = Vector2.Reflect(Velocity, collisionInfo.Normal).ToAngle() + MathF.PI / 2;
+                        Rotation = Velocity.ToAngle() + MathF.PI / 2;
+                        break;
+                    }
+                case nameof(RedBrick):
+                    {
+                        OnBulletDestroy?.Invoke(this);
                         break;
                     }
             }

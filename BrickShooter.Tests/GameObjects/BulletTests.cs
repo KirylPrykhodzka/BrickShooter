@@ -87,7 +87,7 @@ namespace BrickShooter.Tests.GameObjects
             colliderPolygonMock.SetupGet(x => x.CollisionLayer).Returns(nameof(Player));
 
             // Act
-            bullet.OnVelocityCollision(new VelocityCollisionInfo
+            bullet.OnMovementCollision(new MovementCollisionInfo
             {
                 CollisionPair = new CollisionPair
                 {
@@ -113,7 +113,7 @@ namespace BrickShooter.Tests.GameObjects
             colliderPolygonMock.SetupGet(x => x.CollisionLayer).Returns(fixture.Create("CollisionLayer"));
 
             // Act
-            bullet.OnVelocityCollision(new VelocityCollisionInfo
+            bullet.OnMovementCollision(new MovementCollisionInfo
             {
                 CollisionPair = new CollisionPair
                 {
@@ -134,7 +134,7 @@ namespace BrickShooter.Tests.GameObjects
                 Velocity = fixture.Create<Vector2>()
             };
             var wallCollider = new ColliderPolygon(fixture.Create<MaterialObjectMock>(), nameof(Wall), fixture.Create<List<Vector2>>());
-            var velocityCollisionInfo = new VelocityCollisionInfo
+            var velocityCollisionInfo = new MovementCollisionInfo
             {
                 CollisionPair = new CollisionPair
                 {
@@ -144,7 +144,7 @@ namespace BrickShooter.Tests.GameObjects
             };
 
             // Act
-            bullet.OnVelocityCollision(velocityCollisionInfo);
+            bullet.OnMovementCollision(velocityCollisionInfo);
 
             // Assert
             var expectedRotation = Vector2.Reflect(bullet.Velocity, velocityCollisionInfo.Normal).ToAngle() + MathF.PI / 2;

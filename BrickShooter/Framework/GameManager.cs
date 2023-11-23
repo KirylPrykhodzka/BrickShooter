@@ -1,4 +1,5 @@
 ﻿using BrickShooter.Configuration;
+using BrickShooter.Core;
 using BrickShooter.Drawing;
 using BrickShooter.GameObjects;
 using BrickShooter.Physics.Interfaces;

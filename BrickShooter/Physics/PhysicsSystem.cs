@@ -69,6 +69,7 @@ namespace BrickShooter.Physics
         /// </summary>
         public void Run()
         {
+            var handledCollisions = new List<MovementCollisionInfo>();
             foreach (var currentObject in mobileObjects.Where(x => x.Velocity.Length() >= PhysicsConstants.MIN_VELOCITY || x.DidRotate))
             {
                 var potentialCollisions = potentialCollisionsDetector.GetPotentialCollisions(currentObject, mobileObjects.Concat(immobileObjects));
@@ -82,9 +83,17 @@ namespace BrickShooter.Physics
                 }
                 if(currentObject.Velocity.Length() >= PhysicsConstants.MIN_VELOCITY)
                 {
-                    collisionProcessor.FindAndProcessNextCollisions(currentObject, potentialCollisions.Future);
+                    var currentObjectHandledNextCollisions = collisionProcessor.FindAndProcessNextCollisions(currentObject, potentialCollisions.Future);
+                    if(currentObjectHandledNextCollisions.Count > 0)
+                    {
+                        handledCollisions.AddRange(currentObjectHandledNextCollisions);
+                    }
                 }
                 collisionPairPool.Return(potentialCollisions.Existing.Concat(potentialCollisions.Future));
+            }
+            foreach(var collision in handledCollisions)
+            {
+                collision.CollisionSubject.Owner.OnMovementCollision(collision);
             }
         }
 

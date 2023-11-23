@@ -10,5 +10,6 @@ namespace BrickShooter.Models
         public string BackgroundTextureName { get; set; }
         public Vector2 InitialPlayerPosition { get; set; }
         public List<WallData> Walls { get; set; }
+        public EnemiesData EnemiesData { get; set; }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using BrickShooter.Constants;
 using BrickShooter.Drawing;
+using BrickShooter.GameObjects;
+using BrickShooter.GameObjects.Enemies;
 using BrickShooter.Models;
 using BrickShooter.Physics.Interfaces;
 using BrickShooter.Resources;
@@ -10,20 +12,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrickShooter.GameObjects
+namespace BrickShooter.Core
 {
+    public delegate void OnPlayerHit(IMaterialObject hitter);
+    public delegate void OnDeath(Enemy deadEnemy);
+    public delegate void OnBulletDestroy(Bullet bullet);
+
     public class Level
     {
         private readonly IPool<Bullet> bulletPool;
         private readonly IPhysicsSystem physicsSystem;
         private readonly IDrawingSystem drawingSystem;
 
-        private LevelData levelData;
         private Background background;
+        private Rectangle levelBounds;
+
         private Player player;
         //for the cooldown calculation purposes
         private long lastBulletShot = 0;
+        private long lastEnemySpawn = 0;
         private readonly List<Wall> walls = new();
+        private int enemySpawnCooldownMS;
+
+        private Queue<string> enemySpawnOrder = new();
+        private List<Vector2> enemySpawnPoints = new();
+        private readonly List<Enemy> aliveEnemies = new();
 
         public Level(IPool<Bullet> bulletPool,
             IPhysicsSystem physicsSystem,
@@ -36,10 +49,10 @@ namespace BrickShooter.GameObjects
 
         public void Load(string name, Rectangle viewportBounds)
         {
-            levelData = GlobalObjects.Content.Load<LevelData>($"Levels/{name}");
+            var levelData = GlobalObjects.Content.Load<LevelData>($"Levels/{name}");
 
             //make sure level is rendered in the center of the screen
-            var levelBounds = new Rectangle(
+            levelBounds = new Rectangle(
                 Math.Abs(viewportBounds.Width - levelData.Width) / 2,
                 Math.Abs(viewportBounds.Height - levelData.Height) / 2,
                 levelData.Width,
@@ -65,16 +78,19 @@ namespace BrickShooter.GameObjects
                         wallData.Rotation)));
             }
 
-            foreach(var wall in walls)
+            foreach (var wall in walls)
             {
                 drawingSystem.Register(wall);
                 physicsSystem.RegisterImmobileObject(wall);
             }
+
+            enemySpawnPoints = levelData.EnemiesData.SpawnPoints.ToList();
+            enemySpawnOrder = new Queue<string>(levelData.EnemiesData.SpawnOrder);
+            enemySpawnCooldownMS = EnemiesConstants.SPAWN_COOLDOWN_MS;
         }
 
         public void Unload()
         {
-            levelData = null;
             background = null;
             player = null;
             walls.Clear();
@@ -93,6 +109,23 @@ namespace BrickShooter.GameObjects
                 Shoot();
                 lastBulletShot = now;
             }
+
+            if (now - lastEnemySpawn > enemySpawnCooldownMS && enemySpawnOrder.TryDequeue(out var nextEnemyType))
+            {
+                var nextEnemy = ResolveNextEnemy(nextEnemyType);
+                nextEnemy.Position = FindAvailableSpawnPoint();
+                nextEnemy.OnPlayerHit = OnEnemyHitPlayer;
+                nextEnemy.OnDeath = OnEnemyDeath;
+                aliveEnemies.Add(nextEnemy);
+                physicsSystem.RegisterMobileObject(nextEnemy);
+                drawingSystem.Register(nextEnemy);
+                lastEnemySpawn = now;
+            }
+
+            foreach(var enemy in aliveEnemies)
+            {
+                enemy.Update();
+            }
         }
 
         private void Shoot()
@@ -101,13 +134,45 @@ namespace BrickShooter.GameObjects
             physicsSystem.RegisterMobileObject(bullet);
             drawingSystem.Register(bullet);
             bullet.OnPlayerHit = OnBulletHitPlayer;
+            bullet.OnBulletDestroy = OnBulletDestroy;
             var initialPosition = player.BulletSpawnPoint;
             bullet.Move(initialPosition, player.Rotation);
         }
 
-        private void OnBulletHitPlayer(Bullet bullet)
+        private void OnBulletHitPlayer(IMaterialObject bullet)
         {
             GlobalObjects.GameManager.OnLoss();
+        }
+
+        private void OnBulletDestroy(Bullet bullet)
+        {
+            bulletPool.Return(bullet);
+        }
+
+        private void OnEnemyHitPlayer(IMaterialObject enemy)
+        {
+            GlobalObjects.GameManager.OnLoss();
+        }
+
+        private void OnEnemyDeath(Enemy enemy)
+        {
+            physicsSystem.UnregisterMobileObject(enemy);
+            drawingSystem.Unregister(enemy);
+        }
+
+        private Vector2 FindAvailableSpawnPoint()
+        {
+            var availableSpawnPoint = enemySpawnPoints.First();
+            return new Vector2(availableSpawnPoint.X + levelBounds.X, availableSpawnPoint.Y + levelBounds.Y);
+        }
+
+        public Enemy ResolveNextEnemy(string enemyType)
+        {
+            return enemyType switch
+            {
+                "redBrick" => new RedBrick(player),
+                _ => null
+            };
         }
     }
 }

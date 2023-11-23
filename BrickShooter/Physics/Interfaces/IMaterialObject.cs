@@ -12,7 +12,7 @@ namespace BrickShooter.Physics.Interfaces
         float Bounciness { get; set; }
         IColliderPolygon SingleCollider { get; }
         IList<IColliderPolygon> Colliders { get; }
-        void OnVelocityCollision(VelocityCollisionInfo collisionInfo);
+        void OnMovementCollision(MovementCollisionInfo collisionInfo);
         bool DidRotate { get; }
     }
 }

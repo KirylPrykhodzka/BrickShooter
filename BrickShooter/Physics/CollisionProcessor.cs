@@ -27,8 +27,10 @@ namespace BrickShooter.Physics
         }
 
         //recursively moves close to the collision point, then starts moving along its collision edge until velocity is expired
-        public void FindAndProcessNextCollisions(IMaterialObject currentObject, IList<CollisionPair> potentialFutureCollisions)
+        public IList<MovementCollisionInfo> FindAndProcessNextCollisions(IMaterialObject currentObject, IList<CollisionPair> potentialFutureCollisions)
         {
+            var handledCollisions = new List<MovementCollisionInfo>();
+
             var originalVelocity = currentObject.Velocity;
             while (currentObject.Velocity.Length() >= PhysicsConstants.MIN_VELOCITY)
             {
@@ -51,14 +53,13 @@ namespace BrickShooter.Physics
 
                 //without casting regularMovement to int the movement bugs, and I have no idea why
                 materialObjectMover.MoveObject(currentObject, new Vector2((int)regularMovement.X, (int)regularMovement.Y));
-                currentObject.OnVelocityCollision(nextCollision);
+                handledCollisions.Add(nextCollision);
 
                 //if an object is not bouncy, we just move it alone the collision edge
                 //otherwise, we need to bounce it off of it and move it in the bounced direction as long as there is velocity remaining
                 if(currentObject.Bounciness == 0)
                 {
                     currentObject.Velocity = currentObject.Velocity.Project(nextCollision.CollisionEdge) * (1 - regularMovementPortion);
-                    potentialFutureCollisions.Remove(nextCollision.CollisionPair);
                 }
                 else
                 {
@@ -68,6 +69,8 @@ namespace BrickShooter.Physics
                 }
             }
             currentObject.Velocity = originalVelocity;
+
+            return handledCollisions;
         }
     }
 }
