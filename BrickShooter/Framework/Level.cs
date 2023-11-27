@@ -8,11 +8,12 @@ using BrickShooter.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrickShooter.Core
+namespace BrickShooter.Framework
 {
     public delegate void OnPlayerHit(IMaterialObject hitter);
     public delegate void OnDeath(Enemy deadEnemy);
@@ -85,7 +86,7 @@ namespace BrickShooter.Core
             }
 
             enemySpawnPoints = levelData.EnemiesData.SpawnPoints.ToList();
-            enemySpawnOrder = new Queue<string>(levelData.EnemiesData.SpawnOrder);
+            CreateSpawnOrder(levelData.EnemiesData);
             enemySpawnCooldownMS = EnemiesConstants.SPAWN_COOLDOWN_MS;
         }
 
@@ -122,7 +123,7 @@ namespace BrickShooter.Core
                 lastEnemySpawn = now;
             }
 
-            foreach(var enemy in aliveEnemies)
+            foreach (var enemy in aliveEnemies)
             {
                 enemy.Update();
             }
@@ -146,6 +147,8 @@ namespace BrickShooter.Core
 
         private void OnBulletDestroy(Bullet bullet)
         {
+            physicsSystem.UnregisterMobileObject(bullet);
+            drawingSystem.Unregister(bullet);
             bulletPool.Return(bullet);
         }
 
@@ -162,17 +165,25 @@ namespace BrickShooter.Core
 
         private Vector2 FindAvailableSpawnPoint()
         {
-            var availableSpawnPoint = enemySpawnPoints.First();
+            var availableSpawnPoint = enemySpawnPoints[new Random().Next(0, enemySpawnPoints.Count)];
             return new Vector2(availableSpawnPoint.X + levelBounds.X, availableSpawnPoint.Y + levelBounds.Y);
         }
 
-        public Enemy ResolveNextEnemy(string enemyType)
+        private Enemy ResolveNextEnemy(string enemyType)
         {
             return enemyType switch
             {
                 "redBrick" => new RedBrick(player),
                 _ => null
             };
+        }
+
+        private void CreateSpawnOrder(EnemiesData enemies)
+        {
+            for (int i = 0; i < enemies.RedBricks; i++)
+            {
+                enemySpawnOrder.Enqueue("redBrick");
+            }
         }
     }
 }

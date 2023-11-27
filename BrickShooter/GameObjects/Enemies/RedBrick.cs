@@ -10,7 +10,6 @@ namespace BrickShooter.GameObjects.Enemies
     public class RedBrick : Enemy
     {
         private readonly Texture2D texture;
-        private readonly Rectangle visibleBounds;
 
         public RedBrick(Player player) : base(player)
         {

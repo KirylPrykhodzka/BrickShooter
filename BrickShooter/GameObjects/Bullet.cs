@@ -1,6 +1,6 @@
 ﻿using BrickShooter.Constants;
-using BrickShooter.Core;
 using BrickShooter.Drawing;
+using BrickShooter.Framework;
 using BrickShooter.GameObjects.Enemies;
 using BrickShooter.Physics.Models;
 using BrickShooter.Resources;
@@ -41,7 +41,7 @@ namespace BrickShooter.GameObjects
                     }
                 case nameof(Wall):
                     {
-                        Rotation = Velocity.ToAngle() + MathF.PI / 2;
+                        Rotation = Vector2.Reflect(Velocity, collisionInfo.Normal).ToAngle() + MathF.PI / 2;
                         break;
                     }
                 case nameof(RedBrick):
@@ -60,7 +60,7 @@ namespace BrickShooter.GameObjects
         public void Move(Vector2 from, float rotation)
         {
             Position = from;
-            Velocity = new Vector2((float)Math.Cos(rotation), (float)Math.Sin(rotation)) * BulletConstants.VELOCITY;
+            Velocity = new Vector2(MathF.Cos(rotation), MathF.Sin(rotation)) * BulletConstants.VELOCITY;
             Rotation = rotation;
         }
 

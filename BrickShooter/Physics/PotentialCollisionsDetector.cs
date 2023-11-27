@@ -19,7 +19,7 @@ namespace BrickShooter.Physics
         {
             { nameof(Bullet), new() { nameof(Bullet), "PlayerGun" } },
             { "PlayerGun", new() { nameof(Bullet), nameof(RedBrick) } },
-            { nameof(RedBrick), new() { "PlayerGun" } }
+            { nameof(RedBrick), new() { nameof(RedBrick), "PlayerGun" } }
         };
 
         private readonly IPool<CollisionPair> collisionPairPool;

@@ -5,7 +5,7 @@ namespace BrickShooter.Models
 {
     public class EnemiesData
     {
-        public Queue<string> SpawnOrder { get; set; }
+        public int RedBricks { get; set; }
         public List<Vector2> SpawnPoints { get; set; }
     }
 }

@@ -27,10 +27,8 @@ namespace BrickShooter.Physics
         }
 
         //recursively moves close to the collision point, then starts moving along its collision edge until velocity is expired
-        public IList<MovementCollisionInfo> FindAndProcessNextCollisions(IMaterialObject currentObject, IList<CollisionPair> potentialFutureCollisions)
+        public void FindAndProcessNextCollisions(IMaterialObject currentObject, IList<CollisionPair> potentialFutureCollisions)
         {
-            var handledCollisions = new List<MovementCollisionInfo>();
-
             var originalVelocity = currentObject.Velocity;
             while (currentObject.Velocity.Length() >= PhysicsConstants.MIN_VELOCITY)
             {
@@ -50,10 +48,13 @@ namespace BrickShooter.Physics
                 var nextCollision = nextCollisions.MinBy(x => x.DistanceToCollision);
                 var regularMovementPortion = nextCollision.DistanceToCollision / remainingTravelDistance;
                 var regularMovement = fixedVelocity * regularMovementPortion;
+                materialObjectMover.MoveObject(currentObject, regularMovement);
 
-                //without casting regularMovement to int the movement bugs, and I have no idea why
-                materialObjectMover.MoveObject(currentObject, new Vector2((int)regularMovement.X, (int)regularMovement.Y));
-                handledCollisions.Add(nextCollision);
+                currentObject.OnMovementCollision(nextCollision);
+                var nextCollisionCopy = nextCollision;
+                nextCollisionCopy.CollisionSubject = nextCollision.CollisionObject;
+                nextCollisionCopy.CollisionObject = nextCollision.CollisionSubject;
+                nextCollision.CollisionObject.Owner.OnMovementCollision(nextCollisionCopy);
 
                 //if an object is not bouncy, we just move it alone the collision edge
                 //otherwise, we need to bounce it off of it and move it in the bounced direction as long as there is velocity remaining
@@ -69,8 +70,6 @@ namespace BrickShooter.Physics
                 }
             }
             currentObject.Velocity = originalVelocity;
-
-            return handledCollisions;
         }
     }
 }
