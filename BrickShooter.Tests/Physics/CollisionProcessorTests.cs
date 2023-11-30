@@ -126,31 +126,35 @@ namespace BrickShooter.Tests.Physics
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity };
             var futureCollision1 = new MovementCollisionInfo
             {
-                CollisionPair = new Mock<CollisionPair>().Object,
+                CollisionSubject = materialObject.SingleCollider,
+                CollisionObject = new MaterialObjectMock().SingleCollider,
                 DistanceToCollision = 1f,
                 CollisionEdge = new Vector2(1, 1)
             };
             var futureCollision2 = new MovementCollisionInfo
             {
-                CollisionPair = new Mock<CollisionPair>().Object,
+                CollisionSubject = materialObject.SingleCollider,
+                CollisionObject = new MaterialObjectMock().SingleCollider,
                 DistanceToCollision = 2f,
                 CollisionEdge = new Vector2(1, 1)
             };
+            var collisionPair1 = new CollisionPair(materialObject.SingleCollider, futureCollision1.CollisionObject);
+            var collisionPair2 = new CollisionPair(materialObject.SingleCollider, futureCollision2.CollisionObject);
 
             //translation: there are two potential future collisions, and upon calling FindNextCollisions collision processor finds out that both of they will in fact occur
             futureCollisionsCalculatorMock.Setup(x =>
                 x.FindNextCollisions(It.Is<IList<CollisionPair>>(l =>
-                    l.Contains(futureCollision1.CollisionPair) && l.Contains(futureCollision2.CollisionPair))))
+                    l.Contains(collisionPair1) && l.Contains(collisionPair2))))
                 .Returns(new List<MovementCollisionInfo> { futureCollision1, futureCollision2 });
 
             //translation: after processing closest collision, collision processor checks whether second collision is still possible and finds out that it is
             futureCollisionsCalculatorMock.Setup(x =>
                 x.FindNextCollisions(It.Is<IList<CollisionPair>>(x =>
-                    x.Count() == 1 && x.First() == futureCollision2.CollisionPair)))
+                    x.Count() == 1 && x.First() == collisionPair2)))
                 .Returns(new List<MovementCollisionInfo> { futureCollision2 });
 
             // Act
-            collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<CollisionPair> { futureCollision1.CollisionPair, futureCollision2.CollisionPair });
+            collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<CollisionPair> { collisionPair1, collisionPair2 });
 
             // Assert
             materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, It.IsAny<Vector2>()), Times.Exactly(3));
@@ -166,32 +170,36 @@ namespace BrickShooter.Tests.Physics
             var materialObject = new MaterialObjectMock { Position = position, Velocity = velocity, Bounciness = 0.5f };
             var futureCollision1 = new MovementCollisionInfo
             {
-                CollisionPair = new Mock<CollisionPair>().Object,
+                CollisionSubject = materialObject.SingleCollider,
+                CollisionObject = new MaterialObjectMock().SingleCollider,
                 DistanceToCollision = 1f,
                 CollisionEdge = new Vector2(1, 1),
                 Normal = new Vector2(-1, -1),
             };
             var futureCollision2 = new MovementCollisionInfo
             {
-                CollisionPair = new Mock<CollisionPair>().Object,
+                CollisionSubject = materialObject.SingleCollider,
+                CollisionObject = new MaterialObjectMock().SingleCollider,
                 DistanceToCollision = 2f,
                 CollisionEdge = new Vector2(1, 1)
             };
+            var collisionPair1 = new CollisionPair(materialObject.SingleCollider, futureCollision1.CollisionObject);
+            var collisionPair2 = new CollisionPair(materialObject.SingleCollider, futureCollision2.CollisionObject);
 
             //translation: there are two potential future collisions, and upon calling FindNextCollisions collision processor finds out that both of they will in fact occur
             futureCollisionsCalculatorMock.Setup(x =>
                 x.FindNextCollisions(It.Is<IList<CollisionPair>>(l =>
-                    l.Contains(futureCollision1.CollisionPair) && l.Contains(futureCollision2.CollisionPair))))
+                    l.Contains(collisionPair1) && l.Contains(collisionPair2))))
                 .Returns(new List<MovementCollisionInfo> { futureCollision1, futureCollision2 });
 
             //translation: after processing closest collision, collision processor checks whether second collision is still possible and finds out that it is
             futureCollisionsCalculatorMock.Setup(x =>
                 x.FindNextCollisions(It.Is<IList<CollisionPair>>(x =>
-                    x.Count() == 1 && x.First() == futureCollision2.CollisionPair)))
+                    x.Count() == 1 && x.First() == collisionPair2)))
                 .Returns(new List<MovementCollisionInfo> { futureCollision2 });
 
             // Act
-            collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<CollisionPair> { futureCollision1.CollisionPair, futureCollision2.CollisionPair });
+            collisionProcessor.FindAndProcessNextCollisions(materialObject, new List<CollisionPair> { collisionPair1, collisionPair2 });
 
             // Assert
             materialObjectMoverMock.Verify(x => x.MoveObject(materialObject, It.IsAny<Vector2>()), Times.Exactly(2));

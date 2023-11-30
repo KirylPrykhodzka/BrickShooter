@@ -89,10 +89,7 @@ namespace BrickShooter.Tests.GameObjects
             // Act
             bullet.OnMovementCollision(new MovementCollisionInfo
             {
-                CollisionPair = new CollisionPair
-                {
-                    CollisionObject = colliderPolygonMock.Object,
-                }
+                CollisionObject = colliderPolygonMock.Object,
             });
 
             // Assert
@@ -115,10 +112,7 @@ namespace BrickShooter.Tests.GameObjects
             // Act
             bullet.OnMovementCollision(new MovementCollisionInfo
             {
-                CollisionPair = new CollisionPair
-                {
-                    CollisionObject = colliderPolygonMock.Object,
-                }
+                CollisionObject = colliderPolygonMock.Object,
             });
 
             // Assert
@@ -136,10 +130,7 @@ namespace BrickShooter.Tests.GameObjects
             var wallCollider = new ColliderPolygon(fixture.Create<MaterialObjectMock>(), nameof(Wall), fixture.Create<List<Vector2>>());
             var velocityCollisionInfo = new MovementCollisionInfo
             {
-                CollisionPair = new CollisionPair
-                {
-                    CollisionObject = wallCollider,
-                },
+                CollisionObject = wallCollider,
                 Normal = fixture.Create<Vector2>()
             };
 

@@ -55,10 +55,11 @@ namespace BrickShooter.Physics
                 nextCollisionCopy.CollisionSubject = nextCollision.CollisionObject;
                 nextCollisionCopy.CollisionObject = nextCollision.CollisionSubject;
                 nextCollision.CollisionObject.Owner.OnMovementCollision(nextCollisionCopy);
+                potentialFutureCollisions = potentialFutureCollisions.Where(x => !(x.CollisionSubject == nextCollision.CollisionSubject && x.CollisionObject == nextCollision.CollisionObject)).ToList();
 
                 //if an object is not bouncy, we just move it alone the collision edge
                 //otherwise, we need to bounce it off of it and move it in the bounced direction as long as there is velocity remaining
-                if(currentObject.Bounciness == 0)
+                if (currentObject.Bounciness == 0)
                 {
                     currentObject.Velocity = currentObject.Velocity.Project(nextCollision.CollisionEdge) * (1 - regularMovementPortion);
                 }

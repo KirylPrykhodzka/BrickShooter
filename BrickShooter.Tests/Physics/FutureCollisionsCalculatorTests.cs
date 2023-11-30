@@ -74,7 +74,7 @@ namespace BrickShooter.Tests.Physics
             var result = collisionsCalculator.CalculateFutureCollisionResult(new CollisionPair(subject.Colliders.First(), collisionObject.Colliders.First()));
 
             // Assert
-            result.CollisionPair.CollisionObject.Should().Be(collisionObject.Colliders.First());
+            result.CollisionObject.Should().Be(collisionObject.Colliders.First());
         }
 
         [Test]
